@@ -1,0 +1,245 @@
+<!--profile.wxml-->
+<view class="profile-container">
+  <!-- 用户信息区域 -->
+  <view class="user-section">
+    <view class="user-avatar">
+      <image 
+        wx:if="{{userInfo.avatarUrl}}"
+        class="avatar-image"
+        src="{{userInfo.avatarUrl}}"
+        mode="aspectFill"
+      />
+      <view wx:else class="avatar-placeholder">
+        <icon type="contact" size="40"></icon>
+      </view>
+    </view>
+    
+    <view class="user-info">
+      <text class="user-name">{{userInfo.nickName || '微信用户'}}</text>
+      <text class="user-desc">欢迎使用 Dailytools</text>
+    </view>
+    
+    <view class="login-section" wx:if="{{!isLoggedIn}}">
+      <button 
+        class="login-btn"
+        open-type="getUserInfo"
+        bindgetuserinfo="onGetUserInfo"
+      >
+        登录获取更多功能
+      </button>
+    </view>
+  </view>
+
+  <!-- 使用统计 -->
+  <view class="stats-section">
+    <view class="section-header">
+      <text class="section-title">使用统计</text>
+    </view>
+    
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{stats.totalUsage}}</text>
+        <text class="stat-label">总使用次数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{stats.toolsUsed}}</text>
+        <text class="stat-label">使用工具数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{stats.daysActive}}</text>
+        <text class="stat-label">活跃天数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{stats.favorites}}</text>
+        <text class="stat-label">收藏工具</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 收藏工具 -->
+  <view class="favorites-section">
+    <view class="section-header">
+      <text class="section-title">我的收藏</text>
+      <view wx:if="{{favoriteTools.length > 0}}" class="manage-btn" bindtap="onManageFavorites">
+        <text>管理</text>
+      </view>
+    </view>
+    
+    <view wx:if="{{favoriteTools.length === 0}}" class="empty-favorites">
+      <icon type="star" size="40" color="#ccc"></icon>
+      <text class="empty-text">还没有收藏任何工具</text>
+      <text class="empty-desc">在工具页面点击收藏按钮添加到这里</text>
+    </view>
+    
+    <scroll-view wx:else scroll-y class="favorites-list">
+      <view 
+        wx:for="{{favoriteTools}}" 
+        wx:key="id"
+        class="favorite-item"
+        bindtap="onToolTap"
+        data-tool="{{item}}"
+      >
+        <view class="tool-icon">{{item.icon}}</view>
+        <view class="tool-info">
+          <text class="tool-name">{{item.name}}</text>
+          <text class="tool-desc">{{item.description}}</text>
+        </view>
+        <view class="tool-actions">
+          <view 
+            class="unfavorite-btn"
+            bindtap="onUnfavorite"
+            data-tool="{{item}}"
+            catchtap="true"
+          >
+            <icon type="clear" size="16"></icon>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 最近使用 -->
+  <view class="recent-section">
+    <view class="section-header">
+      <text class="section-title">最近使用</text>
+      <view wx:if="{{recentTools.length > 0}}" class="clear-btn" bindtap="onClearRecent">
+        <text>清空</text>
+      </view>
+    </view>
+    
+    <view wx:if="{{recentTools.length === 0}}" class="empty-recent">
+      <icon type="clock" size="40" color="#ccc"></icon>
+      <text class="empty-text">还没有使用记录</text>
+    </view>
+    
+    <scroll-view wx:else scroll-y class="recent-list">
+      <view 
+        wx:for="{{recentTools}}" 
+        wx:key="id"
+        class="recent-item"
+        bindtap="onToolTap"
+        data-tool="{{item}}"
+      >
+        <view class="tool-icon">{{item.icon}}</view>
+        <view class="tool-info">
+          <text class="tool-name">{{item.name}}</text>
+          <text class="tool-time">{{item.lastUsed}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 设置选项 -->
+  <view class="settings-section">
+    <view class="section-header">
+      <text class="section-title">设置</text>
+    </view>
+    
+    <view class="settings-list">
+      <view class="setting-item" bindtap="onThemeSetting">
+        <view class="setting-left">
+          <icon type="palette" size="20"></icon>
+          <text class="setting-name">主题设置</text>
+        </view>
+        <view class="setting-right">
+          <text class="setting-value">{{currentTheme}}</text>
+          <icon type="right" size="16"></icon>
+        </view>
+      </view>
+      
+      <view class="setting-item" bindtap="onLanguageSetting">
+        <view class="setting-left">
+          <icon type="global" size="20"></icon>
+          <text class="setting-name">语言设置</text>
+        </view>
+        <view class="setting-right">
+          <text class="setting-value">简体中文</text>
+          <icon type="right" size="16"></icon>
+        </view>
+      </view>
+      
+      <view class="setting-item">
+        <view class="setting-left">
+          <icon type="bell" size="20"></icon>
+          <text class="setting-name">消息通知</text>
+        </view>
+        <view class="setting-right">
+          <switch 
+            class="notification-switch"
+            checked="{{notificationEnabled}}"
+            bindchange="onNotificationChange"
+          />
+        </view>
+      </view>
+      
+      <view class="setting-item" bindtap="onCacheSetting">
+        <view class="setting-left">
+          <icon type="storage" size="20"></icon>
+          <text class="setting-name">缓存管理</text>
+        </view>
+        <view class="setting-right">
+          <text class="setting-value">{{cacheSize}}</text>
+          <icon type="right" size="16"></icon>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他选项 -->
+  <view class="other-section">
+    <view class="other-list">
+      <view class="other-item" bindtap="onFeedback">
+        <view class="other-left">
+          <icon type="message" size="20"></icon>
+          <text class="other-name">意见反馈</text>
+        </view>
+        <icon type="right" size="16"></icon>
+      </view>
+      
+      <view class="other-item" bindtap="onAbout">
+        <view class="other-left">
+          <icon type="info" size="20"></icon>
+          <text class="other-name">关于我们</text>
+        </view>
+        <icon type="right" size="16"></icon>
+      </view>
+      
+      <view class="other-item" bindtap="onShare">
+        <view class="other-left">
+          <icon type="share" size="20"></icon>
+          <text class="other-name">分享应用</text>
+        </view>
+        <icon type="right" size="16"></icon>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 主题选择弹窗 -->
+<view wx:if="{{showThemeModal}}" class="modal-overlay" bindtap="onCloseThemeModal">
+  <view class="theme-modal" catchtap="true">
+    <view class="modal-header">
+      <text class="modal-title">选择主题</text>
+      <view class="modal-close" bindtap="onCloseThemeModal">
+        <icon type="clear" size="20"></icon>
+      </view>
+    </view>
+    
+    <view class="theme-list">
+      <view 
+        wx:for="{{themes}}" 
+        wx:key="id"
+        class="theme-item {{currentTheme === item.name ? 'active' : ''}}"
+        bindtap="onThemeSelect"
+        data-theme="{{item}}"
+      >
+        <view class="theme-preview" style="background: {{item.color}};"></view>
+        <text class="theme-name">{{item.name}}</text>
+        <icon wx:if="{{currentTheme === item.name}}" type="success" size="16"></icon>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载组件 -->
+<loading show="{{isLoading}}" text="{{loadingText}}"></loading> 

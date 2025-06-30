@@ -1,0 +1,20 @@
+/**app.wxss**/
+/* 全局通用容器样式 */
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+}
+
+/* 首页特殊容器样式重置 */
+.index-container {
+  padding: 0;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+} 

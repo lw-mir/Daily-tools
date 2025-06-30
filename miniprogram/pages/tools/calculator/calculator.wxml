@@ -1,0 +1,181 @@
+<!--calculator.wxml-->
+<view class="calculator-container">
+  <!-- 显示屏区域 -->
+  <view class="display-section">
+    <!-- 历史表达式 -->
+    <view class="expression-display">
+      <text class="expression-text">{{expression}}</text>
+    </view>
+    
+    <!-- 当前结果 -->
+    <view class="result-display">
+      <text class="result-text">{{result}}</text>
+      <view wx:if="{{result && result !== '0'}}" class="copy-btn" bindtap="onCopyResult">
+        <icon type="download" size="16"></icon>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能切换 -->
+  <view class="mode-switch">
+    <view 
+      class="mode-btn {{mode === 'basic' ? 'active' : ''}}"
+      bindtap="onSwitchMode"
+      data-mode="basic"
+    >
+      基础
+    </view>
+    <view 
+      class="mode-btn {{mode === 'scientific' ? 'active' : ''}}"
+      bindtap="onSwitchMode"
+      data-mode="scientific"
+    >
+      科学
+    </view>
+    <view 
+      class="mode-btn"
+      bindtap="onShowHistory"
+    >
+      历史
+    </view>
+  </view>
+
+  <!-- 基础计算器按键 -->
+  <view wx:if="{{mode === 'basic'}}" class="keypad basic-keypad">
+    <!-- 第一行：清除、删除、百分号、除法 -->
+    <view class="keypad-row">
+      <view class="key function-key" bindtap="onKeyTap" data-key="clear">C</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="backspace">⌫</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="%">%</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="/">÷</view>
+    </view>
+    
+    <!-- 第二行：7、8、9、乘法 -->
+    <view class="keypad-row">
+      <view class="key number-key" bindtap="onKeyTap" data-key="7">7</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="8">8</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="9">9</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="*">×</view>
+    </view>
+    
+    <!-- 第三行：4、5、6、减法 -->
+    <view class="keypad-row">
+      <view class="key number-key" bindtap="onKeyTap" data-key="4">4</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="5">5</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="6">6</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="-">-</view>
+    </view>
+    
+    <!-- 第四行：1、2、3、加法 -->
+    <view class="keypad-row">
+      <view class="key number-key" bindtap="onKeyTap" data-key="1">1</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="2">2</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="3">3</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="+">+</view>
+    </view>
+    
+    <!-- 第五行：0、小数点、等号 -->
+    <view class="keypad-row">
+      <view class="key number-key zero-key" bindtap="onKeyTap" data-key="0">0</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key=".">.</view>
+      <view class="key equals-key" bindtap="onKeyTap" data-key="=">=</view>
+    </view>
+  </view>
+
+  <!-- 科学计算器按键 -->
+  <view wx:elif="{{mode === 'scientific'}}" class="keypad scientific-keypad">
+    <!-- 第一行：科学函数 -->
+    <view class="keypad-row">
+      <view class="key function-key" bindtap="onKeyTap" data-key="sin">sin</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="cos">cos</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="tan">tan</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="ln">ln</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="log">log</view>
+    </view>
+    
+    <!-- 第二行：更多科学函数 -->
+    <view class="keypad-row">
+      <view class="key function-key" bindtap="onKeyTap" data-key="sqrt">√</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="pow">x²</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="exp">eˣ</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="pi">π</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="e">e</view>
+    </view>
+    
+    <!-- 第三行：括号和基础操作 -->
+    <view class="keypad-row">
+      <view class="key function-key" bindtap="onKeyTap" data-key="(">(</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key=")">)</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="clear">C</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="backspace">⌫</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="/">÷</view>
+    </view>
+    
+    <!-- 第四行：数字和运算符 -->
+    <view class="keypad-row">
+      <view class="key number-key" bindtap="onKeyTap" data-key="7">7</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="8">8</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="9">9</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="*">×</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="%">%</view>
+    </view>
+    
+    <!-- 第五行：数字和运算符 -->
+    <view class="keypad-row">
+      <view class="key number-key" bindtap="onKeyTap" data-key="4">4</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="5">5</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="6">6</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="-">-</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="1/x">1/x</view>
+    </view>
+    
+    <!-- 第六行：数字和运算符 -->
+    <view class="keypad-row">
+      <view class="key number-key" bindtap="onKeyTap" data-key="1">1</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="2">2</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key="3">3</view>
+      <view class="key operator-key" bindtap="onKeyTap" data-key="+">+</view>
+      <view class="key function-key" bindtap="onKeyTap" data-key="x!">x!</view>
+    </view>
+    
+    <!-- 第七行：0、小数点、等号 -->
+    <view class="keypad-row">
+      <view class="key number-key zero-key" bindtap="onKeyTap" data-key="0">0</view>
+      <view class="key number-key" bindtap="onKeyTap" data-key=".">.</view>
+      <view class="key equals-key" bindtap="onKeyTap" data-key="=">=</view>
+    </view>
+  </view>
+</view>
+
+<!-- 历史记录弹窗 -->
+<view wx:if="{{showHistory}}" class="history-modal" bindtap="onHideHistory">
+  <view class="history-content" catchtap="stopPropagation">
+    <view class="history-header">
+      <text class="history-title">计算历史</text>
+      <view class="history-actions">
+        <text class="clear-history" bindtap="onClearHistory">清空</text>
+        <text class="close-history" bindtap="onHideHistory">关闭</text>
+      </view>
+    </view>
+    
+    <scroll-view class="history-list" scroll-y>
+      <view wx:if="{{history.length === 0}}" class="empty-history">
+        <text>暂无计算历史</text>
+      </view>
+      <view 
+        wx:for="{{history}}" 
+        wx:key="id"
+        class="history-item"
+        bindtap="onSelectHistory"
+        data-item="{{item}}"
+      >
+        <view class="history-expression">{{item.expression}}</view>
+        <view class="history-result">= {{item.result}}</view>
+        <view class="history-time">{{item.time}}</view>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+
+<!-- 加载组件 -->
+<loading show="{{isLoading}}" text="{{loadingText}}"></loading> 

@@ -1,0 +1,153 @@
+<!--converter.wxml-->
+<view class="converter-container">
+  <!-- 转换类型选择 -->
+  <view class="type-selector">
+    <scroll-view scroll-x class="type-scroll">
+      <view class="type-list">
+        <view 
+          wx:for="{{conversionTypes}}" 
+          wx:key="id"
+          class="type-item {{currentType === item.id ? 'active' : ''}}"
+          bindtap="onTypeChange"
+          data-type="{{item.id}}"
+        >
+          <view class="type-icon">{{item.icon}}</view>
+          <text class="type-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 转换主体 -->
+  <view class="conversion-main">
+    <!-- 输入区域 -->
+    <view class="input-section">
+      <view class="input-header">
+        <text class="section-title">从</text>
+      </view>
+      
+      <view class="input-row">
+        <input 
+          class="value-input"
+          type="digit"
+          placeholder="请输入数值"
+          value="{{inputValue}}"
+          bindinput="onInputChange"
+          bindconfirm="onInputConfirm"
+        />
+        <picker 
+          class="unit-picker"
+          mode="selector"
+          range="{{fromUnits}}"
+          range-key="name"
+          value="{{fromUnitIndex}}"
+          bindchange="onFromUnitChange"
+        >
+          <view class="picker-display">
+            <text class="unit-text">{{fromUnits[fromUnitIndex].name}}</text>
+            <icon class="picker-icon" type="download" size="16"></icon>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 交换按钮 -->
+    <view class="swap-section">
+      <view class="swap-btn" bindtap="onSwapUnits">
+        <icon type="download" size="20" class="swap-icon"></icon>
+      </view>
+    </view>
+
+    <!-- 输出区域 -->
+    <view class="output-section">
+      <view class="output-header">
+        <text class="section-title">到</text>
+      </view>
+      
+      <view class="output-row">
+        <view class="value-output">
+          <text class="output-value">{{outputValue}}</text>
+        </view>
+        <picker 
+          class="unit-picker"
+          mode="selector"
+          range="{{toUnits}}"
+          range-key="name"
+          value="{{toUnitIndex}}"
+          bindchange="onToUnitChange"
+        >
+          <view class="picker-display">
+            <text class="unit-text">{{toUnits[toUnitIndex].name}}</text>
+            <icon class="picker-icon" type="download" size="16"></icon>
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 复制按钮 -->
+      <view wx:if="{{outputValue && outputValue !== '0'}}" class="copy-section">
+        <view class="copy-btn" bindtap="onCopyResult">
+          <icon type="download" size="16"></icon>
+          <text class="copy-text">复制结果</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷转换 -->
+  <view class="quick-conversion">
+    <view class="quick-header">
+      <text class="section-title">快捷转换</text>
+    </view>
+    
+    <view class="quick-list">
+      <view 
+        wx:for="{{quickConversions}}" 
+        wx:key="id"
+        class="quick-item"
+        bindtap="onQuickConversion"
+        data-conversion="{{item}}"
+      >
+        <view class="quick-content">
+          <text class="quick-from">{{item.from}}</text>
+          <icon class="quick-arrow" type="download" size="12"></icon>
+          <text class="quick-to">{{item.to}}</text>
+        </view>
+        <text class="quick-desc">{{item.description}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="history-section">
+    <view class="history-header">
+      <text class="section-title">转换历史</text>
+      <view wx:if="{{history.length > 0}}" class="clear-history" bindtap="onClearHistory">
+        <text>清空</text>
+      </view>
+    </view>
+    
+    <view wx:if="{{history.length === 0}}" class="empty-history">
+      <text>暂无转换历史</text>
+    </view>
+    
+    <scroll-view wx:else scroll-y class="history-list">
+      <view 
+        wx:for="{{history}}" 
+        wx:key="id"
+        class="history-item"
+        bindtap="onSelectHistory"
+        data-item="{{item}}"
+      >
+        <view class="history-conversion">
+          <text class="history-input">{{item.inputValue}} {{item.fromUnit}}</text>
+          <icon class="history-arrow" type="download" size="12"></icon>
+          <text class="history-output">{{item.outputValue}} {{item.toUnit}}</text>
+        </view>
+        <text class="history-time">{{item.time}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+
+<!-- 加载组件 -->
+<loading show="{{isLoading}}" text="{{loadingText}}"></loading> 

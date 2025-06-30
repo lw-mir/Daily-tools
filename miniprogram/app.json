@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/tools/calculator/calculator",
+    "pages/tools/converter/converter",
+    "pages/profile/profile",
+    "pages/favorites/favorites",
+    "pages/history/history",
+    "pages/category/category",
+    "pages/help/help"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "Weixin",
+    "navigationBarBackgroundColor": "#ffffff"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents"
+}

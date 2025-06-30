@@ -1,0 +1,491 @@
+/* calculator.wxss */
+.calculator-container {
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.calculator-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 显示屏区域 */
+.display-section {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  padding: 50rpx 40rpx;
+  margin: 40rpx 30rpx 0;
+  border-radius: 35rpx;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.15);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 2;
+}
+
+.display-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 35rpx;
+  z-index: -1;
+}
+
+.expression-display {
+  min-height: 70rpx;
+  margin-bottom: 25rpx;
+  position: relative;
+}
+
+.expression-text {
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.9);
+  word-break: break-all;
+  font-weight: 400;
+  line-height: 1.4;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.2);
+}
+
+.result-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 90rpx;
+  position: relative;
+}
+
+.result-text {
+  font-size: 56rpx;
+  font-weight: 300;
+  color: #fff;
+  flex: 1;
+  text-align: right;
+  word-break: break-all;
+  text-shadow: 0 3rpx 6rpx rgba(0, 0, 0, 0.3);
+  letter-spacing: 1rpx;
+}
+
+.copy-btn {
+  margin-left: 25rpx;
+  width: 70rpx;
+  height: 70rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.15);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.copy-btn:active {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0.9);
+  box-shadow: 0 4rpx 15rpx rgba(0, 0, 0, 0.2);
+}
+
+/* 模式切换 */
+.mode-switch {
+  display: flex;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  border-radius: 30rpx;
+  margin: 25rpx 30rpx;
+  padding: 6rpx;
+  box-shadow: 0 8rpx 25rpx rgba(0, 0, 0, 0.12);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 2;
+}
+
+.mode-btn {
+  flex: 1;
+  text-align: center;
+  padding: 25rpx 0;
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 25rpx;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  border-radius: 25rpx;
+}
+
+.mode-btn.active {
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+  transform: scale(1.02);
+}
+
+.mode-btn.active::before {
+  opacity: 1;
+}
+
+.mode-btn:active {
+  transform: scale(0.98);
+}
+
+/* 按键区域 */
+.keypad {
+  flex: 1;
+  padding: 25rpx 30rpx 50rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 25rpx;
+  position: relative;
+  z-index: 2;
+}
+
+.keypad-row {
+  display: flex;
+  gap: 25rpx;
+  height: 110rpx;
+}
+
+.scientific-keypad .keypad-row {
+  height: 90rpx;
+}
+
+.key {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 25rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 6rpx 25rpx rgba(0, 0, 0, 0.15);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.key::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  border-radius: 25rpx;
+}
+
+.key:active {
+  transform: scale(0.92);
+  box-shadow: 0 3rpx 15rpx rgba(0, 0, 0, 0.25);
+}
+
+.key:active::before {
+  opacity: 1;
+}
+
+/* 数字按键 */
+.number-key {
+  background: rgba(255, 255, 255, 0.95);
+  color: #2c3e50;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.1);
+}
+
+.number-key:active {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1a252f;
+}
+
+/* 运算符按键 */
+.operator-key {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8rpx 30rpx rgba(255, 107, 107, 0.4);
+}
+
+.operator-key:active {
+  background: linear-gradient(135deg, #ff5252 0%, #ff7979 100%);
+  box-shadow: 0 4rpx 20rpx rgba(255, 107, 107, 0.6);
+}
+
+/* 功能按键 */
+.function-key {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+  font-weight: 500;
+}
+
+.function-key:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* 等号按键 */
+.equals-key {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 700;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8rpx 30rpx rgba(78, 205, 196, 0.4);
+}
+
+.equals-key:active {
+  background: linear-gradient(135deg, #26d0ce 0%, #38a3a5 100%);
+  box-shadow: 0 4rpx 20rpx rgba(78, 205, 196, 0.6);
+}
+
+/* 0按键特殊样式 */
+.zero-key {
+  flex: 2;
+}
+
+/* 科学计算器按键调整 */
+.scientific-keypad .key {
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.scientific-keypad .number-key,
+.scientific-keypad .equals-key {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+/* 历史记录弹窗 */
+.history-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.history-content {
+  width: 100%;
+  max-height: 75vh;
+  background: #fff;
+  border-radius: 30rpx 30rpx 0 0;
+  padding: 40rpx 30rpx 30rpx;
+  box-shadow: 0 -10rpx 40rpx rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.history-content::before {
+  content: '';
+  position: absolute;
+  top: 15rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80rpx;
+  height: 6rpx;
+  background: #e0e0e0;
+  border-radius: 3rpx;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f5f5f5;
+}
+
+.history-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.clear-history-btn {
+  padding: 15rpx 25rpx;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4rpx 15rpx rgba(255, 107, 107, 0.3);
+}
+
+.clear-history-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 10rpx rgba(255, 107, 107, 0.4);
+}
+
+.history-list {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.history-item {
+  padding: 25rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  transition: all 0.3s ease;
+  border-radius: 15rpx;
+  margin-bottom: 10rpx;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.history-item:active {
+  background: #f8f9fa;
+  transform: scale(0.98);
+}
+
+.history-expression {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+  font-weight: 400;
+}
+
+.history-result {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 600;
+}
+
+.empty-history {
+  text-align: center;
+  padding: 80rpx 0;
+  color: #999;
+}
+
+.empty-history-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.5;
+}
+
+.empty-history-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 按键按下效果增强 */
+.key-pressed {
+  animation: keyPress 0.1s ease-out;
+}
+
+@keyframes keyPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 响应式设计 */
+@media (max-height: 600px) {
+  .display-section {
+    padding: 30rpx;
+    margin: 20rpx 30rpx 0;
+  }
+  
+  .keypad {
+    padding: 15rpx 30rpx 30rpx;
+    gap: 15rpx;
+  }
+  
+  .keypad-row {
+    height: 80rpx;
+  }
+  
+  .key {
+    font-size: 28rpx;
+  }
+}
+
+/* 加载动画 */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(50rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.display-section {
+  animation: slideInFromBottom 0.6s ease-out;
+}
+
+.mode-switch {
+  animation: slideInFromBottom 0.6s ease-out 0.1s both;
+}
+
+.keypad {
+  animation: slideInFromBottom 0.6s ease-out 0.2s both;
+} 

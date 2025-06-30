@@ -1,0 +1,185 @@
+<!--index.wxml-->
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="index-container">
+    <!-- 顶部导航栏 -->
+    <view class="top-nav">
+      <view class="nav-left">
+        <icon class="nav-back" type="clear" size="18" bindtap="onNavBack"></icon>
+      </view>
+      <view class="nav-center">
+        <text class="nav-title">工具集</text>
+      </view>
+      <view class="nav-right">
+        <icon class="nav-more" type="info" size="18" bindtap="onNavMore"></icon>
+      </view>
+    </view>
+
+    <!-- 搜索栏 -->
+    <view class="search-section">
+      <view class="search-bar">
+        <icon class="search-icon" type="search" size="16"></icon>
+        <input 
+          class="search-input" 
+          placeholder="请输入搜索内容" 
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          bindconfirm="onSearchConfirm"
+        />
+        <view wx:if="{{searchKeyword}}" class="search-clear" bindtap="onSearchClear">
+          <icon type="clear" size="14"></icon>
+        </view>
+      </view>
+    </view>
+
+    <!-- 分类标签栏 -->
+    <view class="tab-section">
+      <view class="tab-list">
+        <view 
+          wx:for="{{tabList}}" 
+          wx:key="id"
+          class="tab-item {{currentTab === item.id ? 'active' : ''}}"
+          bindtap="onTabChange"
+          data-tab="{{item.id}}"
+        >
+          <text class="tab-text">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 主内容区域 -->
+    <view class="main-content">
+      <!-- 工具标签页 -->
+      <view wx:if="{{currentTab === 'tools'}}" class="tools-content">
+        <!-- 底部功能区域 -->
+        <view class="bottom-functions">
+          <view class="function-grid">
+            <view 
+              wx:for="{{bottomFunctions}}" 
+              wx:key="id"
+              class="function-item"
+              bindtap="onFunctionTap"
+              data-function="{{item}}"
+            >
+              <view class="function-icon">
+                <text class="emoji-icon">{{item.icon}}</text>
+              </view>
+              <text class="function-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 工具精选区域 -->
+        <view class="featured-section">
+          <view class="section-header">
+            <text class="section-title">工具精选</text>
+          </view>
+          <view class="featured-tools">
+            <view 
+              wx:for="{{featuredTools}}" 
+              wx:key="id"
+              class="featured-tool-item"
+              bindtap="onToolTap"
+              data-tool="{{item}}"
+            >
+              <view class="tool-image">
+                <image class="tool-img" src="{{item.image}}" mode="aspectFill"></image>
+              </view>
+              <view class="tool-content">
+                <text class="tool-title">{{item.name}}</text>
+                <text class="tool-subtitle">{{item.description}}</text>
+                <view class="tool-action">
+                  <text class="action-btn">按钮</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 推荐标签页 -->
+      <view wx:if="{{currentTab === 'recommend'}}" class="recommend-content">
+        <view class="recommend-tools">
+          <view 
+            wx:for="{{recommendTools}}" 
+            wx:key="id"
+            class="recommend-tool-item"
+            bindtap="onToolTap"
+            data-tool="{{item}}"
+          >
+            <view class="tool-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="tool-info">
+              <text class="tool-name">{{item.name}}</text>
+              <text class="tool-desc">{{item.description}}</text>
+              <view class="tool-tags">
+                <text wx:for="{{item.tags}}" wx:key="*this" class="tool-tag">{{item}}</text>
+              </view>
+            </view>
+            <view class="tool-action">
+              <view 
+                class="favorite-btn {{item.isFavorite ? 'active' : ''}}"
+                bindtap="onToggleFavorite"
+                data-tool="{{item}}"
+                catchtap="true"
+              >
+                <icon type="{{item.isFavorite ? 'success' : 'success_no_circle'}}" size="16"></icon>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 热门标签页 -->
+      <view wx:if="{{currentTab === 'hot'}}" class="hot-content">
+        <view class="hot-tools">
+          <view 
+            wx:for="{{hotTools}}" 
+            wx:key="id"
+            class="hot-tool-item"
+            bindtap="onToolTap"
+            data-tool="{{item}}"
+          >
+            <view class="tool-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="tool-info">
+              <text class="tool-name">{{item.name}}</text>
+              <text class="tool-desc">{{item.description}}</text>
+            </view>
+            <view class="hot-badge">
+              <text class="hot-text">热门</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 我的标签页 -->
+      <view wx:if="{{currentTab === 'mine'}}" class="mine-content">
+        <view class="mine-tools">
+          <view 
+            wx:for="{{myTools}}" 
+            wx:key="id"
+            class="mine-tool-item"
+            bindtap="onToolTap"
+            data-tool="{{item}}"
+          >
+            <view class="tool-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="tool-info">
+              <text class="tool-name">{{item.name}}</text>
+              <text class="tool-desc">{{item.description}}</text>
+            </view>
+            <view class="favorite-status">
+              <icon type="success" size="16" color="#ff6b6b"></icon>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 加载组件 -->
+<loading show="{{isLoading}}" text="{{loadingText}}"></loading>

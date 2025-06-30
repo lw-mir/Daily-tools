@@ -1,0 +1,24 @@
+<view class="loading-container" wx:if="{{show}}" bindtap="onMaskTap">
+  <view class="loading-mask" style="opacity: {{opacity}}"></view>
+  <view class="loading-content">
+    <!-- 默认加载样式 -->
+    <view wx:if="{{type === 'default'}}" class="loading-default">
+      <view class="loading-icon"></view>
+      <text class="loading-text">{{text}}</text>
+    </view>
+    
+    <!-- 点状加载样式 -->
+    <view wx:elif="{{type === 'dots'}}" class="loading-dots">
+      <view class="dot dot1"></view>
+      <view class="dot dot2"></view>
+      <view class="dot dot3"></view>
+      <text class="loading-text">{{text}}</text>
+    </view>
+    
+    <!-- 旋转加载样式 -->
+    <view wx:elif="{{type === 'spinner'}}" class="loading-spinner">
+      <view class="spinner"></view>
+      <text class="loading-text">{{text}}</text>
+    </view>
+  </view>
+</view> 

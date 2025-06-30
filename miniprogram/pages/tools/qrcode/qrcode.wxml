@@ -1,0 +1,228 @@
+<!--qrcode.wxml-->
+<view class="qrcode-container">
+  <!-- 功能切换 -->
+  <view class="tab-bar">
+    <view 
+      class="tab-item {{currentTab === 'generate' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="generate"
+    >
+      <view class="tab-icon">📱</view>
+      <text class="tab-text">生成二维码</text>
+    </view>
+    <view 
+      class="tab-item {{currentTab === 'scan' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="scan"
+    >
+      <view class="tab-icon">📷</view>
+      <text class="tab-text">扫描二维码</text>
+    </view>
+    <view 
+      class="tab-item {{currentTab === 'history' ? 'active' : ''}}"
+      bindtap="onTabChange"
+      data-tab="history"
+    >
+      <view class="tab-icon">📋</view>
+      <text class="tab-text">历史记录</text>
+    </view>
+  </view>
+
+  <!-- 生成二维码 -->
+  <view wx:if="{{currentTab === 'generate'}}" class="generate-section">
+    <!-- 内容类型选择 -->
+    <view class="content-type">
+      <view class="type-header">
+        <text class="section-title">内容类型</text>
+      </view>
+      <view class="type-buttons">
+        <view 
+          wx:for="{{contentTypes}}" 
+          wx:key="id"
+          class="type-btn {{contentType === item.id ? 'active' : ''}}"
+          bindtap="onContentTypeChange"
+          data-type="{{item.id}}"
+        >
+          <view class="type-btn-icon">{{item.icon}}</view>
+          <text class="type-btn-text">{{item.name}}</text>
+        </view>
+      </div>
+    </view>
+
+    <!-- 内容输入 -->
+    <view class="content-input">
+      <view class="input-header">
+        <text class="section-title">{{contentTypes[contentTypeIndex].inputLabel}}</text>
+        <text class="char-count">{{inputContent.length}}/{{maxLength}}</text>
+      </view>
+      
+      <textarea
+        class="content-textarea"
+        placeholder="{{contentTypes[contentTypeIndex].placeholder}}"
+        value="{{inputContent}}"
+        bindinput="onContentInput"
+        maxlength="{{maxLength}}"
+        auto-height
+        show-confirm-bar="{{false}}"
+      ></textarea>
+      
+      <!-- 快捷输入 -->
+      <view wx:if="{{quickInputs.length > 0}}" class="quick-inputs">
+        <text class="quick-title">快捷输入</text>
+        <view class="quick-list">
+          <view 
+            wx:for="{{quickInputs}}" 
+            wx:key="id"
+            class="quick-item"
+            bindtap="onQuickInput"
+            data-content="{{item.content}}"
+          >
+            {{item.label}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 生成按钮 -->
+    <view class="generate-actions">
+      <button 
+        class="generate-btn {{inputContent ? 'active' : ''}}"
+        bindtap="onGenerateQR"
+        disabled="{{!inputContent || isGenerating}}"
+      >
+        <text wx:if="{{!isGenerating}}">生成二维码</text>
+        <text wx:else>生成中...</text>
+      </button>
+    </view>
+
+    <!-- 二维码显示 -->
+    <view wx:if="{{qrCodeUrl}}" class="qrcode-display">
+      <view class="qrcode-header">
+        <text class="section-title">二维码</text>
+        <view class="qrcode-actions">
+          <view class="action-btn" bindtap="onSaveQR">
+            <icon type="download" size="16"></icon>
+            <text>保存</text>
+          </view>
+          <view class="action-btn" bindtap="onShareQR">
+            <icon type="download" size="16"></icon>
+            <text>分享</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="qrcode-wrapper">
+        <image 
+          class="qrcode-image"
+          src="{{qrCodeUrl}}"
+          mode="aspectFit"
+          bindlongpress="onLongPressQR"
+        ></image>
+      </view>
+      
+      <view class="qrcode-info">
+        <text class="qrcode-content">{{displayContent}}</text>
+        <text class="qrcode-time">生成时间：{{generateTime}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 扫描二维码 -->
+  <view wx:if="{{currentTab === 'scan'}}" class="scan-section">
+    <view class="scan-intro">
+      <view class="scan-icon">📷</view>
+      <text class="scan-title">扫描二维码</text>
+      <text class="scan-desc">点击下方按钮开始扫描二维码</text>
+    </view>
+    
+    <view class="scan-actions">
+      <button class="scan-btn" bindtap="onStartScan">
+        <icon type="download" size="20"></icon>
+        <text>开始扫描</text>
+      </button>
+    </view>
+    
+    <!-- 扫描结果 -->
+    <view wx:if="{{scanResult}}" class="scan-result">
+      <view class="result-header">
+        <text class="section-title">扫描结果</text>
+        <view class="result-actions">
+          <view class="action-btn" bindtap="onCopyScanResult">
+            <icon type="download" size="16"></icon>
+            <text>复制</text>
+          </view>
+          <view wx:if="{{scanResult.type === 'url'}}" class="action-btn" bindtap="onOpenUrl">
+            <icon type="download" size="16"></icon>
+            <text>打开</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="result-content">
+        <view class="result-type">
+          <text class="type-label">类型：</text>
+          <text class="type-value">{{scanResult.typeLabel}}</text>
+        </view>
+        <view class="result-text">
+          <text class="content-label">内容：</text>
+          <text class="content-value">{{scanResult.content}}</text>
+        </view>
+        <text class="result-time">扫描时间：{{scanResult.time}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view wx:if="{{currentTab === 'history'}}" class="history-section">
+    <view class="history-header">
+      <text class="section-title">历史记录</text>
+      <view wx:if="{{history.length > 0}}" class="history-actions">
+        <view class="action-btn" bindtap="onClearHistory">
+          <text>清空</text>
+        </view>
+      </view>
+    </view>
+    
+    <view wx:if="{{history.length === 0}}" class="empty-history">
+      <view class="empty-icon">📋</view>
+      <text class="empty-text">暂无历史记录</text>
+      <text class="empty-desc">生成或扫描二维码后会显示在这里</text>
+    </view>
+    
+    <scroll-view wx:else scroll-y class="history-list">
+      <view 
+        wx:for="{{history}}" 
+        wx:key="id"
+        class="history-item"
+        bindtap="onSelectHistory"
+        data-item="{{item}}"
+      >
+        <view class="history-main">
+          <view class="history-type">
+            <view class="type-badge {{item.action}}">{{item.actionLabel}}</view>
+            <text class="content-type">{{item.typeLabel}}</text>
+          </view>
+          <view class="history-content">
+            <text class="content-preview">{{item.contentPreview}}</text>
+          </view>
+          <text class="history-time">{{item.time}}</text>
+        </view>
+        
+        <view class="history-actions">
+          <view class="history-action" bindtap="onHistoryAction" data-action="copy" data-item="{{item}}">
+            <icon type="download" size="14"></icon>
+          </view>
+          <view wx:if="{{item.action === 'generate'}}" class="history-action" bindtap="onHistoryAction" data-action="regenerate" data-item="{{item}}">
+            <icon type="download" size="14"></icon>
+          </view>
+          <view class="history-action" bindtap="onHistoryAction" data-action="delete" data-item="{{item}}">
+            <icon type="download" size="14"></icon>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+
+<!-- 加载组件 -->
+<loading show="{{isLoading}}" text="{{loadingText}}"></loading> 

@@ -1,0 +1,120 @@
+<!--help.wxml-->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input 
+      class="search-input" 
+      placeholder="搜索帮助内容..." 
+      value="{{searchText}}"
+      bindinput="onSearchInput"
+      confirm-type="search"
+      bindconfirm="onSearchConfirm"
+    />
+    <view class="search-icon">🔍</view>
+    <view wx:if="{{searchText}}" class="clear-icon" bindtap="onClearSearch">✕</view>
+  </view>
+
+  <!-- 帮助内容 -->
+  <view class="help-content">
+    <view 
+      wx:for="{{filteredSections}}" 
+      wx:key="id"
+      class="help-section"
+    >
+      <!-- 分类标题 -->
+      <view class="section-header">
+        <view class="section-icon">{{item.icon}}</view>
+        <text class="section-title">{{item.title}}</text>
+        <view class="section-count">{{item.items.length}}项</view>
+      </view>
+
+      <!-- 帮助项列表 -->
+      <view class="help-items">
+        <view 
+          wx:for="{{item.items}}" 
+          wx:for-item="helpItem"
+          wx:key="id"
+          class="help-item"
+          bindtap="onHelpItemTap"
+          data-section-id="{{item.id}}"
+          data-item-id="{{helpItem.id}}"
+        >
+          <!-- 问题 -->
+          <view class="question">
+            <text class="question-text">{{helpItem.question}}</text>
+            <view class="question-arrow">▶</view>
+          </view>
+
+          <!-- 答案 -->
+          <view class="answer">
+            <text class="answer-text">{{helpItem.answer}}</text>
+            
+            <!-- 步骤列表 -->
+            <view wx:if="{{helpItem.type === 'steps' && helpItem.steps}}" class="steps-list">
+              <view 
+                wx:for="{{helpItem.steps}}" 
+                wx:for-item="step"
+                wx:key="*this"
+                class="step-item"
+              >
+                <view class="step-number">{{index + 1}}</view>
+                <text class="step-text">{{step}}</text>
+              </view>
+            </view>
+
+            <!-- 提示列表 -->
+            <view wx:if="{{helpItem.type === 'tips' && helpItem.tips}}" class="tips-list">
+              <view 
+                wx:for="{{helpItem.tips}}" 
+                wx:for-item="tip"
+                wx:key="*this"
+                class="tip-item"
+              >
+                <view class="tip-bullet">•</view>
+                <text class="tip-text">{{tip}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系我们 -->
+  <view class="contact-section">
+    <view class="section-header">
+      <view class="section-icon">📞</view>
+      <text class="section-title">联系我们</text>
+    </view>
+    
+    <view class="contact-list">
+      <view 
+        wx:for="{{contactInfo}}" 
+        wx:key="type"
+        class="contact-item"
+        bindtap="onContactTap"
+        data-contact="{{item}}"
+      >
+        <view class="contact-icon">{{item.icon}}</view>
+        <view class="contact-info">
+          <text class="contact-label">{{item.label}}</text>
+          <text class="contact-value">{{item.value}}</text>
+        </view>
+        <view class="contact-arrow">▶</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 应用信息 -->
+  <view class="app-info">
+    <text class="app-version">版本 {{appInfo.version}}</text>
+    <text class="update-time">更新时间：{{appInfo.updateTime}}</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{filteredSections.length === 0 && searchText}}" class="empty-state">
+    <view class="empty-icon">🔍</view>
+    <text class="empty-text">没有找到相关内容</text>
+    <text class="empty-desc">尝试使用其他关键词搜索</text>
+  </view>
+</view> 
