@@ -283,6 +283,9 @@ Page({
       case 'qrcode':
         path = '/pages/tools/qrcode/qrcode'
         break
+      case 'foodwheel':
+        path = '/pages/tools/foodwheel/foodwheel'
+        break
       default:
         wx.showToast({
           title: '工具页面不存在',

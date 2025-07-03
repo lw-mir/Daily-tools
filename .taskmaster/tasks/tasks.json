@@ -65,7 +65,7 @@
         "id": 5,
         "title": "二维码工具开发",
         "description": "开发二维码生成和扫描功能",
-        "status": "deferred",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           1
@@ -78,7 +78,7 @@
         "id": 6,
         "title": "颜色工具开发",
         "description": "开发颜色选择器和转换工具",
-        "status": "pending",
+        "status": "done",
         "priority": "medium",
         "dependencies": [
           1
@@ -91,7 +91,7 @@
             "title": "颜色选择器工具开发",
             "description": "开发颜色选择器工具，支持多种颜色格式转换",
             "details": "需要实现：\n1. RGB颜色选择器界面\n2. HSL/HSV颜色模式支持\n3. 十六进制颜色代码转换\n4. 颜色历史记录功能\n5. 颜色调色板和预设颜色\n6. 颜色对比度检查工具",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 6
           }
@@ -135,16 +135,93 @@
       },
       {
         "id": 9,
-        "title": "个人中心开发",
-        "description": "开发用户个人中心功能",
-        "status": "done",
-        "priority": "medium",
+        "title": "个人中心微信授权登录重构",
+        "description": "重构个人中心模块，实现完整的微信授权登录功能",
+        "status": "pending",
+        "priority": "high",
         "dependencies": [
           1
         ],
-        "details": "实现使用统计、收藏工具、设置选项、反馈建议等个人中心功能。提供用户偏好设置和使用数据统计。",
-        "testStrategy": "测试个人中心各功能模块，验证数据统计的准确性和设置功能的有效性。",
-        "subtasks": []
+        "details": "重构个人中心模块，实现微信授权登录功能。需要包含：1. 用户首次使用时的微信登录授权流程 2. 获取微信用户信息（头像、昵名）3. 用户信息的本地存储和状态管理 4. 个人中心页面展示用户头像和用户名 5. 登录状态的维护和验证 6. 授权失败的处理和重试机制。这个模块需要符合微信小程序的最新授权规范，提供良好的用户体验。",
+        "testStrategy": "测试微信授权流程的完整性，验证用户信息获取和存储的准确性，测试登录状态维护和异常处理机制。",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "微信授权流程设计与实现",
+            "description": "设计并实现用户首次使用时的微信授权登录流程",
+            "details": "实现微信小程序的用户授权流程，包括：\n1. 检测用户是否已授权登录\n2. 首次使用时显示授权引导界面\n3. 调用wx.getUserProfile()获取用户授权\n4. 处理用户拒绝授权的情况\n5. 实现授权重试机制\n6. 符合微信小程序最新授权规范要求",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 9
+          },
+          {
+            "id": 2,
+            "title": "用户信息获取与处理",
+            "description": "实现微信用户信息的获取、验证和处理功能",
+            "details": "开发用户信息获取模块，包括：\n1. 调用微信API获取用户头像和昵称\n2. 用户信息数据格式标准化处理\n3. 头像URL有效性验证和备用方案\n4. 用户昵称敏感词过滤和长度限制\n5. 用户信息更新检测机制\n6. 网络异常时的错误处理",
+            "status": "done",
+            "dependencies": [
+              1
+            ],
+            "parentTaskId": 9
+          },
+          {
+            "id": 3,
+            "title": "用户数据存储管理",
+            "description": "实现用户信息的本地存储和状态管理系统",
+            "details": "开发用户数据管理系统，包括：\n1. 用户信息本地存储结构设计\n2. 登录状态的持久化保存\n3. 用户信息缓存机制\n4. 数据加密和安全性保护\n5. 存储空间优化和清理机制\n6. 与数据管理器的集成",
+            "status": "done",
+            "dependencies": [
+              2
+            ],
+            "parentTaskId": 9
+          },
+          {
+            "id": 4,
+            "title": "个人中心UI界面重构",
+            "description": "重新设计个人中心界面，展示用户头像和用户名",
+            "details": "重构个人中心页面界面，包括：\n1. 用户信息展示区域设计（头像、昵称）\n2. 登录和未登录状态的不同界面\n3. 头像加载状态和失败占位图\n4. 用户信息编辑和更新入口\n5. 响应式布局适配不同屏幕\n6. 现代化的UI设计风格",
+            "status": "done",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 9
+          },
+          {
+            "id": 5,
+            "title": "登录状态管理",
+            "description": "实现登录状态的全局管理和维护机制",
+            "details": "开发登录状态管理系统，包括：\n1. 全局登录状态的维护和同步\n2. 登录状态过期检测和自动刷新\n3. 多页面间登录状态同步\n4. 登录状态变化的事件通知\n5. 退出登录功能实现\n6. 状态异常时的恢复机制",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 9
+          },
+          {
+            "id": 6,
+            "title": "授权异常处理与用户体验优化",
+            "description": "实现授权失败的处理机制和用户体验优化",
+            "details": "开发异常处理和用户体验优化，包括：\n1. 授权失败的友好提示信息\n2. 网络异常时的重试机制\n3. 授权引导和帮助说明\n4. 降级方案（游客模式）\n5. 错误日志记录和分析\n6. 用户反馈收集机制",
+            "status": "pending",
+            "dependencies": [
+              4,
+              5
+            ],
+            "parentTaskId": 9
+          },
+          {
+            "id": 7,
+            "title": "授权功能测试与验证",
+            "description": "对微信授权登录功能进行全面测试和验证",
+            "details": "进行全面的功能测试，包括：\n1. 首次授权流程测试\n2. 授权拒绝和重试测试\n3. 用户信息获取准确性测试\n4. 登录状态持久化测试\n5. 异常情况处理测试\n6. 不同设备和微信版本兼容性测试\n7. 性能和用户体验测试",
+            "status": "pending",
+            "dependencies": [
+              6
+            ],
+            "parentTaskId": 9
+          }
+        ]
       },
       {
         "id": 10,
@@ -274,6 +351,129 @@
         "details": "按照原型图的设计风格和布局结构，对现有的首页界面进行全面的UI重构。原型图显示了现代化的工具集合界面，包含顶部导航栏、搜索功能、分类标签（工具、推荐、热门、我的）、工具精选区域等模块，需要实现符合原型图视觉效果和交互体验的界面。",
         "testStrategy": "对比原型图验证界面布局的准确性，测试各个功能模块的交互效果和响应性能。",
         "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "吃什么？转盘工具开发",
+        "description": "开发交互式转盘工具，帮助用户决定用餐选择",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "details": "实现一个可交互的转盘工具，用户点击按钮后转盘开始旋转，经过随机时间后停止在某个餐饮选项上。包括转盘UI设计、旋转动画、随机停止算法、餐饮数据管理、结果展示、历史记录等功能。",
+        "testStrategy": "测试转盘旋转动画的流畅性，验证随机算法的公平性，测试不同设备上的性能表现。",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "转盘页面基础结构搭建",
+            "description": "创建转盘工具的页面文件和基础结构",
+            "details": "创建 pages/tools/foodwheel/ 目录和相关文件：foodwheel.ts, foodwheel.wxml, foodwheel.wxss, foodwheel.json。设置页面配置，建立基础的页面结构和导航。",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 17
+          },
+          {
+            "id": 2,
+            "title": "餐饮数据模型设计",
+            "description": "设计和实现餐饮选项的数据结构",
+            "details": "定义餐饮数据接口，包括餐饮名称、类型、图标、描述等字段。创建预设的餐饮数据集，支持中式、西式、日韩料理等多种类型。实现数据的本地存储和管理。",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 17
+          },
+          {
+            "id": 3,
+            "title": "转盘UI界面设计",
+            "description": "设计转盘的视觉界面和布局",
+            "details": "使用Canvas或SVG实现圆形转盘界面，将餐饮选项均匀分布在转盘上。设计转盘的颜色方案、字体大小、指针样式等视觉元素。确保界面在不同屏幕尺寸上的适配性。",
+            "status": "done",
+            "dependencies": [
+              1,
+              2
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 4,
+            "title": "转盘旋转动画实现",
+            "description": "实现转盘的旋转动画效果",
+            "details": "使用CSS3动画或Canvas动画实现转盘旋转效果。设计旋转的缓动函数，从快速旋转逐渐减速到停止。确保动画流畅且性能良好。",
+            "status": "done",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 5,
+            "title": "随机停止算法开发",
+            "description": "实现转盘随机停止的核心算法",
+            "details": "设计公平的随机算法，确保每个餐饮选项被选中的概率相等。实现旋转时间和停止位置的随机计算。添加防作弊机制，确保结果的真实随机性。",
+            "status": "done",
+            "dependencies": [
+              2
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 6,
+            "title": "用户交互功能实现",
+            "description": "实现用户点击转盘和控制按钮的交互",
+            "details": "添加开始转盘按钮，实现点击触发转盘旋转。在转盘旋转过程中禁用按钮，防止重复点击。添加音效和震动反馈提升用户体验。",
+            "status": "done",
+            "dependencies": [
+              4,
+              5
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 7,
+            "title": "结果展示和反馈",
+            "description": "实现转盘停止后的结果展示功能",
+            "details": "当转盘停止后，高亮显示选中的餐饮选项。显示结果弹窗，包含餐饮名称、描述、建议等信息。提供重新转动和保存结果的选项。",
+            "status": "done",
+            "dependencies": [
+              6
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 8,
+            "title": "历史记录功能",
+            "description": "实现转盘结果的历史记录保存和查看",
+            "details": "将每次转盘结果保存到本地存储，包括时间戳、选中的餐饮、用户评价等。提供历史记录查看界面，支持按时间排序和筛选。集成到数据管理器系统中。",
+            "status": "done",
+            "dependencies": [
+              7
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 9,
+            "title": "自定义餐饮选项功能",
+            "description": "允许用户添加和编辑自定义餐饮选项",
+            "details": "提供添加自定义餐饮的界面，支持输入餐饮名称、选择类型、添加描述等。实现编辑和删除已有选项的功能。确保自定义数据的持久化存储。",
+            "status": "done",
+            "dependencies": [
+              2,
+              8
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 10,
+            "title": "转盘工具测试和优化",
+            "description": "对转盘工具进行全面测试和性能优化",
+            "details": "测试转盘在不同设备上的性能表现，优化动画流畅度。验证随机算法的公平性和准确性。测试用户交互的响应性和稳定性。修复发现的bug并优化用户体验。",
+            "status": "done",
+            "dependencies": [
+              9
+            ],
+            "parentTaskId": 17
+          }
+        ]
       }
     ],
     "metadata": {
@@ -281,7 +481,15 @@
       "description": "微信小程序日常工具集合",
       "created": "2024-01-01T00:00:00.000Z",
       "lastModified": "2024-01-01T00:00:00.000Z",
-      "updated": "2025-06-20T10:15:32.620Z"
+      "updated": "2025-07-02T02:01:14.295Z"
+    }
+  },
+  "ui-colorui-redesign": {
+    "tasks": [],
+    "metadata": {
+      "created": "2025-07-03T08:14:38.415Z",
+      "updated": "2025-07-03T08:14:38.415Z",
+      "description": "使用ColorUI组件库进行界面改造，采用新的配色方案和设计规范"
     }
   }
 }

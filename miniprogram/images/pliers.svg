@@ -1,0 +1,66 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 扳手 -->
+  <g transform="translate(60, 80) rotate(-30)">
+    <!-- 扳手主体 -->
+    <rect x="0" y="-5" width="60" height="10" rx="2" fill="#95A5A6"/>
+    <!-- 扳手头部 -->
+    <rect x="55" y="-12" width="15" height="24" rx="3" fill="#95A5A6"/>
+    <!-- 扳手开口 -->
+    <rect x="62" y="-8" width="8" height="16" fill="#fff"/>
+    <!-- 扳手手柄纹理 -->
+    <line x1="10" y1="-3" x2="10" y2="3" stroke="#7F8C8D" stroke-width="1"/>
+    <line x1="15" y1="-3" x2="15" y2="3" stroke="#7F8C8D" stroke-width="1"/>
+    <line x1="20" y1="-3" x2="20" y2="3" stroke="#7F8C8D" stroke-width="1"/>
+  </g>
+  
+  <!-- 螺丝刀 -->
+  <g transform="translate(120, 60) rotate(45)">
+    <!-- 螺丝刀刀头 -->
+    <rect x="0" y="-2" width="25" height="4" fill="#BDC3C7"/>
+    <!-- 螺丝刀手柄 -->
+    <rect x="25" y="-6" width="40" height="12" rx="6" fill="#E74C3C"/>
+    <!-- 手柄纹理 -->
+    <line x1="30" y1="-4" x2="30" y2="4" stroke="#C0392B" stroke-width="1"/>
+    <line x1="35" y1="-4" x2="35" y2="4" stroke="#C0392B" stroke-width="1"/>
+    <line x1="40" y1="-4" x2="40" y2="4" stroke="#C0392B" stroke-width="1"/>
+    <line x1="45" y1="-4" x2="45" y2="4" stroke="#C0392B" stroke-width="1"/>
+    <line x1="50" y1="-4" x2="50" y2="4" stroke="#C0392B" stroke-width="1"/>
+    <line x1="55" y1="-4" x2="55" y2="4" stroke="#C0392B" stroke-width="1"/>
+    <line x1="60" y1="-4" x2="60" y2="4" stroke="#C0392B" stroke-width="1"/>
+  </g>
+  
+  <!-- 锤子 -->
+  <g transform="translate(40, 140)">
+    <!-- 锤子头 -->
+    <rect x="20" y="-8" width="30" height="16" rx="2" fill="#34495E"/>
+    <!-- 锤子柄 -->
+    <rect x="0" y="-3" width="25" height="6" rx="3" fill="#8B4513"/>
+    <!-- 锤子头细节 -->
+    <rect x="22" y="-6" width="26" height="12" rx="1" fill="#2C3E50"/>
+  </g>
+  
+  <!-- 齿轮 -->
+  <g transform="translate(150, 140)">
+    <!-- 齿轮外圈 -->
+    <circle cx="0" cy="0" r="20" fill="#3498DB"/>
+    <!-- 齿轮齿 -->
+    <polygon points="0,-25 5,-20 5,-15 0,-20" fill="#3498DB"/>
+    <polygon points="18,-13 23,-8 18,-3 13,-8" fill="#3498DB"/>
+    <polygon points="18,13 13,8 18,3 23,8" fill="#3498DB"/>
+    <polygon points="0,25 -5,20 -5,15 0,20" fill="#3498DB"/>
+    <polygon points="-18,13 -23,8 -18,3 -13,8" fill="#3498DB"/>
+    <polygon points="-18,-13 -13,-8 -18,-3 -23,-8" fill="#3498DB"/>
+    <!-- 齿轮中心 -->
+    <circle cx="0" cy="0" r="8" fill="#2980B9"/>
+    <circle cx="0" cy="0" r="4" fill="#fff"/>
+  </g>
+  
+  <!-- 工具箱图标 -->
+  <g transform="translate(100, 30)">
+    <rect x="-15" y="0" width="30" height="20" rx="2" fill="#E67E22"/>
+    <rect x="-12" y="3" width="24" height="14" fill="#D35400"/>
+    <rect x="-8" y="-5" width="16" height="8" rx="2" fill="#F39C12"/>
+    <circle cx="-5" cy="10" r="2" fill="#BDC3C7"/>
+    <circle cx="5" cy="10" r="2" fill="#BDC3C7"/>
+  </g>
+</svg> 

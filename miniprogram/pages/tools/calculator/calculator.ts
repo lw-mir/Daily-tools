@@ -22,6 +22,7 @@ interface CalculatorData {
   lastOperator: string;
   shouldResetDisplay: boolean;
   isResultDisplayed: boolean;
+  isFavorite: boolean;
 }
 
 Page({
@@ -35,7 +36,8 @@ Page({
     loadingText: '计算中...',
     lastOperator: '',
     shouldResetDisplay: false,
-    isResultDisplayed: false
+    isResultDisplayed: false,
+    isFavorite: false
   } as CalculatorData,
 
   async onLoad() {
@@ -55,6 +57,9 @@ Page({
     } catch (error) {
       LoggerService.error('Failed to record tool usage:', error);
     }
+
+    // 检查收藏状态
+    await this.checkFavoriteStatus();
   },
 
   onShow() {
@@ -592,5 +597,47 @@ Page({
         });
       }
     });
+  },
+
+  /**
+   * 检查收藏状态
+   */
+  async checkFavoriteStatus() {
+    try {
+      const isFavorite = await dataManager.isFavorite('calculator');
+      this.setData({ isFavorite });
+    } catch (error) {
+      console.error('[Calculator] 检查收藏状态失败:', error);
+    }
+  },
+
+  /**
+   * 切换收藏状态
+   */
+  async onToggleFavorite() {
+    try {
+      const result = await dataManager.toggleFavorite('calculator');
+      
+      if (result.success) {
+        this.setData({ isFavorite: result.isFavorite });
+        
+        wx.showToast({
+          title: result.isFavorite ? '已添加到收藏' : '已取消收藏',
+          icon: 'success',
+          duration: 1500
+        });
+      } else {
+        wx.showToast({
+          title: result.message || '操作失败',
+          icon: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('[Calculator] 切换收藏失败:', error);
+      wx.showToast({
+        title: '操作失败',
+        icon: 'error'
+      });
+    }
   }
 }); 

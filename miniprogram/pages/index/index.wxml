@@ -1,16 +1,18 @@
 <!--index.wxml-->
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="index-container">
-    <!-- 顶部导航栏 -->
-    <view class="top-nav">
-      <view class="nav-left">
-        <icon class="nav-back" type="clear" size="18" bindtap="onNavBack"></icon>
+    <!-- 公告小喇叭 -->
+    <view class="announcement-banner">
+      <view class="announcement-icon">
+        <text class="horn-icon">⭐️</text>
       </view>
-      <view class="nav-center">
-        <text class="nav-title">工具集</text>
+      <view class="announcement-content">
+        <view class="announcement-text">
+          <text class="scrolling-text">最大特点：免费、没有广告！！！！</text>
+        </view>
       </view>
-      <view class="nav-right">
-        <icon class="nav-more" type="info" size="18" bindtap="onNavMore"></icon>
+      <view class="announcement-icon">
+        <text class="horn-icon">📢</text>
       </view>
     </view>
 
@@ -82,14 +84,14 @@
               data-tool="{{item}}"
             >
               <view class="tool-image">
-                <image class="tool-img" src="{{item.image}}" mode="aspectFill"></image>
+                <image class="tool-img" src="{{item.image}}" mode="aspectFit"></image>
               </view>
               <view class="tool-content">
                 <text class="tool-title">{{item.name}}</text>
                 <text class="tool-subtitle">{{item.description}}</text>
-                <view class="tool-action">
+                <!-- <view class="tool-action">
                   <text class="action-btn">按钮</text>
-                </view>
+                </view> -->
               </view>
             </view>
           </view>

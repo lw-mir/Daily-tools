@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: 单位转换工具开发
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: 开发各种单位转换功能
+# Details:
+实现长度、重量、温度、面积、体积等单位转换功能。支持常用单位的相互转换，提供清晰的转换界面。
+
+# Test Strategy:
+测试各种单位转换的准确性，验证输入验证和异常处理。

@@ -32,13 +32,13 @@ App<IAppOption>({
       await dataManager.init()
       
       // 获取系统信息
-      ;(this as any).getSystemInfo()
+      this.getSystemInfo!()
 
       // 加载用户数据
-      await (this as any).loadUserData()
+      await this.loadUserData!()
 
       // 获取用户登录状态
-      ;(this as any).checkLoginStatus()
+      this.checkLoginStatus!()
     } catch (error) {
       console.error('应用启动失败:', error)
     }
@@ -87,7 +87,7 @@ App<IAppOption>({
       },
       fail: () => {
         console.log('登录状态失效，重新登录')
-        ;(this as any).doLogin()
+        this.doLogin!()
       }
     })
   },
@@ -125,7 +125,7 @@ App<IAppOption>({
 
       this.globalData.recentTools = recentTools
       this.globalData.favoriteTools = favoriteTools
-      this.globalData.theme = (settings?.theme === 'dark') ? 'dark' : 'light'
+      this.globalData.theme = (settings && settings.theme === 'dark') ? 'dark' : 'light'
 
       console.log('用户数据加载成功')
     } catch (error) {

@@ -36,7 +36,7 @@ Component({
         /**
          * 点击遮罩层
          */
-        onMaskTap() {
+        onMaskTap: function () {
             // 阻止事件冒泡
         }
     }

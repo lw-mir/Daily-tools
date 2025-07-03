@@ -1,0 +1,11 @@
+# Task ID: 9
+# Title: 个人中心开发
+# Status: done
+# Dependencies: 1
+# Priority: medium
+# Description: 开发用户个人中心功能
+# Details:
+实现使用统计、收藏工具、设置选项、反馈建议等个人中心功能。提供用户偏好设置和使用数据统计。
+
+# Test Strategy:
+测试个人中心各功能模块，验证数据统计的准确性和设置功能的有效性。

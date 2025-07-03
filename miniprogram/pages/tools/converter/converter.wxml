@@ -1,5 +1,17 @@
 <!--converter.wxml-->
 <view class="converter-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-title">
+      <text class="title-text">单位转换</text>
+    </view>
+    <view class="header-actions">
+      <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="onToggleFavorite">
+        <text class="favorite-icon">{{isFavorite ? '❤️' : '🤍'}}</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 转换类型选择 -->
   <view class="type-selector">
     <scroll-view scroll-x class="type-scroll">

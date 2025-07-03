@@ -78,7 +78,11 @@ export interface AppStatistics {
  */
 export class DataManager {
   private static instance: DataManager
-  private initialized = false
+  private initialized: boolean
+
+  constructor() {
+    this.initialized = false
+  }
 
   // 存储键名常量
   private static readonly KEYS = {
@@ -660,6 +664,161 @@ export class DataManager {
     } catch (error) {
       console.error('清理数据失败:', error)
       return false
+    }
+  }
+
+  /**
+   * 获取用户统计数据
+   */
+  async getUserStats(): Promise<{
+    totalUsage: number;
+    toolsUsed: number;
+    daysActive: number;
+    favorites: number;
+  } | null> {
+    try {
+      const [statistics, favoriteTools, usageHistory] = await Promise.all([
+        this.getAppStatistics(),
+        this.getFavoriteTools(),
+        this.getUsageHistory()
+      ]);
+
+      if (!statistics || !favoriteTools || !usageHistory) {
+        return null;
+      }
+
+      const toolsUsed = Object.keys(statistics.toolUsageCount).length;
+      const daysActive = Object.keys(statistics.dailyUsage).length;
+
+      return {
+        totalUsage: statistics.totalSessions,
+        toolsUsed,
+        daysActive,
+        favorites: favoriteTools.length
+      };
+    } catch (error) {
+      console.error('Failed to get user stats:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 记录工具使用
+   */
+  async recordToolUsage(toolId: string, toolName?: string): Promise<boolean> {
+    try {
+      const record: Omit<ToolUsageRecord, 'timestamp'> = {
+        toolId,
+        toolName: toolName || toolId,
+        category: 'general'
+      };
+
+      await this.addUsageRecord(record);
+      await this.updateStatistics(toolId);
+      await this.addRecentTool(toolId);
+
+      return true;
+    } catch (error) {
+      console.error('Failed to record tool usage:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 移除收藏工具
+   */
+  async removeFavoriteTool(toolId: string): Promise<boolean> {
+    try {
+      const favoriteTools = await this.getFavoriteTools();
+      if (!favoriteTools) return false;
+
+      const updatedTools = favoriteTools.filter(id => id !== toolId);
+      return await this.saveFavoriteTools(updatedTools);
+    } catch (error) {
+      console.error('Failed to remove favorite tool:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 更新用户设置
+   */
+  async updateUserSettings(updates: Partial<UserSettings>): Promise<boolean> {
+    try {
+      const currentSettings = await this.getUserSettings();
+      if (!currentSettings) return false;
+
+      const updatedSettings = { ...currentSettings, ...updates };
+      return await this.saveUserSettings(updatedSettings);
+    } catch (error) {
+      console.error('Failed to update user settings:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 获取缓存信息
+   */
+  async getCacheInfo(): Promise<{ size: number; items: number } | null> {
+    try {
+      const storageUsage = await this.getStorageUsage();
+      return {
+        size: storageUsage.used,
+        items: Object.keys(wx.getStorageInfoSync().keys).length
+      };
+    } catch (error) {
+      console.error('Failed to get cache info:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 清理缓存
+   */
+  async clearCache(): Promise<boolean> {
+    try {
+      // 清理过期缓存
+      await this.cleanExpiredCache();
+      
+      // 清理30天前的使用历史
+      const usageHistory = await this.getUsageHistory();
+      if (usageHistory) {
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        const filteredHistory = usageHistory.filter(record => record.timestamp > thirtyDaysAgo);
+        await this.saveUsageHistory(filteredHistory);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Failed to clear cache:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 获取最近使用工具（带时间戳）
+   */
+  async getRecentToolsWithTimestamp(limit: number = 5): Promise<Array<{toolId: string, timestamp: number}>> {
+    try {
+      const usageHistory = await this.getUsageHistory();
+      if (!usageHistory) return [];
+
+      // 按时间戳排序并去重
+      const recentMap = new Map<string, number>();
+      usageHistory
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .forEach(record => {
+          if (!recentMap.has(record.toolId)) {
+            recentMap.set(record.toolId, record.timestamp);
+          }
+        });
+
+      return Array.from(recentMap.entries())
+        .map(([toolId, timestamp]) => ({ toolId, timestamp }))
+        .slice(0, limit);
+    } catch (error) {
+      console.error('Failed to get recent tools with timestamp:', error);
+      return [];
     }
   }
 }

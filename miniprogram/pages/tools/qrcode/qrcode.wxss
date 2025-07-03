@@ -1,0 +1,479 @@
+/* qrcode.wxss */
+
+/* 页面头部样式 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10rpx);
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.favorite-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  transition: all 0.3s ease;
+}
+
+.favorite-btn.favorited {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 容器样式 */
+.qrcode-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* 标签栏样式 */
+.tab-bar {
+  display: flex;
+  background: white;
+  border-bottom: 1rpx solid #e0e0e0;
+  margin-top: 20rpx;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.tab-icon {
+  font-size: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.tab-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+/* 生成二维码区域 */
+.generate-section {
+  padding: 30rpx;
+}
+
+.content-type {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.type-header {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.type-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.type-btn {
+  flex: 1;
+  min-width: 160rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 15rpx;
+  transition: all 0.3s ease;
+}
+
+.type-btn.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.type-btn-icon {
+  font-size: 32rpx;
+  margin-bottom: 10rpx;
+}
+
+.type-btn-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+/* 内容输入区域 */
+.content-input {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.char-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.content-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 20rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 15rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  background: #fafafa;
+}
+
+/* 快捷输入 */
+.quick-inputs {
+  margin-top: 20rpx;
+}
+
+.quick-title {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+}
+
+.quick-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+}
+
+.quick-item {
+  padding: 10rpx 20rpx;
+  background: #f0f0f0;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.quick-item:active {
+  background: #e0e0e0;
+}
+
+/* 生成按钮 */
+.generate-actions {
+  margin-bottom: 30rpx;
+}
+
+.generate-btn {
+  width: 100%;
+  height: 88rpx;
+  border-radius: 44rpx;
+  background: #e0e0e0;
+  color: #999;
+  font-size: 32rpx;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.generate-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.generate-btn.active:active {
+  transform: scale(0.98);
+}
+
+/* 二维码显示区域 */
+.qrcode-display {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.qrcode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.qrcode-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 15rpx 25rpx;
+  background: #f0f0f0;
+  border-radius: 25rpx;
+  font-size: 24rpx;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.action-btn:active {
+  background: #e0e0e0;
+}
+
+.qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  padding: 30rpx;
+  background: #fafafa;
+  border-radius: 15rpx;
+}
+
+.qrcode-image {
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 15rpx;
+  background: white;
+}
+
+.qrcode-info {
+  text-align: center;
+}
+
+.qrcode-content {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+  word-break: break-all;
+}
+
+.qrcode-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 扫描区域 */
+.scan-section {
+  padding: 30rpx;
+  text-align: center;
+}
+
+.scan-intro {
+  background: white;
+  border-radius: 20rpx;
+  padding: 60rpx 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.scan-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.scan-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.scan-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+.scan-btn {
+  width: 100%;
+  height: 88rpx;
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 32rpx;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+  transition: all 0.3s ease;
+}
+
+.scan-btn:active {
+  transform: scale(0.98);
+}
+
+/* 扫描结果 */
+.scan-result {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-top: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.result-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.result-content {
+  text-align: left;
+}
+
+.result-type {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.type-label {
+  font-size: 28rpx;
+  color: #666;
+  width: 100rpx;
+}
+
+.type-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.result-text {
+  display: flex;
+  margin-bottom: 20rpx;
+  align-items: flex-start;
+}
+
+.content-label {
+  font-size: 28rpx;
+  color: #666;
+  width: 100rpx;
+  flex-shrink: 0;
+}
+
+.content-value {
+  font-size: 28rpx;
+  color: #333;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.result-time {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+/* 历史记录区域 */
+.history-section {
+  padding: 30rpx;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.history-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.empty-history {
+  background: white;
+  border-radius: 20rpx;
+  padding: 60rpx 30rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  display: block;
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #999;
+  line-height: 1.5;
+}
+
+.history-list {
+  height: 600rpx;
+}
+
+.history-item {
+  background: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.history-item:active {
+  transform: scale(0.98);
+  background: #f8f8f8;
+}
+
+.history-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+} 

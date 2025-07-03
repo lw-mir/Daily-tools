@@ -2,184 +2,260 @@
 <view class="profile-container">
   <!-- 用户信息区域 -->
   <view class="user-section">
-    <view class="user-avatar">
-      <image 
-        wx:if="{{userInfo.avatarUrl}}"
-        class="avatar-image"
-        src="{{userInfo.avatarUrl}}"
-        mode="aspectFill"
-      />
-      <view wx:else class="avatar-placeholder">
-        <icon type="contact" size="40"></icon>
-      </view>
-    </view>
-    
-    <view class="user-info">
-      <text class="user-name">{{userInfo.nickName || '微信用户'}}</text>
-      <text class="user-desc">欢迎使用 Dailytools</text>
-    </view>
-    
-    <view class="login-section" wx:if="{{!isLoggedIn}}">
-      <button 
-        class="login-btn"
-        open-type="getUserInfo"
-        bindgetuserinfo="onGetUserInfo"
-      >
-        登录获取更多功能
-      </button>
-    </view>
-  </view>
-
-  <!-- 使用统计 -->
-  <view class="stats-section">
-    <view class="section-header">
-      <text class="section-title">使用统计</text>
-    </view>
-    
-    <view class="stats-grid">
-      <view class="stat-item">
-        <text class="stat-number">{{stats.totalUsage}}</text>
-        <text class="stat-label">总使用次数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{stats.toolsUsed}}</text>
-        <text class="stat-label">使用工具数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{stats.daysActive}}</text>
-        <text class="stat-label">活跃天数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-number">{{stats.favorites}}</text>
-        <text class="stat-label">收藏工具</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 收藏工具 -->
-  <view class="favorites-section">
-    <view class="section-header">
-      <text class="section-title">我的收藏</text>
-      <view wx:if="{{favoriteTools.length > 0}}" class="manage-btn" bindtap="onManageFavorites">
-        <text>管理</text>
-      </view>
-    </view>
-    
-    <view wx:if="{{favoriteTools.length === 0}}" class="empty-favorites">
-      <icon type="star" size="40" color="#ccc"></icon>
-      <text class="empty-text">还没有收藏任何工具</text>
-      <text class="empty-desc">在工具页面点击收藏按钮添加到这里</text>
-    </view>
-    
-    <scroll-view wx:else scroll-y class="favorites-list">
-      <view 
-        wx:for="{{favoriteTools}}" 
-        wx:key="id"
-        class="favorite-item"
-        bindtap="onToolTap"
-        data-tool="{{item}}"
-      >
-        <view class="tool-icon">{{item.icon}}</view>
-        <view class="tool-info">
-          <text class="tool-name">{{item.name}}</text>
-          <text class="tool-desc">{{item.description}}</text>
+    <!-- 已登录状态 -->
+    <view wx:if="{{isLoggedIn}}" class="user-info-logged">
+      <!-- 用户头像区域 -->
+      <view class="user-avatar-container">
+        <view class="user-avatar">
+          <image 
+            class="avatar-image"
+            src="{{userInfo.avatarUrl}}"
+            mode="aspectFill"
+            bindload="onAvatarLoad"
+            binderror="onAvatarError"
+          />
+          <view class="avatar-border"></view>
+          <view class="online-indicator">
+            <view class="pulse"></view>
+          </view>
         </view>
-        <view class="tool-actions">
-          <view 
-            class="unfavorite-btn"
-            bindtap="onUnfavorite"
-            data-tool="{{item}}"
-            catchtap="true"
-          >
-            <icon type="clear" size="16"></icon>
+        
+        <!-- 用户等级徽章 -->
+        <view class="user-badge">
+          <text class="badge-text">VIP</text>
+        </view>
+      </view>
+      
+      <!-- 用户信息 -->
+      <view class="user-info">
+        <view class="user-name-container">
+          <text class="user-name">{{userInfo.displayName || userInfo.nickName}}</text>
+          <view class="verified-badge" wx:if="{{userInfo.avatarValid}}">
+            <icon type="success" size="16" color="#4caf50"></icon>
+          </view>
+        </view>
+        
+        <text class="user-desc">欢迎使用 Dailytools</text>
+        
+        <view class="user-meta">
+          <view class="meta-item">
+            <icon type="time" size="14" color="rgba(255,255,255,0.8)"></icon>
+            <text class="login-time">{{loginTimeText}}</text>
+          </view>
+          <view class="meta-item" wx:if="{{userInfo.location}}">
+            <icon type="location" size="14" color="rgba(255,255,255,0.8)"></icon>
+            <text class="user-location">{{userInfo.location}}</text>
           </view>
         </view>
       </view>
-    </scroll-view>
-  </view>
-
-  <!-- 最近使用 -->
-  <view class="recent-section">
-    <view class="section-header">
-      <text class="section-title">最近使用</text>
-      <view wx:if="{{recentTools.length > 0}}" class="clear-btn" bindtap="onClearRecent">
-        <text>清空</text>
-      </view>
-    </view>
-    
-    <view wx:if="{{recentTools.length === 0}}" class="empty-recent">
-      <icon type="clock" size="40" color="#ccc"></icon>
-      <text class="empty-text">还没有使用记录</text>
-    </view>
-    
-    <scroll-view wx:else scroll-y class="recent-list">
-      <view 
-        wx:for="{{recentTools}}" 
-        wx:key="id"
-        class="recent-item"
-        bindtap="onToolTap"
-        data-tool="{{item}}"
-      >
-        <view class="tool-icon">{{item.icon}}</view>
-        <view class="tool-info">
-          <text class="tool-name">{{item.name}}</text>
-          <text class="tool-time">{{item.lastUsed}}</text>
+      
+      <!-- 快速操作按钮 -->
+      <view class="user-actions">
+        <view class="action-btn" bindtap="showUserInfoDetail">
+          <icon type="info" size="16"></icon>
+          <text>详情</text>
+        </view>
+        <view class="action-btn" bindtap="refreshUserInfo">
+          <icon type="refresh" size="16"></icon>
+          <text>刷新</text>
+        </view>
+        <view class="action-btn logout" bindtap="onLogout">
+          <icon type="exit" size="16"></icon>
+          <text>退出</text>
         </view>
       </view>
-    </scroll-view>
+    </view>
+    
+    <!-- 未登录状态 -->
+    <view wx:else class="user-info-guest">
+      <!-- 访客头像 -->
+      <view class="guest-avatar-container">
+        <view class="guest-avatar">
+          <view class="avatar-placeholder">
+            <icon type="contact" size="60" color="rgba(255,255,255,0.8)"></icon>
+          </view>
+          <view class="guest-avatar-border"></view>
+        </view>
+      </view>
+      
+      <!-- 欢迎信息 -->
+      <view class="guest-info">
+        <text class="guest-title">欢迎使用 Dailytools</text>
+        <text class="guest-subtitle">你的专属工具箱</text>
+        <text class="guest-desc">登录后可享受更多个性化功能</text>
+      </view>
+      
+      <!-- 功能特色展示 -->
+      <view class="login-benefits">
+        <view class="benefit-item">
+          <view class="benefit-icon">
+            <icon type="star" size="18" color="#ffd700"></icon>
+          </view>
+          <view class="benefit-text">
+            <text class="benefit-title">收藏工具</text>
+            <text class="benefit-desc">快速访问常用工具</text>
+          </view>
+        </view>
+        
+        <view class="benefit-item">
+          <view class="benefit-icon">
+            <icon type="clock" size="18" color="#4caf50"></icon>
+          </view>
+          <view class="benefit-text">
+            <text class="benefit-title">使用记录</text>
+            <text class="benefit-desc">查看工具使用历史</text>
+          </view>
+        </view>
+        
+        <view class="benefit-item">
+          <view class="benefit-icon">
+            <icon type="chart" size="18" color="#2196f3"></icon>
+          </view>
+          <view class="benefit-text">
+            <text class="benefit-title">数据统计</text>
+            <text class="benefit-desc">个人使用分析报告</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 登录区域 -->
+      <view class="login-section">
+        <button 
+          class="login-btn primary {{isLoggingIn ? 'loading' : ''}}"
+          bindtap="onLogin"
+          disabled="{{isLoggingIn}}"
+        >
+          <view class="btn-content">
+            <icon 
+              wx:if="{{isLoggingIn}}" 
+              type="loading" 
+              size="20" 
+              color="#fff"
+              class="loading-spinner"
+            ></icon>
+            <icon 
+              wx:else 
+              type="wechat" 
+              size="22" 
+              color="#fff"
+            ></icon>
+            <text>{{isLoggingIn ? '正在登录...' : '微信快速登录'}}</text>
+          </view>
+        </button>
+        
+        <view class="login-tips">
+          <icon type="info" size="14" color="rgba(255,255,255,0.7)"></icon>
+          <text>我们承诺保护您的隐私安全</text>
+        </view>
+      </view>
+    </view>
   </view>
 
   <!-- 设置选项 -->
   <view class="settings-section">
     <view class="section-header">
-      <text class="section-title">设置</text>
+      <icon type="settings" size="24" color="#4caf50"></icon>
+      <text class="section-title">设置中心</text>
     </view>
     
     <view class="settings-list">
       <view class="setting-item" bindtap="onThemeSetting">
         <view class="setting-left">
-          <icon type="palette" size="20"></icon>
-          <text class="setting-name">主题设置</text>
+          <view class="setting-icon">
+            <icon type="palette" size="20" color="#ff6b6b"></icon>
+          </view>
+          <view class="setting-content">
+            <text class="setting-name">主题设置</text>
+            <text class="setting-desc">个性化界面主题</text>
+          </view>
         </view>
         <view class="setting-right">
           <text class="setting-value">{{currentTheme}}</text>
-          <icon type="right" size="16"></icon>
+          <icon type="right" size="16" color="#999"></icon>
         </view>
       </view>
       
       <view class="setting-item" bindtap="onLanguageSetting">
         <view class="setting-left">
-          <icon type="global" size="20"></icon>
-          <text class="setting-name">语言设置</text>
+          <view class="setting-icon">
+            <icon type="global" size="20" color="#4ecdc4"></icon>
+          </view>
+          <view class="setting-content">
+            <text class="setting-name">语言设置</text>
+            <text class="setting-desc">选择界面显示语言</text>
+          </view>
         </view>
         <view class="setting-right">
           <text class="setting-value">简体中文</text>
-          <icon type="right" size="16"></icon>
+          <icon type="right" size="16" color="#999"></icon>
         </view>
       </view>
       
       <view class="setting-item">
         <view class="setting-left">
-          <icon type="bell" size="20"></icon>
-          <text class="setting-name">消息通知</text>
+          <view class="setting-icon">
+            <icon type="bell" size="20" color="#ffa726"></icon>
+          </view>
+          <view class="setting-content">
+            <text class="setting-name">消息通知</text>
+            <text class="setting-desc">管理推送通知设置</text>
+          </view>
         </view>
         <view class="setting-right">
           <switch 
             class="notification-switch"
             checked="{{notificationEnabled}}"
             bindchange="onNotificationChange"
+            color="#4caf50"
           />
         </view>
       </view>
       
       <view class="setting-item" bindtap="onCacheSetting">
         <view class="setting-left">
-          <icon type="storage" size="20"></icon>
-          <text class="setting-name">缓存管理</text>
+          <view class="setting-icon">
+            <icon type="storage" size="20" color="#9c27b0"></icon>
+          </view>
+          <view class="setting-content">
+            <text class="setting-name">缓存管理</text>
+            <text class="setting-desc">清理应用缓存数据</text>
+          </view>
         </view>
         <view class="setting-right">
           <text class="setting-value">{{cacheSize}}</text>
-          <icon type="right" size="16"></icon>
+          <icon type="right" size="16" color="#999"></icon>
+        </view>
+      </view>
+
+      <view class="setting-item" bindtap="showStorageUsage">
+        <view class="setting-left">
+          <view class="setting-icon">
+            <icon type="database" size="20" color="#2196f3"></icon>
+          </view>
+          <view class="setting-content">
+            <text class="setting-name">存储管理</text>
+            <text class="setting-desc">查看存储使用情况</text>
+          </view>
+        </view>
+        <view class="setting-right">
+          <text class="setting-value">查看详情</text>
+          <icon type="right" size="16" color="#999"></icon>
+        </view>
+      </view>
+
+      <view class="setting-item" bindtap="manageUserPreferences">
+        <view class="setting-left">
+          <view class="setting-icon">
+            <icon type="settings" size="20" color="#607d8b"></icon>
+          </view>
+          <view class="setting-content">
+            <text class="setting-name">偏好设置</text>
+            <text class="setting-desc">个人使用偏好配置</text>
+          </view>
+        </view>
+        <view class="setting-right">
+          <text class="setting-value">个人偏好</text>
+          <icon type="right" size="16" color="#999"></icon>
         </view>
       </view>
     </view>
@@ -187,29 +263,49 @@
 
   <!-- 其他选项 -->
   <view class="other-section">
+    <view class="section-header">
+      <icon type="more" size="24" color="#666"></icon>
+      <text class="section-title">更多功能</text>
+    </view>
+    
     <view class="other-list">
       <view class="other-item" bindtap="onFeedback">
         <view class="other-left">
-          <icon type="message" size="20"></icon>
-          <text class="other-name">意见反馈</text>
+          <view class="other-icon">
+            <icon type="message" size="20" color="#4caf50"></icon>
+          </view>
+          <view class="other-content">
+            <text class="other-name">意见反馈</text>
+            <text class="other-desc">帮助我们改进产品</text>
+          </view>
         </view>
-        <icon type="right" size="16"></icon>
+        <icon type="right" size="16" color="#999"></icon>
       </view>
       
       <view class="other-item" bindtap="onAbout">
         <view class="other-left">
-          <icon type="info" size="20"></icon>
-          <text class="other-name">关于我们</text>
+          <view class="other-icon">
+            <icon type="info" size="20" color="#2196f3"></icon>
+          </view>
+          <view class="other-content">
+            <text class="other-name">关于我们</text>
+            <text class="other-desc">了解产品信息</text>
+          </view>
         </view>
-        <icon type="right" size="16"></icon>
+        <icon type="right" size="16" color="#999"></icon>
       </view>
       
       <view class="other-item" bindtap="onShare">
         <view class="other-left">
-          <icon type="share" size="20"></icon>
-          <text class="other-name">分享应用</text>
+          <view class="other-icon">
+            <icon type="share" size="20" color="#ff9800"></icon>
+          </view>
+          <view class="other-content">
+            <text class="other-name">分享应用</text>
+            <text class="other-desc">推荐给好友使用</text>
+          </view>
         </view>
-        <icon type="right" size="16"></icon>
+        <icon type="right" size="16" color="#999"></icon>
       </view>
     </view>
   </view>
@@ -233,10 +329,30 @@
         bindtap="onThemeSelect"
         data-theme="{{item}}"
       >
-        <view class="theme-preview" style="background: {{item.color}};"></view>
+        <view class="theme-preview theme-{{item.id}}"></view>
         <text class="theme-name">{{item.name}}</text>
         <icon wx:if="{{currentTheme === item.name}}" type="success" size="16"></icon>
       </view>
+    </view>
+  </view>
+</view>
+
+<!-- 授权失败重试弹窗 -->
+<view wx:if="{{showRetryModal}}" class="modal-overlay">
+  <view class="retry-modal" catchtap="true">
+    <view class="modal-header">
+      <text class="modal-title">授权失败</text>
+    </view>
+    
+    <view class="modal-content">
+      <icon type="warn" size="40" color="#ff9800"></icon>
+      <text class="error-text">{{authErrorMessage}}</text>
+      <text class="retry-tips">请重新尝试授权，或稍后再试</text>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="retry-btn" bindtap="onRetryLogin">重新授权</button>
+      <button class="cancel-btn" bindtap="onCloseRetryModal">稍后再试</button>
     </view>
   </view>
 </view>

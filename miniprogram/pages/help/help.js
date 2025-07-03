@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Page({
     data: {
         searchText: '',
@@ -10,27 +21,27 @@ Page({
             updateTime: '2024-01-15'
         }
     },
-    onLoad() {
+    onLoad: function () {
         console.log('[Help] 页面加载');
         this.loadHelpData();
         this.loadContactInfo();
     },
-    onShow() {
+    onShow: function () {
         console.log('[Help] 页面显示');
     },
-    onPullDownRefresh() {
+    onPullDownRefresh: function () {
         console.log('[Help] 下拉刷新');
         this.loadHelpData();
-        setTimeout(() => {
+        setTimeout(function () {
             wx.stopPullDownRefresh();
         }, 1000);
     },
     /**
      * 加载帮助数据
      */
-    loadHelpData() {
+    loadHelpData: function () {
         try {
-            const helpSections = [
+            var helpSections = [
                 {
                     id: 'getting-started',
                     title: '快速开始',
@@ -151,7 +162,7 @@ Page({
                 }
             ];
             this.setData({
-                helpSections,
+                helpSections: helpSections,
                 filteredSections: helpSections
             });
             console.log('[Help] 帮助数据加载完成');
@@ -167,8 +178,8 @@ Page({
     /**
      * 加载联系信息
      */
-    loadContactInfo() {
-        const contactInfo = [
+    loadContactInfo: function () {
+        var contactInfo = [
             {
                 type: 'feedback',
                 label: '意见反馈',
@@ -188,51 +199,54 @@ Page({
                 icon: '📱'
             }
         ];
-        this.setData({ contactInfo });
+        this.setData({ contactInfo: contactInfo });
     },
     /**
      * 搜索输入处理
      */
-    onSearchInput(e) {
-        const searchText = e.detail.value;
-        this.setData({ searchText });
+    onSearchInput: function (e) {
+        var searchText = e.detail.value;
+        this.setData({ searchText: searchText });
         this.filterHelpContent(searchText);
     },
     /**
      * 搜索确认处理
      */
-    onSearchConfirm(e) {
-        const searchText = e.detail.value;
+    onSearchConfirm: function (e) {
+        var searchText = e.detail.value;
         this.filterHelpContent(searchText);
     },
     /**
      * 过滤帮助内容
      */
-    filterHelpContent(searchText) {
-        const { helpSections } = this.data;
+    filterHelpContent: function (searchText) {
+        var helpSections = this.data.helpSections;
         if (!searchText.trim()) {
             this.setData({ filteredSections: helpSections });
             return;
         }
-        const filtered = helpSections.map(section => {
-            const filteredItems = section.items.filter(item => {
-                var _a, _b;
-                const questionMatch = item.question.toLowerCase().includes(searchText.toLowerCase());
-                const answerMatch = item.answer.toLowerCase().includes(searchText.toLowerCase());
-                const stepsMatch = (_a = item.steps) === null || _a === void 0 ? void 0 : _a.some(step => step.toLowerCase().includes(searchText.toLowerCase()));
-                const tipsMatch = (_b = item.tips) === null || _b === void 0 ? void 0 : _b.some(tip => tip.toLowerCase().includes(searchText.toLowerCase()));
+        var filtered = helpSections.map(function (section) {
+            var filteredItems = section.items.filter(function (item) {
+                var questionMatch = item.question.toLowerCase().includes(searchText.toLowerCase());
+                var answerMatch = item.answer.toLowerCase().includes(searchText.toLowerCase());
+                var stepsMatch = item.steps && item.steps.some(function (step) {
+                    return step.toLowerCase().includes(searchText.toLowerCase());
+                });
+                var tipsMatch = item.tips && item.tips.some(function (tip) {
+                    return tip.toLowerCase().includes(searchText.toLowerCase());
+                });
                 return questionMatch || answerMatch || stepsMatch || tipsMatch;
             });
-            return filteredItems.length > 0 ? Object.assign(Object.assign({}, section), { items: filteredItems }) : null;
-        }).filter(section => section !== null);
+            return filteredItems.length > 0 ? __assign(__assign({}, section), { items: filteredItems }) : null;
+        }).filter(function (section) { return section !== null; });
         this.setData({ filteredSections: filtered });
         console.log('[Help] 搜索结果:', filtered.length);
     },
     /**
      * 帮助项点击处理
      */
-    onHelpItemTap(e) {
-        const { sectionId, itemId } = e.currentTarget.dataset;
+    onHelpItemTap: function (e) {
+        var _a = e.currentTarget.dataset, sectionId = _a.sectionId, itemId = _a.itemId;
         console.log('[Help] 点击帮助项:', sectionId, itemId);
         // 可以添加展开/收起逻辑或跳转到详细页面
         wx.showToast({
@@ -243,8 +257,8 @@ Page({
     /**
      * 联系方式点击处理
      */
-    onContactTap(e) {
-        const contact = e.currentTarget.dataset.contact;
+    onContactTap: function (e) {
+        var contact = e.currentTarget.dataset.contact;
         console.log('[Help] 点击联系方式:', contact.type);
         switch (contact.type) {
             case 'feedback':
@@ -253,7 +267,7 @@ Page({
             case 'email':
                 wx.setClipboardData({
                     data: contact.value,
-                    success: () => {
+                    success: function () {
                         wx.showToast({
                             title: '邮箱已复制',
                             icon: 'success'
@@ -263,7 +277,7 @@ Page({
                 break;
             case 'version':
                 wx.showToast({
-                    title: `版本 ${contact.value}`,
+                    title: "\u7248\u672C " + contact.value,
                     icon: 'none'
                 });
                 break;
@@ -272,7 +286,7 @@ Page({
     /**
      * 显示反馈对话框
      */
-    showFeedbackDialog() {
+    showFeedbackDialog: function () {
         wx.showModal({
             title: '意见反馈',
             content: '感谢您的反馈！您可以通过邮箱联系我们，或在小程序评价中留下您的建议。',
@@ -283,7 +297,7 @@ Page({
     /**
      * 清除搜索
      */
-    onClearSearch() {
+    onClearSearch: function () {
         this.setData({
             searchText: '',
             filteredSections: this.data.helpSections

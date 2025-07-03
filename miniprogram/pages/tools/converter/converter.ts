@@ -1,154 +1,124 @@
 import { StorageService } from '../../../utils/storage';
 import { LoggerService } from '../../../utils/logger';
 import { formatTime } from '../../../utils/index';
-import { dataManager } from '../../../utils/dataManager';
+import { DataManager } from '../../../utils/dataManager';
 
-interface ConversionType {
+const dataManager = DataManager.getInstance();
+
+interface ImageInfo {
+  id: string;
+  name: string;
+  path: string;
+  size: number;
+  width: number;
+  height: number;
+  format: string;
+  uploadTime: string;
+}
+
+interface ConversionOption {
   id: string;
   name: string;
   icon: string;
+  description: string;
 }
 
-interface Unit {
+interface CropRatio {
   id: string;
   name: string;
-  symbol: string;
-  factor: number; // 转换到基础单位的系数
-  offset?: number; // 偏移量（用于温度转换）
+  ratio: number;
+  width: number;
+  height: number;
 }
 
-interface QuickConversion {
+interface ProcessHistory {
   id: string;
-  from: string;
-  to: string;
-  description: string;
-  fromUnit: string;
-  toUnit: string;
-  value: number;
-}
-
-interface ConversionHistory {
-  id: string;
-  type: string;
-  inputValue: string;
-  outputValue: string;
-  fromUnit: string;
-  toUnit: string;
+  originalImage: ImageInfo;
+  processedImage: ImageInfo;
+  operation: string;
+  parameters: any;
   time: string;
   timestamp: number;
 }
 
-interface ConverterData {
-  // 转换类型
-  conversionTypes: ConversionType[];
-  currentType: string;
-  
-  // 单位数据
-  fromUnits: Unit[];
-  toUnits: Unit[];
-  fromUnitIndex: number;
-  toUnitIndex: number;
-  
-  // 输入输出
-  inputValue: string;
-  outputValue: string;
-  
-  // 快捷转换
-  quickConversions: QuickConversion[];
-  
-  // 历史记录
-  history: ConversionHistory[];
-  
-  // 状态
-  isLoading: boolean;
-  loadingText: string;
+interface SimpleHistory {
+  id: string;
+  operation: string;
+  timestamp: number;
+  time: string;
+  details: any;
+  success: boolean;
 }
 
-// 单位定义
-const UNIT_DEFINITIONS: Record<string, Unit[]> = {
-  length: [
-    { id: 'mm', name: '毫米', symbol: 'mm', factor: 0.001 },
-    { id: 'cm', name: '厘米', symbol: 'cm', factor: 0.01 },
-    { id: 'm', name: '米', symbol: 'm', factor: 1 },
-    { id: 'km', name: '千米', symbol: 'km', factor: 1000 },
-    { id: 'inch', name: '英寸', symbol: 'in', factor: 0.0254 },
-    { id: 'ft', name: '英尺', symbol: 'ft', factor: 0.3048 },
-    { id: 'yard', name: '码', symbol: 'yd', factor: 0.9144 },
-    { id: 'mile', name: '英里', symbol: 'mi', factor: 1609.344 }
-  ],
-  weight: [
-    { id: 'mg', name: '毫克', symbol: 'mg', factor: 0.000001 },
-    { id: 'g', name: '克', symbol: 'g', factor: 0.001 },
-    { id: 'kg', name: '千克', symbol: 'kg', factor: 1 },
-    { id: 'ton', name: '吨', symbol: 't', factor: 1000 },
-    { id: 'oz', name: '盎司', symbol: 'oz', factor: 0.0283495 },
-    { id: 'lb', name: '磅', symbol: 'lb', factor: 0.453592 },
-    { id: 'stone', name: '英石', symbol: 'st', factor: 6.35029 }
-  ],
-  temperature: [
-    { id: 'celsius', name: '摄氏度', symbol: '°C', factor: 1, offset: 0 },
-    { id: 'fahrenheit', name: '华氏度', symbol: '°F', factor: 5/9, offset: -32 },
-    { id: 'kelvin', name: '开尔文', symbol: 'K', factor: 1, offset: -273.15 }
-  ],
-  area: [
-    { id: 'mm2', name: '平方毫米', symbol: 'mm²', factor: 0.000001 },
-    { id: 'cm2', name: '平方厘米', symbol: 'cm²', factor: 0.0001 },
-    { id: 'm2', name: '平方米', symbol: 'm²', factor: 1 },
-    { id: 'km2', name: '平方千米', symbol: 'km²', factor: 1000000 },
-    { id: 'inch2', name: '平方英寸', symbol: 'in²', factor: 0.00064516 },
-    { id: 'ft2', name: '平方英尺', symbol: 'ft²', factor: 0.092903 },
-    { id: 'acre', name: '英亩', symbol: 'acre', factor: 4046.86 }
-  ],
-  volume: [
-    { id: 'ml', name: '毫升', symbol: 'ml', factor: 0.001 },
-    { id: 'l', name: '升', symbol: 'L', factor: 1 },
-    { id: 'm3', name: '立方米', symbol: 'm³', factor: 1000 },
-    { id: 'cup', name: '杯', symbol: 'cup', factor: 0.236588 },
-    { id: 'pint', name: '品脱', symbol: 'pt', factor: 0.473176 },
-    { id: 'quart', name: '夸脱', symbol: 'qt', factor: 0.946353 },
-    { id: 'gallon', name: '加仑', symbol: 'gal', factor: 3.78541 }
-  ]
-};
+interface ImageConverterData {
+  currentImage: ImageInfo | null;
+  processedImage: ImageInfo | null;
+  conversionOptions: ConversionOption[];
+  currentOption: string;
+  cropRatios: CropRatio[];
+  selectedCropRatio: string;
+  outputFormat: string;
+  outputQuality: number;
+  outputFileName: string;
+  history: ProcessHistory[];
+  simpleHistory: SimpleHistory[];
+  isLoading: boolean;
+  loadingText: string;
+  isFavorite: boolean;
+  showCropTool: boolean;
+  showFormatOptions: boolean;
+  showQualitySlider: boolean;
+}
 
 Page({
   data: {
-    conversionTypes: [
-      { id: 'length', name: '长度', icon: '📏' },
-      { id: 'weight', name: '重量', icon: '⚖️' },
-      { id: 'temperature', name: '温度', icon: '🌡️' },
-      { id: 'area', name: '面积', icon: '📐' },
-      { id: 'volume', name: '体积', icon: '🥤' }
+    currentImage: null,
+    processedImage: null,
+    
+    conversionOptions: [
+      { id: 'format', name: '格式转换', icon: '🔄', description: 'JPG/PNG格式互转' },
+      { id: 'crop', name: '裁剪', icon: '✂️', description: '按比例或自由裁剪' },
+      { id: 'compress', name: '压缩', icon: '📦', description: '减小文件大小' },
+      { id: 'rename', name: '重命名', icon: '📝', description: '修改文件名称' }
     ],
-    currentType: 'length',
+    currentOption: 'format',
     
-    fromUnits: [],
-    toUnits: [],
-    fromUnitIndex: 0,
-    toUnitIndex: 1,
+    cropRatios: [
+      { id: 'free', name: '自由裁剪', ratio: 0, width: 0, height: 0 },
+      { id: '1:1', name: '正方形', ratio: 1, width: 1, height: 1 },
+      { id: '4:3', name: '4:3', ratio: 4/3, width: 4, height: 3 },
+      { id: '16:9', name: '16:9', ratio: 16/9, width: 16, height: 9 },
+      { id: '3:4', name: '3:4', ratio: 3/4, width: 3, height: 4 },
+      { id: '9:16', name: '9:16', ratio: 9/16, width: 9, height: 16 }
+    ],
+    selectedCropRatio: '1:1',
     
-    inputValue: '',
-    outputValue: '0',
+    outputFormat: 'jpg',
+    outputQuality: 80,
+    outputFileName: '',
     
-    quickConversions: [],
     history: [],
+    simpleHistory: [],
     
     isLoading: false,
-    loadingText: '转换中...'
-  } as ConverterData,
+    loadingText: '处理中...',
+    isFavorite: false,
+    
+    showCropTool: false,
+    showFormatOptions: false,
+    showQualitySlider: false
+  } as ImageConverterData,
 
   async onLoad() {
-    LoggerService.info('Converter page loaded');
-    this.initConverter();
+    LoggerService.info('Image Converter page loaded');
     await this.loadHistory();
+    await this.checkFavoriteStatus();
     
-    // 添加到最近使用工具
     try {
-      await dataManager.addRecentTool('converter');
-      
-      // 记录使用历史
+      await dataManager.addRecentTool('image-converter');
       await dataManager.addUsageRecord({
-        toolId: 'converter',
-        toolName: '单位转换',
+        toolId: 'image-converter',
+        toolName: '图片转换',
         category: '工具'
       });
     } catch (error) {
@@ -157,462 +127,483 @@ Page({
   },
 
   onShow() {
-    // 恢复上次的转换状态
-    const lastState = StorageService.get('converter_state');
+    const lastState = StorageService.get('image_converter_state');
     if (lastState) {
       this.setData({
-        currentType: lastState.currentType || 'length',
-        inputValue: lastState.inputValue || '',
-        fromUnitIndex: lastState.fromUnitIndex || 0,
-        toUnitIndex: lastState.toUnitIndex || 1
+        currentOption: lastState.currentOption || 'format',
+        outputFormat: lastState.outputFormat || 'jpg',
+        outputQuality: lastState.outputQuality || 80,
+        selectedCropRatio: lastState.selectedCropRatio || '1:1'
       });
-      this.initConverter();
     }
   },
 
   onHide() {
-    // 保存当前转换状态
-    StorageService.set('converter_state', {
-      currentType: this.data.currentType,
-      inputValue: this.data.inputValue,
-      fromUnitIndex: this.data.fromUnitIndex,
-      toUnitIndex: this.data.toUnitIndex
+    StorageService.set('image_converter_state', {
+      currentOption: this.data.currentOption,
+      outputFormat: this.data.outputFormat,
+      outputQuality: this.data.outputQuality,
+      selectedCropRatio: this.data.selectedCropRatio
     });
   },
 
   onUnload() {
-    LoggerService.info('Converter page unloaded');
+    LoggerService.info('Image Converter page unloaded');
+    this.cleanupTempFiles();
   },
 
-  // 初始化转换器
-  initConverter() {
-    const { currentType } = this.data;
-    const units = UNIT_DEFINITIONS[currentType] || [];
-    
-    this.setData({
-      fromUnits: units,
-      toUnits: units,
-      quickConversions: this.getQuickConversions(currentType)
-    });
-    
-    // 如果有输入值，执行转换
-    if (this.data.inputValue) {
-      this.performConversion();
-    }
-  },
-
-  // 获取快捷转换选项
-  getQuickConversions(type: string): QuickConversion[] {
-    const quickMap: Record<string, QuickConversion[]> = {
-      length: [
-        { id: '1', from: '1米', to: '厘米', description: '1米 = 100厘米', fromUnit: 'm', toUnit: 'cm', value: 1 },
-        { id: '2', from: '1千米', to: '米', description: '1千米 = 1000米', fromUnit: 'km', toUnit: 'm', value: 1 },
-        { id: '3', from: '1英尺', to: '厘米', description: '1英尺 ≈ 30.48厘米', fromUnit: 'ft', toUnit: 'cm', value: 1 },
-        { id: '4', from: '1英寸', to: '厘米', description: '1英寸 ≈ 2.54厘米', fromUnit: 'inch', toUnit: 'cm', value: 1 }
-      ],
-      weight: [
-        { id: '1', from: '1千克', to: '克', description: '1千克 = 1000克', fromUnit: 'kg', toUnit: 'g', value: 1 },
-        { id: '2', from: '1磅', to: '千克', description: '1磅 ≈ 0.45千克', fromUnit: 'lb', toUnit: 'kg', value: 1 },
-        { id: '3', from: '1吨', to: '千克', description: '1吨 = 1000千克', fromUnit: 'ton', toUnit: 'kg', value: 1 },
-        { id: '4', from: '1盎司', to: '克', description: '1盎司 ≈ 28.35克', fromUnit: 'oz', toUnit: 'g', value: 1 }
-      ],
-      temperature: [
-        { id: '1', from: '0°C', to: '华氏度', description: '0°C = 32°F', fromUnit: 'celsius', toUnit: 'fahrenheit', value: 0 },
-        { id: '2', from: '100°C', to: '华氏度', description: '100°C = 212°F', fromUnit: 'celsius', toUnit: 'fahrenheit', value: 100 },
-        { id: '3', from: '37°C', to: '华氏度', description: '37°C ≈ 98.6°F', fromUnit: 'celsius', toUnit: 'fahrenheit', value: 37 },
-        { id: '4', from: '0°C', to: '开尔文', description: '0°C = 273.15K', fromUnit: 'celsius', toUnit: 'kelvin', value: 0 }
-      ],
-      area: [
-        { id: '1', from: '1平方米', to: '平方厘米', description: '1m² = 10000cm²', fromUnit: 'm2', toUnit: 'cm2', value: 1 },
-        { id: '2', from: '1平方千米', to: '平方米', description: '1km² = 1000000m²', fromUnit: 'km2', toUnit: 'm2', value: 1 },
-        { id: '3', from: '1英亩', to: '平方米', description: '1英亩 ≈ 4047m²', fromUnit: 'acre', toUnit: 'm2', value: 1 },
-        { id: '4', from: '1平方英尺', to: '平方米', description: '1ft² ≈ 0.093m²', fromUnit: 'ft2', toUnit: 'm2', value: 1 }
-      ],
-      volume: [
-        { id: '1', from: '1升', to: '毫升', description: '1升 = 1000毫升', fromUnit: 'l', toUnit: 'ml', value: 1 },
-        { id: '2', from: '1立方米', to: '升', description: '1m³ = 1000升', fromUnit: 'm3', toUnit: 'l', value: 1 },
-        { id: '3', from: '1加仑', to: '升', description: '1加仑 ≈ 3.79升', fromUnit: 'gallon', toUnit: 'l', value: 1 },
-        { id: '4', from: '1杯', to: '毫升', description: '1杯 ≈ 237毫升', fromUnit: 'cup', toUnit: 'ml', value: 1 }
-      ]
-    };
-    
-    return quickMap[type] || [];
-  },
-
-  // 转换类型改变
-  onTypeChange(e: WechatMiniprogram.TouchEvent) {
-    const type = e.currentTarget.dataset.type as string;
-    this.setData({
-      currentType: type,
-      inputValue: '',
-      outputValue: '0',
-      fromUnitIndex: 0,
-      toUnitIndex: 1
-    });
-    
-    this.initConverter();
-    LoggerService.info('Conversion type changed to:', type);
-  },
-
-  // 输入值改变
-  onInputChange(e: WechatMiniprogram.Input) {
-    const value = e.detail.value;
-    this.setData({ inputValue: value });
-    
-    if (value) {
-      this.performConversion();
-    } else {
-      this.setData({ outputValue: '0' });
-    }
-  },
-
-  // 输入确认
-  onInputConfirm() {
-    this.performConversion();
-  },
-
-  // 源单位改变
-  onFromUnitChange(e: WechatMiniprogram.PickerChange) {
-    const index = parseInt(e.detail.value as string);
-    this.setData({ fromUnitIndex: index });
-    
-    if (this.data.inputValue) {
-      this.performConversion();
-    }
-  },
-
-  // 目标单位改变
-  onToUnitChange(e: WechatMiniprogram.PickerChange) {
-    const index = parseInt(e.detail.value as string);
-    this.setData({ toUnitIndex: index });
-    
-    if (this.data.inputValue) {
-      this.performConversion();
-    }
-  },
-
-  // 交换单位
-  onSwapUnits() {
-    const { fromUnitIndex, toUnitIndex, outputValue } = this.data;
-    
-    this.setData({
-      fromUnitIndex: toUnitIndex,
-      toUnitIndex: fromUnitIndex,
-      inputValue: outputValue !== '0' ? outputValue : '',
-      outputValue: '0'
-    });
-    
-    if (this.data.inputValue) {
-      this.performConversion();
-    }
-    
-    LoggerService.info('Units swapped');
-  },
-
-  // 执行转换
-  async performConversion() {
-    const { inputValue, fromUnits, toUnits, fromUnitIndex, toUnitIndex, currentType } = this.data;
-    
-    if (!inputValue || !fromUnits.length || !toUnits.length) {
-      return;
-    }
-    
-    const inputNum = parseFloat(inputValue);
-    if (isNaN(inputNum)) {
-      this.setData({ outputValue: '无效输入' });
-      return;
-    }
-    
+  async onChooseImage() {
     try {
-      const fromUnit = fromUnits[fromUnitIndex];
-      const toUnit = toUnits[toUnitIndex];
+      this.setData({ isLoading: true, loadingText: '选择图片中...' });
       
-      let result: number;
-      
-      if (currentType === 'temperature') {
-        // 温度转换需要特殊处理
-        result = this.convertTemperature(inputNum, fromUnit, toUnit);
-      } else {
-        // 其他单位转换
-        result = this.convertUnit(inputNum, fromUnit, toUnit);
-      }
-      
-      const formattedResult = this.formatResult(result);
-      this.setData({ outputValue: formattedResult });
-      
-      // 保存到历史记录
-      if (inputValue !== '' && formattedResult !== '0') {
-        await this.saveToHistory(inputValue, formattedResult, fromUnit.name, toUnit.name);
-      }
-      
-      LoggerService.info('Conversion completed:', {
-        input: `${inputValue} ${fromUnit.name}`,
-        output: `${formattedResult} ${toUnit.name}`
+      const res = await wx.chooseImage({
+        count: 1,
+        sizeType: ['original'],
+        sourceType: ['album', 'camera']
       });
-      
+
+      if (res.tempFilePaths && res.tempFilePaths.length > 0) {
+        const tempFilePath = res.tempFilePaths[0];
+        await this.processSelectedImage(tempFilePath);
+      }
     } catch (error) {
-      LoggerService.error('Conversion error:', error);
-      this.setData({ outputValue: '转换错误' });
+      LoggerService.error('Choose image failed:', error);
+      this.showError('选择图片失败', error);
+    } finally {
+      this.setData({ isLoading: false });
+    }
+  },
+
+  async processSelectedImage(tempFilePath: string) {
+    try {
+      this.setData({ loadingText: '分析图片中...' });
       
-      wx.showToast({
-        title: '转换失败',
-        icon: 'none',
-        duration: 2000
-      });
-    }
-  },
-
-  // 单位转换（非温度）
-  convertUnit(value: number, fromUnit: Unit, toUnit: Unit): number {
-    // 先转换到基础单位，再转换到目标单位
-    const baseValue = value * fromUnit.factor;
-    return baseValue / toUnit.factor;
-  },
-
-  // 温度转换
-  convertTemperature(value: number, fromUnit: Unit, toUnit: Unit): number {
-    // 先转换到摄氏度
-    let celsius: number;
-    
-    switch (fromUnit.id) {
-      case 'celsius':
-        celsius = value;
-        break;
-      case 'fahrenheit':
-        celsius = (value - 32) * 5 / 9;
-        break;
-      case 'kelvin':
-        celsius = value - 273.15;
-        break;
-      default:
-        throw new Error('Unknown temperature unit');
-    }
-    
-    // 从摄氏度转换到目标单位
-    switch (toUnit.id) {
-      case 'celsius':
-        return celsius;
-      case 'fahrenheit':
-        return celsius * 9 / 5 + 32;
-      case 'kelvin':
-        return celsius + 273.15;
-      default:
-        throw new Error('Unknown temperature unit');
-    }
-  },
-
-  // 格式化结果
-  formatResult(result: number): string {
-    if (!isFinite(result)) {
-      return '无穷大';
-    }
-    
-    if (isNaN(result)) {
-      return '未定义';
-    }
-    
-    // 根据数值大小选择合适的精度
-    const absResult = Math.abs(result);
-    let precision: number;
-    
-    if (absResult >= 1000000) {
-      precision = 2;
-    } else if (absResult >= 1000) {
-      precision = 3;
-    } else if (absResult >= 1) {
-      precision = 6;
-    } else {
-      precision = 8;
-    }
-    
-    // 使用科学记数法处理极大或极小的数
-    if (absResult > 1e12 || (absResult < 1e-6 && absResult > 0)) {
-      return result.toExponential(4);
-    }
-    
-    const rounded = parseFloat(result.toPrecision(precision));
-    
-    // 移除末尾的0
-    return rounded.toString().replace(/\.?0+$/, '');
-  },
-
-  // 快捷转换
-  onQuickConversion(e: WechatMiniprogram.TouchEvent) {
-    const conversion = e.currentTarget.dataset.conversion as QuickConversion;
-    const { fromUnits, toUnits } = this.data;
-    
-    // 找到对应的单位索引
-    const fromIndex = fromUnits.findIndex(unit => unit.id === conversion.fromUnit);
-    const toIndex = toUnits.findIndex(unit => unit.id === conversion.toUnit);
-    
-    if (fromIndex !== -1 && toIndex !== -1) {
+      const imageInfo = await this.getImageInfo(tempFilePath);
+      const defaultName = `image_${Date.now()}`;
+      
       this.setData({
-        inputValue: conversion.value.toString(),
-        fromUnitIndex: fromIndex,
-        toUnitIndex: toIndex
+        currentImage: imageInfo,
+        processedImage: null,
+        outputFileName: defaultName
       });
-      
-      this.performConversion();
-      
+
       wx.showToast({
-        title: '已应用快捷转换',
-        icon: 'success',
-        duration: 1500
+        title: '图片加载成功',
+        icon: 'success'
       });
+    } catch (error) {
+      this.showError('处理图片失败', error);
     }
   },
 
-  // 保存到历史记录
-  async saveToHistory(inputValue: string, outputValue: string, fromUnit: string, toUnit: string) {
-    const history = [...this.data.history];
-    const now = new Date();
-    
-    const historyItem: ConversionHistory = {
-      id: Date.now().toString(),
-      type: this.data.currentType,
-      inputValue,
-      outputValue,
-      fromUnit,
-      toUnit,
-      time: formatTime(now.getTime(), 'HH:mm:ss'),
-      timestamp: now.getTime()
+  async getImageInfo(path: string): Promise<ImageInfo> {
+    return new Promise((resolve, reject) => {
+      wx.getImageInfo({
+        src: path,
+        success: (res) => {
+          const timestamp = Date.now();
+          resolve({
+            id: timestamp.toString(),
+            name: `image_${timestamp}`,
+            path: res.path,
+            size: 0, // 微信小程序无法直接获取文件大小
+            width: res.width,
+            height: res.height,
+            format: res.type || 'unknown',
+            uploadTime: formatTime(timestamp)
+          });
+        },
+        fail: reject
+      });
+    });
+  },
+
+  onOptionChange(e: WechatMiniprogram.TouchEvent) {
+    const option = e.currentTarget.dataset.option;
+    this.setData({ currentOption: option });
+  },
+
+  onFileNameInput(e: WechatMiniprogram.Input) {
+    this.setData({ outputFileName: e.detail.value });
+  },
+
+  onFormatChange(e: WechatMiniprogram.TouchEvent) {
+    const format = e.currentTarget.dataset.format;
+    this.setData({ outputFormat: format });
+  },
+
+  onQualityChange(e: WechatMiniprogram.SliderChange) {
+    this.setData({ outputQuality: e.detail.value });
+  },
+
+  onCropRatioChange(e: WechatMiniprogram.TouchEvent) {
+    const ratio = e.currentTarget.dataset.ratio;
+    this.setData({ selectedCropRatio: ratio });
+  },
+
+  async onProcessImage() {
+    if (!this.data.currentImage) {
+      this.showError('请先选择图片');
+      return;
+    }
+
+    try {
+      this.setData({ isLoading: true, loadingText: '处理图片中...' });
+      
+      let processedImage: ImageInfo;
+      
+      switch (this.data.currentOption) {
+        case 'format':
+          processedImage = await this.convertFormat();
+          break;
+        case 'crop':
+          processedImage = await this.cropImage();
+          break;
+        case 'compress':
+          processedImage = await this.compressImage();
+          break;
+        case 'rename':
+          processedImage = await this.renameImage();
+          break;
+        default:
+          throw new Error('未知的处理选项');
+      }
+
+      this.setData({ processedImage });
+      
+      if (this.data.currentImage) {
+        await this.saveToHistory(this.data.currentImage, processedImage, this.data.currentOption);
+      }
+      
+      wx.showToast({
+        title: '处理完成',
+        icon: 'success'
+      });
+
+    } catch (error) {
+      this.showError('图片处理失败', error);
+    } finally {
+      this.setData({ isLoading: false });
+    }
+  },
+
+  async convertFormat(): Promise<ImageInfo> {
+    return new Promise((resolve, reject) => {
+      if (!this.data.currentImage) {
+        reject(new Error('没有选择图片'));
+        return;
+      }
+
+      const canvasId = 'imageCanvas';
+      const ctx = wx.createCanvasContext(canvasId);
+      
+      const img = this.data.currentImage;
+      
+      ctx.drawImage(img.path, 0, 0, img.width, img.height);
+      ctx.draw(false, () => {
+        wx.canvasToTempFilePath({
+          canvasId,
+          width: img.width,
+          height: img.height,
+          destWidth: img.width,
+          destHeight: img.height,
+          fileType: this.data.outputFormat as 'jpg' | 'png',
+          quality: this.data.outputQuality / 100,
+          success: async (res) => {
+            const newImageInfo = await this.getImageInfo(res.tempFilePath);
+            newImageInfo.name = this.data.outputFileName || newImageInfo.name;
+            newImageInfo.format = this.data.outputFormat;
+            resolve(newImageInfo);
+          },
+          fail: reject
+        });
+      });
+    });
+  },
+
+  async cropImage(): Promise<ImageInfo> {
+    return new Promise((resolve, reject) => {
+      if (!this.data.currentImage) {
+        reject(new Error('没有选择图片'));
+        return;
+      }
+
+      const img = this.data.currentImage;
+      const selectedRatio = this.data.cropRatios.find(r => r.id === this.data.selectedCropRatio);
+      
+      if (!selectedRatio) {
+        reject(new Error('未选择裁剪比例'));
+        return;
+      }
+
+      let cropWidth = img.width;
+      let cropHeight = img.height;
+      let cropX = 0;
+      let cropY = 0;
+
+      if (selectedRatio.ratio > 0) {
+        const imgRatio = img.width / img.height;
+        
+        if (imgRatio > selectedRatio.ratio) {
+          cropWidth = img.height * selectedRatio.ratio;
+          cropHeight = img.height;
+          cropX = (img.width - cropWidth) / 2;
+        } else {
+          cropWidth = img.width;
+          cropHeight = img.width / selectedRatio.ratio;
+          cropY = (img.height - cropHeight) / 2;
+        }
+      }
+
+      const canvasId = 'imageCanvas';
+      const ctx = wx.createCanvasContext(canvasId);
+      
+      ctx.drawImage(img.path, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+      ctx.draw(false, () => {
+        wx.canvasToTempFilePath({
+          canvasId,
+          x: 0,
+          y: 0,
+          width: cropWidth,
+          height: cropHeight,
+          destWidth: cropWidth,
+          destHeight: cropHeight,
+          fileType: this.data.outputFormat as 'jpg' | 'png',
+          quality: this.data.outputQuality / 100,
+          success: async (res) => {
+            const newImageInfo = await this.getImageInfo(res.tempFilePath);
+            newImageInfo.name = this.data.outputFileName || newImageInfo.name;
+            resolve(newImageInfo);
+          },
+          fail: reject
+        });
+      });
+    });
+  },
+
+  async compressImage(): Promise<ImageInfo> {
+    return new Promise((resolve, reject) => {
+      if (!this.data.currentImage) {
+        reject(new Error('没有选择图片'));
+        return;
+      }
+
+      const img = this.data.currentImage;
+      const canvasId = 'imageCanvas';
+      const ctx = wx.createCanvasContext(canvasId);
+      
+      ctx.drawImage(img.path, 0, 0, img.width, img.height);
+      ctx.draw(false, () => {
+        wx.canvasToTempFilePath({
+          canvasId,
+          width: img.width,
+          height: img.height,
+          destWidth: img.width,
+          destHeight: img.height,
+          fileType: 'jpg',
+          quality: this.data.outputQuality / 100,
+          success: async (res) => {
+            const newImageInfo = await this.getImageInfo(res.tempFilePath);
+            newImageInfo.name = this.data.outputFileName || newImageInfo.name;
+            resolve(newImageInfo);
+          },
+          fail: reject
+        });
+      });
+    });
+  },
+
+  async renameImage(): Promise<ImageInfo> {
+    if (!this.data.currentImage) {
+      throw new Error('没有选择图片');
+    }
+
+    const newImageInfo = { ...this.data.currentImage };
+    newImageInfo.name = this.data.outputFileName || newImageInfo.name;
+    newImageInfo.id = Date.now().toString();
+    return newImageInfo;
+  },
+
+  async onSaveToAlbum() {
+    if (!this.data.processedImage) {
+      this.showError('没有处理后的图片可保存');
+      return;
+    }
+
+    try {
+      await wx.saveImageToPhotosAlbum({
+        filePath: this.data.processedImage.path
+      });
+      
+      wx.showToast({
+        title: '保存成功',
+        icon: 'success'
+      });
+
+      this.addSimpleHistory('保存到相册', {
+        imageName: this.data.processedImage.name,
+        success: true
+      });
+
+    } catch (error) {
+      this.showError('保存失败', error);
+    }
+  },
+
+  onResetImage() {
+    this.setData({
+      currentImage: null,
+      processedImage: null,
+      outputFileName: ''
+    });
+  },
+
+  async saveToHistory(originalImage: ImageInfo, processedImage: ImageInfo, operation: string) {
+    const timestamp = Date.now();
+    const historyItem: ProcessHistory = {
+      id: timestamp.toString(),
+      originalImage,
+      processedImage,
+      operation,
+      parameters: {
+        outputFormat: this.data.outputFormat,
+        outputQuality: this.data.outputQuality,
+        selectedCropRatio: this.data.selectedCropRatio,
+        outputFileName: this.data.outputFileName
+      },
+      time: formatTime(timestamp),
+      timestamp
     };
-    
+
+    const history = [...this.data.history];
     history.unshift(historyItem);
     
-    // 限制历史记录数量
-    if (history.length > 50) {
-      history.splice(50);
-    }
-    
-    this.setData({ history });
-    
+    this.setData({
+      history: history.slice(0, 20) // 保留最近20条记录
+    });
+
     try {
-      // 保存到数据管理器
-      await dataManager.setCacheData('converter_history', history);
-      
-      // 同时记录转换操作
-      await dataManager.addUsageRecord({
-        toolId: 'converter',
-        toolName: '单位转换',
-        category: '工具',
-        data: { 
-          type: this.data.currentType,
-          inputValue, 
-          outputValue, 
-          fromUnit, 
-          toUnit 
-        }
-      });
+      StorageService.set('image_converter_history', history);
     } catch (error) {
-      LoggerService.error('Failed to save converter history:', error);
+      LoggerService.error('保存历史记录失败:', error);
     }
   },
 
-  // 加载历史记录
   async loadHistory() {
     try {
-      const history = await dataManager.getCacheData('converter_history') || [];
+      const history = StorageService.get('image_converter_history') || [];
       this.setData({ history });
     } catch (error) {
-      LoggerService.error('Failed to load converter history:', error);
-      // 回退到本地存储
-      const history = StorageService.get('converter_history') || [];
-      this.setData({ history });
+      LoggerService.error('加载历史记录失败:', error);
     }
   },
 
-  // 选择历史记录
-  onSelectHistory(e: WechatMiniprogram.TouchEvent) {
-    const item = e.currentTarget.dataset.item as ConversionHistory;
-    // const { fromUnits, toUnits } = this.data;
-    
-    // 如果历史记录的类型与当前类型不同，先切换类型
-    if (item.type !== this.data.currentType) {
-      this.setData({ currentType: item.type });
-      this.initConverter();
-      
-      // 等待数据更新后再设置值
-      setTimeout(() => {
-        this.applyHistoryItem(item);
-      }, 100);
-    } else {
-      this.applyHistoryItem(item);
-    }
-  },
-
-  // 应用历史记录项
-  applyHistoryItem(item: ConversionHistory) {
-    const { fromUnits, toUnits } = this.data;
-    
-    // 找到对应的单位索引
-    const fromIndex = fromUnits.findIndex(unit => unit.name === item.fromUnit);
-    const toIndex = toUnits.findIndex(unit => unit.name === item.toUnit);
-    
-    if (fromIndex !== -1 && toIndex !== -1) {
-      this.setData({
-        inputValue: item.inputValue,
-        fromUnitIndex: fromIndex,
-        toUnitIndex: toIndex
-      });
-      
-      this.performConversion();
-      
-      wx.showToast({
-        title: '已选择历史记录',
-        icon: 'success',
-        duration: 1500
-      });
-    }
-  },
-
-  // 清空历史记录
   onClearHistory() {
     wx.showModal({
       title: '确认清空',
-      content: '确定要清空所有转换历史吗？',
-      success: async (res) => {
+      content: '确定要清空所有历史记录吗？',
+      success: (res) => {
         if (res.confirm) {
-          this.setData({ history: [] });
-          
-          try {
-            await dataManager.setCacheData('converter_history', []);
-          } catch (error) {
-            LoggerService.error('Failed to clear converter history:', error);
-          }
-          
+          this.setData({ 
+            history: [],
+            simpleHistory: []
+          });
+          StorageService.remove('image_converter_history');
           wx.showToast({
-            title: '历史记录已清空',
-            icon: 'success',
-            duration: 1500
+            title: '已清空',
+            icon: 'success'
           });
         }
       }
     });
   },
 
-  // 复制结果
-  onCopyResult() {
-    const { outputValue } = this.data;
-    
-    wx.setClipboardData({
-      data: outputValue,
-      success: () => {
+  cleanupTempFiles() {
+    // 清理临时文件的逻辑（如果需要）
+    LoggerService.info('Cleaning up temp files');
+  },
+
+  async checkFavoriteStatus() {
+    try {
+      const isFavorite = await dataManager.isFavorite('image-converter');
+      this.setData({ isFavorite });
+    } catch (error) {
+      LoggerService.error('检查收藏状态失败:', error);
+    }
+  },
+
+  async onToggleFavorite() {
+    try {
+      const result = await dataManager.toggleFavorite('image-converter');
+      
+      if (result.success) {
+        this.setData({ isFavorite: result.isFavorite });
         wx.showToast({
-          title: '已复制到剪贴板',
-          icon: 'success',
-          duration: 1500
+          title: result.isFavorite ? '已添加到收藏' : '已取消收藏',
+          icon: 'success'
         });
-        LoggerService.info('Result copied to clipboard:', outputValue);
-      },
-      fail: (error) => {
-        LoggerService.error('Failed to copy result:', error);
-        wx.showToast({
-          title: '复制失败',
-          icon: 'none',
-          duration: 1500
-        });
+      } else {
+        this.showError(result.message || '操作失败');
       }
+    } catch (error) {
+      this.showError('操作失败', error);
+    }
+  },
+
+  addSimpleHistory(operation: string, details: any) {
+    const timestamp = Date.now();
+    const historyItem: SimpleHistory = {
+      id: timestamp.toString(),
+      operation,
+      timestamp,
+      time: formatTime(timestamp),
+      details,
+      success: true
+    };
+
+    const simpleHistory = [...this.data.simpleHistory];
+    simpleHistory.unshift(historyItem);
+    
+    this.setData({
+      simpleHistory: simpleHistory.slice(0, 50)
     });
+  },
+
+  showError(message: string, error?: any) {
+    console.error('图片转换错误:', message, error);
+    
+    let errorDetail = '';
+    if (error) {
+      if (error instanceof Error) {
+        errorDetail = error.message;
+      } else if (typeof error === 'string') {
+        errorDetail = error;
+      } else {
+        errorDetail = JSON.stringify(error);
+      }
+    }
+    
+    wx.showToast({
+      title: message,
+      icon: 'error',
+      duration: 3000
+    });
+
+    this.addSimpleHistory('错误', { message, error: errorDetail });
+  },
+
+  async saveHistoryToStorage() {
+    try {
+      await dataManager.addUsageRecord({
+        toolId: 'image-converter',
+        toolName: '图片转换',
+        category: '图片处理',
+        data: {
+          processHistory: this.data.history.slice(0, 10)
+        }
+      });
+    } catch (error) {
+      LoggerService.error('保存历史记录失败:', error);
+    }
   }
 }); 

@@ -1,0 +1,26 @@
+# Task ID: 7
+# Title: 文本工具开发
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: 开发文本处理相关工具
+# Details:
+实现字数统计、文本格式转换、文本加密解密、文本比较等功能。支持多种文本处理需求。
+
+# Test Strategy:
+测试各种文本处理功能的准确性和性能，验证大文本处理能力。
+
+# Subtasks:
+## 1. 文本处理工具开发 [pending]
+### Dependencies: None
+### Description: 开发文本处理工具集，包括字数统计、格式转换等功能
+### Details:
+需要实现：
+1. 字数统计工具（字符、单词、段落）
+2. 文本格式转换（大小写转换）
+3. 文本编码转换工具
+4. JSON格式化和验证
+5. Base64编码解码工具
+6. URL编码解码工具
+7. Markdown转HTML工具
+

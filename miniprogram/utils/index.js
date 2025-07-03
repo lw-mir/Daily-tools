@@ -9,14 +9,15 @@ exports.MathUtils = exports.ColorUtils = exports.formatBytes = exports.getFileEx
  * @param timestamp 时间戳
  * @param format 格式化字符串
  */
-function formatTime(timestamp, format = 'YYYY-MM-DD HH:mm:ss') {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hour = date.getHours().toString().padStart(2, '0');
-    const minute = date.getMinutes().toString().padStart(2, '0');
-    const second = date.getSeconds().toString().padStart(2, '0');
+function formatTime(timestamp, format) {
+    if (format === void 0) { format = 'YYYY-MM-DD HH:mm:ss'; }
+    var date = new Date(timestamp);
+    var year = date.getFullYear();
+    var month = (date.getMonth() + 1).toString().padStart(2, '0');
+    var day = date.getDate().toString().padStart(2, '0');
+    var hour = date.getHours().toString().padStart(2, '0');
+    var minute = date.getMinutes().toString().padStart(2, '0');
+    var second = date.getSeconds().toString().padStart(2, '0');
     return format
         .replace('YYYY', year.toString())
         .replace('MM', month)
@@ -32,12 +33,16 @@ exports.formatTime = formatTime;
  * @param delay 延迟时间
  */
 function debounce(func, delay) {
-    let timeoutId;
-    return (...args) => {
+    var timeoutId;
+    return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
         if (timeoutId) {
             clearTimeout(timeoutId);
         }
-        timeoutId = setTimeout(() => func(...args), delay);
+        timeoutId = setTimeout(function () { return func.apply(void 0, args); }, delay);
     };
 }
 exports.debounce = debounce;
@@ -47,11 +52,15 @@ exports.debounce = debounce;
  * @param delay 延迟时间
  */
 function throttle(func, delay) {
-    let lastExecTime = 0;
-    return (...args) => {
-        const currentTime = Date.now();
+    var lastExecTime = 0;
+    return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var currentTime = Date.now();
         if (currentTime - lastExecTime > delay) {
-            func(...args);
+            func.apply(void 0, args);
             lastExecTime = currentTime;
         }
     };
@@ -69,11 +78,11 @@ function deepClone(obj) {
         return new Date(obj.getTime());
     }
     if (obj instanceof Array) {
-        return obj.map(item => deepClone(item));
+        return obj.map(function (item) { return deepClone(item); });
     }
     if (typeof obj === 'object') {
-        const clonedObj = {};
-        for (const key in obj) {
+        var clonedObj = {};
+        for (var key in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, key)) {
                 clonedObj[key] = deepClone(obj[key]);
             }
@@ -95,7 +104,7 @@ exports.generateId = generateId;
  * @param phone 手机号
  */
 function isValidPhone(phone) {
-    const phoneRegex = /^1[3-9]\d{9}$/;
+    var phoneRegex = /^1[3-9]\d{9}$/;
     return phoneRegex.test(phone);
 }
 exports.isValidPhone = isValidPhone;
@@ -104,7 +113,7 @@ exports.isValidPhone = isValidPhone;
  * @param email 邮箱
  */
 function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
 exports.isValidEmail = isValidEmail;
@@ -123,9 +132,9 @@ exports.getFileExtension = getFileExtension;
 function formatBytes(bytes) {
     if (bytes === 0)
         return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    var k = 1024;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 exports.formatBytes = formatBytes;
@@ -136,17 +145,17 @@ exports.ColorUtils = {
     /**
      * RGB转HEX
      */
-    rgbToHex(r, g, b) {
-        return '#' + [r, g, b].map(x => {
-            const hex = x.toString(16);
+    rgbToHex: function (r, g, b) {
+        return '#' + [r, g, b].map(function (x) {
+            var hex = x.toString(16);
             return hex.length === 1 ? '0' + hex : hex;
         }).join('');
     },
     /**
      * HEX转RGB
      */
-    hexToRgb(hex) {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    hexToRgb: function (hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
             r: parseInt(result[1], 16),
             g: parseInt(result[2], 16),
@@ -161,36 +170,36 @@ exports.MathUtils = {
     /**
      * 精确加法
      */
-    add(a, b) {
-        const aDecimal = (a.toString().split('.')[1] || '').length;
-        const bDecimal = (b.toString().split('.')[1] || '').length;
-        const maxDecimal = Math.max(aDecimal, bDecimal);
-        const multiplier = Math.pow(10, maxDecimal);
+    add: function (a, b) {
+        var aDecimal = (a.toString().split('.')[1] || '').length;
+        var bDecimal = (b.toString().split('.')[1] || '').length;
+        var maxDecimal = Math.max(aDecimal, bDecimal);
+        var multiplier = Math.pow(10, maxDecimal);
         return (Math.round(a * multiplier) + Math.round(b * multiplier)) / multiplier;
     },
     /**
      * 精确减法
      */
-    subtract(a, b) {
+    subtract: function (a, b) {
         return this.add(a, -b);
     },
     /**
      * 精确乘法
      */
-    multiply(a, b) {
-        const aDecimal = (a.toString().split('.')[1] || '').length;
-        const bDecimal = (b.toString().split('.')[1] || '').length;
-        const multiplier = Math.pow(10, aDecimal + bDecimal);
+    multiply: function (a, b) {
+        var aDecimal = (a.toString().split('.')[1] || '').length;
+        var bDecimal = (b.toString().split('.')[1] || '').length;
+        var multiplier = Math.pow(10, aDecimal + bDecimal);
         return (Math.round(a * Math.pow(10, aDecimal)) * Math.round(b * Math.pow(10, bDecimal))) / multiplier;
     },
     /**
      * 精确除法
      */
-    divide(a, b) {
+    divide: function (a, b) {
         if (b === 0)
             throw new Error('除数不能为零');
-        const aDecimal = (a.toString().split('.')[1] || '').length;
-        const bDecimal = (b.toString().split('.')[1] || '').length;
+        var aDecimal = (a.toString().split('.')[1] || '').length;
+        var bDecimal = (b.toString().split('.')[1] || '').length;
         return (Math.round(a * Math.pow(10, aDecimal)) / Math.round(b * Math.pow(10, bDecimal))) * Math.pow(10, bDecimal - aDecimal);
     }
 };

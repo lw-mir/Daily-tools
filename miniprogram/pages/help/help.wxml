@@ -1,18 +1,5 @@
 <!--help.wxml-->
 <view class="container">
-  <!-- 搜索栏 -->
-  <view class="search-bar">
-    <input 
-      class="search-input" 
-      placeholder="搜索帮助内容..." 
-      value="{{searchText}}"
-      bindinput="onSearchInput"
-      confirm-type="search"
-      bindconfirm="onSearchConfirm"
-    />
-    <view class="search-icon">🔍</view>
-    <view wx:if="{{searchText}}" class="clear-icon" bindtap="onClearSearch">✕</view>
-  </view>
 
   <!-- 帮助内容 -->
   <view class="help-content">
@@ -81,34 +68,78 @@
   </view>
 
   <!-- 联系我们 -->
-  <view class="contact-section">
-    <view class="section-header">
-      <view class="section-icon">📞</view>
-      <text class="section-title">联系我们</text>
+  <!-- <view class="contact-section">
+    <view class="contact-header">
+      <view class="contact-header-left">
+        <view class="contact-icon-large">📞</view>
+        <view class="contact-header-text">
+          <text class="contact-title">联系我们</text>
+          <text class="contact-subtitle">随时为您提供帮助</text>
+        </view>
+      </view>
+      <view class="contact-decoration"></view>
     </view>
     
-    <view class="contact-list">
+    <view class="contact-grid">
       <view 
         wx:for="{{contactInfo}}" 
         wx:key="type"
-        class="contact-item"
+        class="contact-card"
         bindtap="onContactTap"
         data-contact="{{item}}"
       >
-        <view class="contact-icon">{{item.icon}}</view>
-        <view class="contact-info">
-          <text class="contact-label">{{item.label}}</text>
-          <text class="contact-value">{{item.value}}</text>
+        <view class="contact-card-icon">{{item.icon}}</view>
+        <view class="contact-card-content">
+          <text class="contact-card-label">{{item.label}}</text>
+          <text class="contact-card-value">{{item.value}}</text>
         </view>
-        <view class="contact-arrow">▶</view>
+        <view class="contact-card-arrow">→</view>
       </view>
     </view>
-  </view>
+  </view> -->
 
   <!-- 应用信息 -->
-  <view class="app-info">
-    <text class="app-version">版本 {{appInfo.version}}</text>
-    <text class="update-time">更新时间：{{appInfo.updateTime}}</text>
+  <view class="app-info-section">
+    <!-- <view class="app-info-card">
+      <view class="app-logo">
+        <view class="logo-circle">
+          <text class="logo-text">DT</text>
+        </view>
+        <view class="logo-shine"></view>
+      </view>
+      
+      <view class="app-details">
+        <text class="app-name">Dailytools</text>
+        <text class="app-description">您的日常工具助手</text>
+        
+        <view class="app-meta">
+          <view class="meta-item">
+            <view class="meta-icon">📱</view>
+            <text class="meta-text">版本 {{appInfo.version}}</text>
+          </view>
+          <view class="meta-item">
+            <view class="meta-icon">🕒</view>
+            <text class="meta-text">{{appInfo.updateTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view> -->
+    
+    <!-- 快速操作 -->
+    <!-- <view class="quick-actions">
+      <view class="action-item" bindtap="onFeedbackTap">
+        <view class="action-icon">💬</view>
+        <text class="action-text">意见反馈</text>
+      </view>
+      <view class="action-item" bindtap="onRateTap">
+        <view class="action-icon">⭐</view>
+        <text class="action-text">给我评分</text>
+      </view>
+      <view class="action-item" bindtap="onShareTap">
+        <view class="action-icon">📤</view>
+        <text class="action-text">分享应用</text>
+      </view>
+    </view> -->
   </view>
 
   <!-- 空状态 -->

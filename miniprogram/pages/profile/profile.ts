@@ -2,10 +2,22 @@ import { StorageService } from '../../utils/storage';
 import { LoggerService } from '../../utils/logger';
 import { formatTime } from '../../utils/index';
 import { dataManager } from '../../utils/dataManager';
+import { authManager } from '../../utils/authManager';
+import { userInfoProcessor } from '../../utils/userInfoProcessor';
+import { userDataStorage } from '../../utils/userDataStorage';
 
 interface UserInfo {
   nickName: string;
   avatarUrl: string;
+  gender: number;
+  country: string;
+  province: string;
+  city: string;
+  language: string;
+  displayName?: string;
+  avatarValid?: boolean;
+  location?: string;
+  processedAt?: number;
 }
 
 interface UsageStats {
@@ -34,6 +46,12 @@ interface ProfileData {
   // 用户信息
   userInfo: UserInfo;
   isLoggedIn: boolean;
+  loginTimeText: string;
+  
+  // 登录相关状态
+  isLoggingIn: boolean;
+  showRetryModal: boolean;
+  authErrorMessage: string;
   
   // 统计数据
   stats: UsageStats;
@@ -54,15 +72,30 @@ interface ProfileData {
   // 状态
   isLoading: boolean;
   loadingText: string;
+  
+  // 用户等级和认证
+  userLevel: string;
+  isVerified: boolean;
 }
 
 Page({
   data: {
     userInfo: {
       nickName: '',
-      avatarUrl: ''
+      avatarUrl: '',
+      gender: 0,
+      country: '',
+      province: '',
+      city: '',
+      language: ''
     },
     isLoggedIn: false,
+    loginTimeText: '',
+    
+    // 登录相关状态
+    isLoggingIn: false,
+    showRetryModal: false,
+    authErrorMessage: '',
     
     stats: {
       totalUsage: 0,
@@ -88,7 +121,11 @@ Page({
     ],
     
     isLoading: false,
-    loadingText: '加载中...'
+    loadingText: '加载中...',
+    
+    // 用户等级和认证
+    userLevel: 'VIP',
+    isVerified: true
   } as ProfileData,
 
   onLoad() {
@@ -98,6 +135,7 @@ Page({
 
   onShow() {
     // 每次显示时刷新数据
+    this.checkLoginStatus();
     this.loadUserData();
     this.loadStats();
     this.loadFavoriteTools();
@@ -114,8 +152,8 @@ Page({
     this.setData({ isLoading: true, loadingText: '加载个人信息...' });
     
     try {
-      // 尝试获取用户信息
-      this.getUserInfo();
+      // 检查登录状态
+      this.checkLoginStatus();
       
       // 加载各项数据
       this.loadUserData();
@@ -132,64 +170,280 @@ Page({
     }
   },
 
-  // 获取用户信息
-  getUserInfo() {
-    const userInfo = StorageService.get('user_info');
-    if (userInfo) {
-      this.setData({
-        userInfo,
-        isLoggedIn: true
-      });
-    } else {
-      // 尝试从微信获取用户信息
-      wx.getUserInfo({
-        success: (res) => {
-          const userInfo = res.userInfo;
-          this.setData({
-            userInfo,
-            isLoggedIn: true
-          });
-          StorageService.set('user_info', userInfo);
-          LoggerService.info('User info obtained:', userInfo);
-        },
-        fail: () => {
-          LoggerService.info('User info not available');
-        }
-      });
+  // 检查登录状态
+  checkLoginStatus() {
+    try {
+      const isLoggedIn = authManager.isLoggedIn();
+      const userInfo = authManager.getUserInfo();
+      
+      if (isLoggedIn && userInfo) {
+        // 格式化登录时间
+        const loginState = authManager.getLoginStateInfo();
+        const loginTimeText = loginState ? 
+          formatTime(loginState.loginTime) : '';
+        
+        this.setData({
+          isLoggedIn: true,
+          userInfo,
+          loginTimeText
+        });
+        
+        LoggerService.info('用户已登录:', userInfo);
+        
+        // 验证用户信息
+        this.validateUserInfo(userInfo);
+      } else {
+        this.setData({
+          isLoggedIn: false,
+          userInfo: {
+            nickName: '',
+            avatarUrl: '',
+            gender: 0,
+            country: '',
+            province: '',
+            city: '',
+            language: ''
+          },
+          loginTimeText: ''
+        });
+        
+        LoggerService.info('用户未登录');
+      }
+    } catch (error) {
+      LoggerService.error('检查登录状态失败:', error);
     }
   },
 
-  // 用户登录
-  onGetUserInfo(e: any) {
-    if (e.detail.userInfo) {
-      const userInfo = e.detail.userInfo;
-      this.setData({
-        userInfo,
-        isLoggedIn: true
-      });
-      StorageService.set('user_info', userInfo);
+  // 验证用户信息
+  async validateUserInfo(userInfo: UserInfo) {
+    try {
+      const validation = await userInfoProcessor.validateUserInfo(userInfo);
       
-      wx.showToast({
-        title: '登录成功',
-        icon: 'success',
-        duration: 1500
-      });
+      if (!validation.isValid) {
+        LoggerService.warn('用户信息验证失败:', validation.errors);
+        
+        // 如果有严重错误，可以考虑重新获取用户信息
+        if (validation.errors.some(error => error.includes('头像') || error.includes('昵称'))) {
+          LoggerService.info('尝试刷新用户信息');
+          await this.refreshUserInfo();
+        }
+      }
       
-      LoggerService.info('User logged in:', userInfo);
+      if (validation.warnings.length > 0) {
+        LoggerService.warn('用户信息警告:', validation.warnings);
+      }
+    } catch (error) {
+      LoggerService.error('验证用户信息时出错:', error);
     }
+  },
+
+  // 刷新用户信息
+  async refreshUserInfo() {
+    try {
+      if (!authManager.isLoggedIn()) {
+        return;
+      }
+
+      const currentUserInfo = authManager.getUserInfo();
+      if (!currentUserInfo) {
+        return;
+      }
+
+      // 重新处理用户信息
+      const refreshedUserInfo = await userInfoProcessor.processUserInfo(currentUserInfo);
+      
+      // 更新登录状态
+      const loginState = authManager.getLoginStateInfo();
+      if (loginState) {
+        loginState.userInfo = refreshedUserInfo;
+        authManager.saveLoginState(loginState);
+        
+        // 更新页面数据
+        this.setData({
+          userInfo: refreshedUserInfo
+        });
+        
+        LoggerService.info('用户信息已刷新:', refreshedUserInfo);
+      }
+    } catch (error) {
+      LoggerService.error('刷新用户信息失败:', error);
+    }
+  },
+
+  // 微信授权登录
+  async onLogin() {
+    if (this.data.isLoggingIn) return;
+    
+    this.setData({ isLoggingIn: true });
+    
+    try {
+      LoggerService.info('开始微信授权登录');
+      
+      const result = await authManager.login();
+      
+      if (result.success && result.userInfo) {
+        // 登录成功
+        const loginState = authManager.getLoginStateInfo();
+        const loginTimeText = loginState ? 
+          formatTime(loginState.loginTime) : '';
+        
+        this.setData({
+          isLoggedIn: true,
+          userInfo: result.userInfo,
+          loginTimeText,
+          isLoggingIn: false
+        });
+        
+        // 重新加载用户相关数据
+        this.loadStats();
+        this.loadFavoriteTools();
+        this.loadRecentTools();
+        
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 2000
+        });
+        
+        LoggerService.info('微信授权登录成功');
+        
+      } else {
+        // 登录失败
+        this.setData({
+          isLoggingIn: false,
+          showRetryModal: true,
+          authErrorMessage: result.error || '登录失败，请重试'
+        });
+        
+        LoggerService.warn('微信授权登录失败:', result.error);
+      }
+      
+    } catch (error) {
+      this.setData({
+        isLoggingIn: false,
+        showRetryModal: true,
+        authErrorMessage: '网络错误，请检查网络连接'
+      });
+      
+      LoggerService.error('微信授权登录异常:', error);
+    }
+  },
+
+  // 头像加载成功
+  onAvatarLoad() {
+    LoggerService.info('用户头像加载成功');
+  },
+
+  // 头像加载失败，使用默认头像
+  onAvatarError() {
+    LoggerService.warn('用户头像加载失败，使用默认头像');
+    const defaultAvatars = [
+      '/images/default-avatar-1.png',
+      '/images/default-avatar-2.png', 
+      '/images/default-avatar-3.png'
+    ];
+    const randomAvatar = defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+    
+    this.setData({
+      'userInfo.avatarUrl': randomAvatar
+    });
+  },
+
+  // 显示用户详细信息
+  showUserInfoDetail() {
+    if (!this.data.isLoggedIn || !this.data.userInfo) return;
+    
+    const userInfo = this.data.userInfo;
+    const genderText = userInfo.gender === 1 ? '男' : userInfo.gender === 2 ? '女' : '未知';
+    const details = [
+      `昵称：${userInfo.nickName || '未设置'}`,
+      `性别：${genderText}`,
+      `城市：${userInfo.city || '未知'}`,
+      `省份：${userInfo.province || '未知'}`,
+      `国家：${userInfo.country || '未知'}`,
+      `语言：${userInfo.language || '未知'}`,
+      `登录时间：${this.data.loginTimeText || '未知'}`
+    ].join('\n');
+    
+    wx.showModal({
+      title: '用户信息详情',
+      content: details,
+      showCancel: false,
+      confirmText: '确定'
+    });
+  },
+
+  // 退出登录
+  onLogout() {
+    wx.showModal({
+      title: '确认退出',
+      content: '退出登录后将无法查看个人数据，确定要退出吗？',
+      success: (res) => {
+        if (res.confirm) {
+          authManager.logout();
+          
+          this.setData({
+            isLoggedIn: false,
+            userInfo: {
+              nickName: '',
+              avatarUrl: '',
+              gender: 0,
+              country: '',
+              province: '',
+              city: '',
+              language: ''
+            },
+            loginTimeText: '',
+            favoriteTools: [],
+            recentTools: [],
+            stats: {
+              totalUsage: 0,
+              toolsUsed: 0,
+              daysActive: 0,
+              favorites: 0
+            }
+          });
+          
+          wx.showToast({
+            title: '已退出登录',
+            icon: 'success',
+            duration: 1500
+          });
+          
+          LoggerService.info('用户退出登录');
+        }
+      }
+    });
+  },
+
+  // 重试登录
+  async onRetryLogin() {
+    this.setData({ showRetryModal: false });
+    await this.onLogin();
+  },
+
+  // 关闭重试弹窗
+  onCloseRetryModal() {
+    this.setData({ showRetryModal: false });
   },
 
   // 加载用户数据
   async loadUserData() {
+    if (!this.data.isLoggedIn) return;
+    
     try {
       const userProfile = await dataManager.getUserProfile();
       if (userProfile) {
         this.setData({
           userInfo: {
-            nickName: userProfile.nickName,
-            avatarUrl: userProfile.avatarUrl
-          },
-          isLoggedIn: userProfile.isLoggedIn
+            nickName: userProfile.nickName || '',
+            avatarUrl: userProfile.avatarUrl || '',
+            gender: userProfile.gender || 0,
+            country: userProfile.country || '',
+            province: userProfile.province || '',
+            city: userProfile.city || '',
+            language: userProfile.language || ''
+          }
         });
       }
     } catch (error) {
@@ -199,61 +453,65 @@ Page({
 
   // 加载统计数据
   async loadStats() {
+    if (!this.data.isLoggedIn) {
+      this.setData({
+        stats: {
+          totalUsage: 0,
+          toolsUsed: 0,
+          daysActive: 0,
+          favorites: 0
+        }
+      });
+      return;
+    }
+    
     try {
-      const statistics = await dataManager.getAppStatistics();
-      const favoriteTools = await dataManager.getFavoriteTools();
-      
-      if (statistics) {
-        // 计算活跃天数
-        const activeDays = Object.keys(statistics.dailyUsage).length;
-        
-        this.setData({
-          stats: {
-            totalUsage: Math.floor(statistics.totalUsageTime / 1000), // 转换为秒
-            toolsUsed: Object.keys(statistics.toolUsageCount).length,
-            daysActive: activeDays,
-            favorites: favoriteTools.length
-          }
-        });
+      const stats = await dataManager.getUserStats();
+      if (stats) {
+        this.setData({ stats });
       }
     } catch (error) {
       LoggerService.error('Failed to load stats:', error);
+      this._loadStatsOld();
     }
   },
 
-  // 原有的loadStats方法内容
+  // 旧版统计数据加载（兼容）
   _loadStatsOld() {
     try {
-      const app = getApp<IAppOption>();
-      if (app.globalData && (app.globalData as any).dataManager) {
-        const dataManager = (app.globalData as any).dataManager;
-        
-        // 获取使用统计
-        const stats = dataManager.getUsageStats();
-        this.setData({ stats });
-      } else {
-        // 从本地存储获取统计数据
-        const localStats = StorageService.get('usage_stats') || {
-          totalUsage: 0,
-          toolsUsed: 0,
-          daysActive: 1,
-          favorites: 0
-        };
-        this.setData({ stats: localStats });
-      }
+      const favoriteTools = StorageService.get('favorite_tools') || [];
+      const usageHistory = StorageService.get('usage_history') || [];
+      const recentTools = StorageService.get('recent_tools') || [];
+
+      const toolsUsed = new Set(usageHistory.map((item: any) => item.toolId)).size;
+      const daysActive = new Set(usageHistory.map((item: any) => 
+        new Date(item.timestamp).toDateString()
+      )).size;
+
+      this.setData({
+        stats: {
+          totalUsage: usageHistory.length,
+          toolsUsed,
+          daysActive,
+          favorites: favoriteTools.length
+        }
+      });
     } catch (error) {
-      LoggerService.error('Failed to load stats:', error);
+      LoggerService.error('Failed to load old stats:', error);
     }
   },
 
   // 加载收藏工具
   async loadFavoriteTools() {
+    if (!this.data.isLoggedIn) {
+      this.setData({ favoriteTools: [] });
+      return;
+    }
+    
     try {
       const favoriteIds = await dataManager.getFavoriteTools();
       const favoriteTools = this.getToolsById(favoriteIds);
-      
       this.setData({ favoriteTools });
-      LoggerService.info('Favorite tools loaded:', favoriteTools.length);
     } catch (error) {
       LoggerService.error('Failed to load favorite tools:', error);
     }
@@ -261,21 +519,25 @@ Page({
 
   // 加载最近使用工具
   async loadRecentTools() {
+    if (!this.data.isLoggedIn) {
+      this.setData({ recentTools: [] });
+      return;
+    }
+    
     try {
-      const recentIds = await dataManager.getRecentTools();
-      const usageHistory = await dataManager.getUsageHistory();
-      
-      // 获取工具信息并添加最后使用时间
-      const recentTools = this.getToolsById(recentIds).map(tool => {
-        const lastUsage = usageHistory.find(record => record.toolId === tool.id);
-        return {
-          ...tool,
-          lastUsed: lastUsage ? this.formatLastUsed(lastUsage.timestamp) : '未知'
-        };
-      });
+      const recentHistory = await dataManager.getRecentToolsWithTimestamp(5);
+      const recentTools = recentHistory.map(item => {
+        const tool = this.getToolsById([item.toolId])[0];
+        if (tool) {
+          return {
+            ...tool,
+            lastUsed: this.formatLastUsed(item.timestamp)
+          };
+        }
+        return null;
+      }).filter(Boolean) as Tool[];
       
       this.setData({ recentTools });
-      LoggerService.info('Recent tools loaded:', recentTools.length);
     } catch (error) {
       LoggerService.error('Failed to load recent tools:', error);
     }
@@ -283,35 +545,34 @@ Page({
 
   // 根据ID获取工具信息
   getToolsById(toolIds: string[]): Tool[] {
-    // 这里应该有一个工具配置数组，暂时返回模拟数据
-    const allTools: Tool[] = [
-      { id: 'calculator', name: '计算器', icon: '🔢', path: '/pages/tools/calculator/calculator' },
-      { id: 'converter', name: '单位转换', icon: '📏', path: '/pages/tools/converter/converter' },
-      { id: 'qrcode', name: '二维码', icon: '📱', path: '/pages/tools/qrcode/qrcode' },
-      { id: 'color', name: '颜色工具', icon: '🎨', path: '/pages/tools/color/color' },
-      { id: 'text', name: '文本工具', icon: '📝', path: '/pages/tools/text/text' },
-      { id: 'time', name: '时间工具', icon: '⏰', path: '/pages/tools/time/time' }
+    const allTools = [
+      { id: 'calculator', name: '计算器', icon: '🧮', description: '科学计算器', path: '/pages/tools/calculator/calculator' },
+      { id: 'converter', name: '单位转换', icon: '🔄', description: '长度、重量等单位转换', path: '/pages/tools/converter/converter' },
+      { id: 'qrcode', name: '二维码', icon: '📱', description: '二维码生成与识别', path: '/pages/tools/qrcode/qrcode' },
+      { id: 'foodwheel', name: '今天吃什么', icon: '🍽️', description: '随机推荐美食', path: '/pages/tools/foodwheel/foodwheel' }
     ];
-    
+
     return toolIds.map(id => allTools.find(tool => tool.id === id)).filter(Boolean) as Tool[];
   },
 
   // 格式化最后使用时间
   formatLastUsed(timestamp: number): string {
-    if (!timestamp) return '未知';
-    
     const now = Date.now();
     const diff = now - timestamp;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
     
-    if (minutes < 1) return '刚刚';
-    if (minutes < 60) return `${minutes}分钟前`;
-    if (hours < 24) return `${hours}小时前`;
-    if (days < 7) return `${days}天前`;
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
     
-    return formatTime(timestamp, 'MM-dd');
+    if (diff < minute) {
+      return '刚刚';
+    } else if (diff < hour) {
+      return `${Math.floor(diff / minute)}分钟前`;
+    } else if (diff < day) {
+      return `${Math.floor(diff / hour)}小时前`;
+    } else {
+      return `${Math.floor(diff / day)}天前`;
+    }
   },
 
   // 加载设置
@@ -329,56 +590,67 @@ Page({
     }
   },
 
-  // 获取主题显示名称
+  // 获取主题名称
   getThemeName(themeId: string): string {
-    const themeMap: Record<string, string> = {
-      'light': '默认',
-      'dark': '深色',
-      'auto': '跟随系统'
-    };
-    return themeMap[themeId] || '默认';
+    const theme = this.data.themes.find(t => t.id === themeId);
+    return theme ? theme.name : '默认';
   },
 
   // 计算缓存大小
   async calculateCacheSize() {
     try {
-      const storageUsage = await dataManager.getStorageUsage();
-      
-      // 转换为合适的单位
-      let cacheSize: string;
-      const sizeInBytes = storageUsage.used;
-      
-      if (sizeInBytes < 1024) {
-        cacheSize = `${sizeInBytes}B`;
-      } else if (sizeInBytes < 1024 * 1024) {
-        cacheSize = `${(sizeInBytes / 1024).toFixed(1)}KB`;
-      } else {
-        cacheSize = `${(sizeInBytes / (1024 * 1024)).toFixed(1)}MB`;
+      const cacheInfo = await dataManager.getCacheInfo();
+      if (cacheInfo) {
+        const sizeInKB = Math.round(cacheInfo.size / 1024);
+        const sizeText = sizeInKB > 1024 ? 
+          `${(sizeInKB / 1024).toFixed(1)}MB` : 
+          `${sizeInKB}KB`;
+        
+        this.setData({ cacheSize: sizeText });
       }
-      
-      this.setData({ cacheSize });
     } catch (error) {
       LoggerService.error('Failed to calculate cache size:', error);
-      this.setData({ cacheSize: '未知' });
+      
+      // 简单估算
+      try {
+        const keys = ['favorite_tools', 'recent_tools', 'usage_history', 'user_settings'];
+        let totalSize = 0;
+        
+        keys.forEach(key => {
+          const data = StorageService.get(key);
+          if (data) {
+            totalSize += JSON.stringify(data).length;
+          }
+        });
+        
+        const sizeInKB = Math.round(totalSize / 1024);
+        this.setData({ cacheSize: `${sizeInKB}KB` });
+      } catch (estimateError) {
+        LoggerService.error('Failed to estimate cache size:', estimateError);
+        this.setData({ cacheSize: '未知' });
+      }
     }
   },
 
-  // 工具点击
+  // 工具点击事件
   onToolTap(e: WechatMiniprogram.TouchEvent) {
-    const tool = e.currentTarget.dataset.tool as Tool;
-    
+    const tool = e.currentTarget.dataset.tool;
     if (tool && tool.path) {
+      // 记录使用历史
+      if (this.data.isLoggedIn) {
+        dataManager.recordToolUsage(tool.id).catch(error => {
+          LoggerService.error('Failed to record tool usage:', error);
+        });
+      }
+      
       wx.navigateTo({
         url: tool.path,
-        success: () => {
-          LoggerService.info('Navigated to tool:', tool.name);
-        },
         fail: (error) => {
-          LoggerService.error('Failed to navigate:', error);
+          LoggerService.error('Failed to navigate to tool:', error);
           wx.showToast({
             title: '页面跳转失败',
             icon: 'none',
-            duration: 1500
+            duration: 2000
           });
         }
       });
@@ -386,52 +658,53 @@ Page({
   },
 
   // 取消收藏
-  onUnfavorite(e: WechatMiniprogram.TouchEvent) {
-    const tool = e.currentTarget.dataset.tool as Tool;
+  async onUnfavorite(e: WechatMiniprogram.TouchEvent) {
+    if (!this.data.isLoggedIn) return;
     
-    wx.showModal({
-      title: '取消收藏',
-      content: `确定要取消收藏"${tool.name}"吗？`,
-      success: (res) => {
-        if (res.confirm) {
-          const app = getApp<IAppOption>();
-          if (app.globalData && (app.globalData as any).dataManager) {
-            const dataManager = (app.globalData as any).dataManager;
-            dataManager.removeFavoriteTool(tool.id);
-          }
-          
-          // 更新本地数据
-          const favoriteTools = this.data.favoriteTools.filter(t => t.id !== tool.id);
-          this.setData({ favoriteTools });
-          
-          // 更新统计
-          this.loadStats();
-          
-          wx.showToast({
-            title: '已取消收藏',
-            icon: 'success',
-            duration: 1500
-          });
-          
-          LoggerService.info('Tool unfavorited:', tool.name);
-        }
+    const tool = e.currentTarget.dataset.tool;
+    if (tool) {
+      try {
+        await dataManager.removeFavoriteTool(tool.id);
+        await this.loadFavoriteTools();
+        await this.loadStats();
+        
+        wx.showToast({
+          title: '已取消收藏',
+          icon: 'success',
+          duration: 1500
+        });
+      } catch (error) {
+        LoggerService.error('Failed to unfavorite tool:', error);
+        wx.showToast({
+          title: '操作失败',
+          icon: 'none',
+          duration: 2000
+        });
       }
-    });
+    }
   },
 
   // 管理收藏
   onManageFavorites() {
-    wx.showToast({
-      title: '功能开发中...',
-      icon: 'none',
-      duration: 1500
+    if (!this.data.isLoggedIn) {
+      this.onLogin();
+      return;
+    }
+    
+    wx.navigateTo({
+      url: '/pages/favorites/favorites',
+      fail: (error) => {
+        LoggerService.error('Failed to navigate to favorites:', error);
+      }
     });
   },
 
   // 清空最近使用
   onClearRecent() {
+    if (!this.data.isLoggedIn) return;
+    
     wx.showModal({
-      title: '清空记录',
+      title: '确认清空',
       content: '确定要清空所有使用记录吗？',
       success: async (res) => {
         if (res.confirm) {
@@ -444,14 +717,12 @@ Page({
               icon: 'success',
               duration: 1500
             });
-            
-            LoggerService.info('Recent tools cleared');
           } catch (error) {
             LoggerService.error('Failed to clear recent tools:', error);
             wx.showToast({
-              title: '清空失败',
+              title: '操作失败',
               icon: 'none',
-              duration: 1500
+              duration: 2000
             });
           }
         }
@@ -471,50 +742,57 @@ Page({
 
   // 选择主题
   async onThemeSelect(e: WechatMiniprogram.TouchEvent) {
-    const theme = e.currentTarget.dataset.theme as Theme;
-    
-    this.setData({ 
-      currentTheme: theme.name,
-      showThemeModal: false 
-    });
-    
-    try {
-      // 保存设置
-      await dataManager.updateSetting('theme', theme.id as 'light' | 'dark' | 'auto');
-      
-      wx.showToast({
-        title: `已切换到${theme.name}主题`,
-        icon: 'success',
-        duration: 1500
-      });
-      
-      LoggerService.info('Theme changed to:', theme.name);
-    } catch (error) {
-      LoggerService.error('Failed to save theme setting:', error);
+    const theme = e.currentTarget.dataset.theme;
+    if (theme) {
+      try {
+        await dataManager.updateUserSettings({ theme: theme.id });
+        
+        this.setData({
+          currentTheme: theme.name,
+          showThemeModal: false
+        });
+        
+        wx.showToast({
+          title: `已切换到${theme.name}`,
+          icon: 'success',
+          duration: 1500
+        });
+        
+        LoggerService.info('Theme changed to:', theme.name);
+      } catch (error) {
+        LoggerService.error('Failed to update theme:', error);
+        wx.showToast({
+          title: '设置失败',
+          icon: 'none',
+          duration: 2000
+        });
+      }
     }
   },
 
   // 语言设置
   onLanguageSetting() {
     wx.showToast({
-      title: '暂时只支持中文',
+      title: '暂不支持多语言',
       icon: 'none',
-      duration: 1500
+      duration: 2000
     });
   },
 
-  // 通知设置改变
+  // 通知设置变更
   async onNotificationChange(e: WechatMiniprogram.SwitchChange) {
     const enabled = e.detail.value;
-    this.setData({ notificationEnabled: enabled });
     
     try {
-      // 保存设置
-      const settings = await dataManager.getUserSettings();
-      if (settings) {
-        settings.notifications.enabled = enabled;
-        await dataManager.saveUserSettings(settings);
-      }
+      await dataManager.updateUserSettings({ 
+        notifications: {
+          enabled,
+          dailyReminder: false,
+          updateNotice: true
+        }
+      });
+      
+      this.setData({ notificationEnabled: enabled });
       
       wx.showToast({
         title: enabled ? '已开启通知' : '已关闭通知',
@@ -522,24 +800,30 @@ Page({
         duration: 1500
       });
       
-      LoggerService.info('Notification setting changed:', enabled);
+      LoggerService.info('Notification setting changed to:', enabled);
     } catch (error) {
-      LoggerService.error('Failed to save notification setting:', error);
+      LoggerService.error('Failed to update notification setting:', error);
+      
+      // 回滚设置
+      this.setData({ notificationEnabled: !enabled });
+      
+      wx.showToast({
+        title: '设置失败',
+        icon: 'none',
+        duration: 2000
+      });
     }
   },
 
-  // 缓存管理
+  // 缓存设置
   onCacheSetting() {
-    const { cacheSize } = this.data;
-    
-    wx.showModal({
-      title: '缓存管理',
-      content: `当前缓存大小：${cacheSize}\n\n清理缓存会删除所有本地数据，包括收藏、历史记录等。确定要清理吗？`,
-      confirmText: '清理',
-      confirmColor: '#ff4757',
+    wx.showActionSheet({
+      itemList: ['清理缓存', '查看缓存详情'],
       success: (res) => {
-        if (res.confirm) {
+        if (res.tapIndex === 0) {
           this.clearCache();
+        } else if (res.tapIndex === 1) {
+          this.showCacheDetails();
         }
       }
     });
@@ -547,53 +831,50 @@ Page({
 
   // 清理缓存
   async clearCache() {
-    wx.showLoading({ title: '清理中...' });
-    
-    try {
-      // 备份用户设置
-      const userSettings = await dataManager.getUserSettings();
-      const userProfile = await dataManager.getUserProfile();
-      
-      // 清除所有数据
-      await dataManager.clearAllData();
-      
-      // 恢复重要数据
-      if (userProfile) {
-        await dataManager.saveUserProfile(userProfile);
+    wx.showModal({
+      title: '清理缓存',
+      content: '清理缓存不会影响您的收藏和设置，确定要继续吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            await dataManager.clearCache();
+            await this.calculateCacheSize();
+            
+            wx.showToast({
+              title: '缓存已清理',
+              icon: 'success',
+              duration: 2000
+            });
+            
+            LoggerService.info('Cache cleared successfully');
+          } catch (error) {
+            LoggerService.error('Failed to clear cache:', error);
+            wx.showToast({
+              title: '清理失败',
+              icon: 'none',
+              duration: 2000
+            });
+          }
+        }
       }
-      if (userSettings) {
-        await dataManager.saveUserSettings(userSettings);
-      }
-      
-      // 重新初始化数据
-      this.initProfile();
-      
-      wx.hideLoading();
-      wx.showToast({
-        title: '缓存已清理',
-        icon: 'success',
-        duration: 1500
-      });
-      
-      LoggerService.info('Cache cleared successfully');
-      
-    } catch (error) {
-      wx.hideLoading();
-      LoggerService.error('Failed to clear cache:', error);
-      
-      wx.showToast({
-        title: '清理失败',
-        icon: 'none',
-        duration: 1500
-      });
-    }
+    });
+  },
+
+  // 显示缓存详情
+  showCacheDetails() {
+    wx.showModal({
+      title: '缓存详情',
+      content: `当前缓存大小: ${this.data.cacheSize}\n\n缓存包含：\n• 工具使用记录\n• 收藏列表\n• 个人设置\n• 临时数据`,
+      showCancel: false,
+      confirmText: '知道了'
+    });
   },
 
   // 意见反馈
   onFeedback() {
     wx.showModal({
       title: '意见反馈',
-      content: '感谢您的反馈！请通过以下方式联系我们：\n\n• 微信群：搜索"Dailytools用户群"\n• 邮箱：feedback@dailytools.com',
+      content: '如有问题或建议，请通过以下方式联系我们：\n\n邮箱：feedback@dailytools.com\n微信群：扫码加入用户群',
       showCancel: false,
       confirmText: '知道了'
     });
@@ -603,7 +884,7 @@ Page({
   onAbout() {
     wx.showModal({
       title: '关于 Dailytools',
-      content: 'Dailytools v1.0.0\n\n一个集成多种实用工具的微信小程序，致力于为用户提供便捷的日常服务。\n\n© 2024 Dailytools Team',
+      content: 'Dailytools v1.0.0\n\n一个简单实用的工具集合小程序\n\n© 2024 Dailytools Team',
       showCancel: false,
       confirmText: '知道了'
     });
@@ -615,20 +896,14 @@ Page({
       withShareTicket: true,
       menus: ['shareAppMessage', 'shareTimeline']
     });
-    
-    wx.showToast({
-      title: '请点击右上角分享',
-      icon: 'none',
-      duration: 2000
-    });
   },
 
   // 分享给朋友
   onShareAppMessage() {
     return {
-      title: 'Dailytools - 你的日常工具箱',
+      title: 'Dailytools - 实用工具集合',
       path: '/pages/index/index',
-      imageUrl: '/images/share-cover.png'
+      imageUrl: '/images/share-cover.jpg'
     };
   },
 
@@ -636,7 +911,178 @@ Page({
   onShareTimeline() {
     return {
       title: 'Dailytools - 实用工具集合',
-      imageUrl: '/images/share-cover.png'
+      imageUrl: '/images/share-cover.jpg'
     };
+  },
+
+  // 显示存储使用情况
+  async showStorageUsage() {
+    try {
+      wx.showLoading({ title: '获取存储信息...' });
+      
+      const storageUsage = await userDataStorage.getStorageUsage();
+      const usagePercentage = ((storageUsage.used / storageUsage.total) * 100).toFixed(2);
+      
+      let detailText = `总容量: ${(storageUsage.total / 1024 / 1024).toFixed(2)} MB\n`;
+      detailText += `已使用: ${(storageUsage.used / 1024).toFixed(2)} KB\n`;
+      detailText += `使用率: ${usagePercentage}%\n\n`;
+      detailText += `各类数据占用:\n`;
+      
+      for (const [category, size] of Object.entries(storageUsage.byCategory)) {
+        const sizeKB = (size / 1024).toFixed(2);
+        detailText += `${category}: ${sizeKB} KB\n`;
+      }
+
+      wx.hideLoading();
+      
+      wx.showModal({
+        title: '存储使用情况',
+        content: detailText,
+        showCancel: false,
+        confirmText: '确定'
+      });
+    } catch (error) {
+      wx.hideLoading();
+      LoggerService.error('获取存储使用情况失败:', error);
+      wx.showToast({
+        title: '获取失败',
+        icon: 'error'
+      });
+    }
+  },
+
+  // 管理用户偏好设置
+  async manageUserPreferences() {
+    try {
+      const preferences = await userDataStorage.getUserPreferences();
+      
+      const options = ['主题设置', '语言设置', '通知设置', '隐私设置'];
+      
+      wx.showActionSheet({
+        itemList: options,
+        success: async (res) => {
+          switch (res.tapIndex) {
+            case 0: // 主题设置
+              this.showUserThemeSettings(preferences);
+              break;
+            case 1: // 语言设置
+              this.showUserLanguageSettings(preferences);
+              break;
+            case 2: // 通知设置
+              this.showUserNotificationSettings(preferences);
+              break;
+            case 3: // 隐私设置
+              this.showUserPrivacySettings(preferences);
+              break;
+          }
+        }
+      });
+    } catch (error) {
+      LoggerService.error('获取用户偏好设置失败:', error);
+      wx.showToast({
+        title: '获取设置失败',
+        icon: 'error'
+      });
+    }
+  },
+
+  // 用户主题设置
+  showUserThemeSettings(preferences: any) {
+    const themes = ['自动', '浅色', '深色'];
+    
+    wx.showActionSheet({
+      itemList: themes,
+      success: async (res) => {
+        const newTheme = ['auto', 'light', 'dark'][res.tapIndex];
+        await userDataStorage.updateUserPreferences({
+          theme: newTheme as 'auto' | 'light' | 'dark'
+        });
+        
+        wx.showToast({
+          title: '主题已更新',
+          icon: 'success'
+        });
+      }
+    });
+  },
+
+  // 用户语言设置
+  showUserLanguageSettings(preferences: any) {
+    const languages = ['简体中文', 'English'];
+    
+    wx.showActionSheet({
+      itemList: languages,
+      success: async (res) => {
+        const newLanguage = ['zh-CN', 'en-US'][res.tapIndex];
+        await userDataStorage.updateUserPreferences({
+          language: newLanguage as 'zh-CN' | 'en-US'
+        });
+        
+        wx.showToast({
+          title: '语言已更新',
+          icon: 'success'
+        });
+      }
+    });
+  },
+
+  // 用户通知设置
+  showUserNotificationSettings(preferences: any) {
+    const notifications = preferences.notifications;
+    const options = [
+      `通知总开关: ${notifications.enabled ? '开启' : '关闭'}`,
+      `每日提醒: ${notifications.dailyReminder ? '开启' : '关闭'}`,
+      `更新通知: ${notifications.updateNotice ? '开启' : '关闭'}`
+    ];
+    
+    wx.showActionSheet({
+      itemList: options,
+      success: async (res) => {
+        const keys = ['enabled', 'dailyReminder', 'updateNotice'];
+        const key = keys[res.tapIndex];
+        
+        await userDataStorage.updateUserPreferences({
+          notifications: {
+            ...notifications,
+            [key]: !notifications[key]
+          }
+        });
+        
+        wx.showToast({
+          title: '设置已更新',
+          icon: 'success'
+        });
+      }
+    });
+  },
+
+  // 用户隐私设置
+  showUserPrivacySettings(preferences: any) {
+    const privacy = preferences.privacy;
+    const options = [
+      `数据收集: ${privacy.dataCollection ? '允许' : '禁止'}`,
+      `使用分析: ${privacy.usageAnalytics ? '允许' : '禁止'}`,
+      `数据共享: ${privacy.shareUsageData ? '允许' : '禁止'}`
+    ];
+    
+    wx.showActionSheet({
+      itemList: options,
+      success: async (res) => {
+        const keys = ['dataCollection', 'usageAnalytics', 'shareUsageData'];
+        const key = keys[res.tapIndex];
+        
+        await userDataStorage.updateUserPreferences({
+          privacy: {
+            ...privacy,
+            [key]: !privacy[key]
+          }
+        });
+        
+        wx.showToast({
+          title: '隐私设置已更新',
+          icon: 'success'
+        });
+      }
+    });
   }
 }); 

@@ -3,7 +3,7 @@
     "strictNullChecks": true,
     "noImplicitAny": true,
     "module": "CommonJS",
-    "target": "ES2017",
+    "target": "ES5",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

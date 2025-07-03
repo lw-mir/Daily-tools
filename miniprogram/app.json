@@ -4,6 +4,8 @@
     "pages/logs/logs",
     "pages/tools/calculator/calculator",
     "pages/tools/converter/converter",
+    "pages/tools/imageconverter/imageconverter",
+    "pages/tools/foodwheel/foodwheel",
     "pages/profile/profile",
     "pages/favorites/favorites",
     "pages/history/history",

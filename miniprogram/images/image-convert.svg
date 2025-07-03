@@ -1,0 +1,45 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 左侧图片 -->
+  <rect x="20" y="50" width="70" height="50" rx="5" fill="#E3F2FD" stroke="#2196F3" stroke-width="2"/>
+  <circle cx="35" cy="65" r="8" fill="#FFD54F"/>
+  <polygon points="25,90 35,75 50,85 65,70 85,95" fill="#81C784"/>
+  <text x="55" y="110" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">JPG</text>
+  
+  <!-- 转换箭头 -->
+  <g transform="translate(100, 75)">
+    <!-- 箭头主体 -->
+    <rect x="-15" y="-3" width="25" height="6" fill="#FF9800"/>
+    <!-- 箭头头部 -->
+    <polygon points="10,-8 25,0 10,8" fill="#FF9800"/>
+    <!-- 转换符号 -->
+    <circle cx="0" cy="0" r="12" fill="none" stroke="#FF9800" stroke-width="2"/>
+    <text x="0" y="5" font-family="Arial, sans-serif" font-size="12" fill="#FF9800" text-anchor="middle">⟲</text>
+  </g>
+  
+  <!-- 右侧图片 -->
+  <rect x="110" y="50" width="70" height="50" rx="5" fill="#F3E5F5" stroke="#9C27B0" stroke-width="2"/>
+  <circle cx="125" cy="65" r="8" fill="#FFD54F"/>
+  <polygon points="115,90 125,75 140,85 155,70 175,95" fill="#81C784"/>
+  <text x="145" y="110" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">PNG</text>
+  
+  <!-- 格式选项 -->
+  <g transform="translate(100, 130)">
+    <!-- 格式标签 -->
+    <rect x="-40" y="0" width="25" height="15" rx="3" fill="#4CAF50"/>
+    <text x="-27.5" y="11" font-family="Arial, sans-serif" font-size="8" fill="#fff" text-anchor="middle">JPEG</text>
+    
+    <rect x="-10" y="0" width="20" height="15" rx="3" fill="#2196F3"/>
+    <text x="0" y="11" font-family="Arial, sans-serif" font-size="8" fill="#fff" text-anchor="middle">PNG</text>
+    
+    <rect x="15" y="0" width="25" height="15" rx="3" fill="#FF9800"/>
+    <text x="27.5" y="11" font-family="Arial, sans-serif" font-size="8" fill="#fff" text-anchor="middle">WEBP</text>
+  </g>
+  
+  <!-- 质量调节 -->
+  <g transform="translate(100, 155)">
+    <rect x="-30" y="0" width="60" height="8" rx="4" fill="#E0E0E0"/>
+    <rect x="-30" y="0" width="40" height="8" rx="4" fill="#4CAF50"/>
+    <circle cx="10" cy="4" r="6" fill="#fff" stroke="#4CAF50" stroke-width="2"/>
+    <text x="0" y="20" font-family="Arial, sans-serif" font-size="10" fill="#666" text-anchor="middle">质量: 80%</text>
+  </g>
+</svg> 

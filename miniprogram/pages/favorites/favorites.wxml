@@ -1,1 +1,57 @@
- 
+<!-- 收藏页面 -->
+<view class="page-container">
+  <!-- 固定顶部标题栏 -->
+  <view class="fixed-header">
+    <view class="header-content">
+      <text class="header-title">我的收藏</text>
+      <text class="header-count" wx:if="{{!isEmpty}}">{{favoriteTools.length}}</text>
+    </view>
+  </view>
+
+  <!-- 主要内容区域 -->
+  <view class="main-content">
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{isLoading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-container" wx:if="{{isEmpty && !isLoading}}">
+      <view class="empty-icon">💫</view>
+      <view class="empty-title">还没有收藏工具</view>
+      <view class="empty-desc">快去发现好用的工具吧</view>
+      <button class="empty-button" bindtap="navigateToHome">
+        <text class="button-text">去发现</text>
+      </button>
+    </view>
+
+    <!-- 工具网格列表 -->
+    <view class="tools-grid" wx:if="{{!isEmpty && !isLoading}}">
+      <view 
+        class="tool-card"
+        wx:for="{{favoriteTools}}" 
+        wx:key="id"
+        wx:for-item="tool"
+        data-tool="{{tool}}"
+        bindtap="onToolTap"
+      >
+        <!-- 工具图标背景 -->
+        <view class="tool-icon-bg">
+          <text class="tool-emoji">{{tool.icon}}</text>
+        </view>
+        
+        <!-- 工具信息 -->
+        <view class="tool-content">
+          <view class="tool-title">{{tool.name}}</view>
+          <view class="tool-subtitle">{{tool.description}}</view>
+        </view>
+
+        <!-- 收藏状态指示器 -->
+        <view class="favorite-indicator">
+          <text class="heart-icon">❤️</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

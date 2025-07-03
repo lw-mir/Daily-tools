@@ -1,60 +1,76 @@
 <!--category.wxml-->
-<view class="container">
+<view class="category-container">
+  <!-- 固定顶部标题栏 -->
+  <!-- <view class="category-header">
+    <view class="header-content">
+      <text class="header-title">工具分类</text>
+      <view class="header-stats">
+        <text class="stats-text">{{totalCategories}}个分类 · {{totalTools}}个工具</text>
+      </view>
+    </view>
+  </view> -->
+
   <!-- 搜索栏 -->
-  <view class="search-bar">
-    <input 
-      class="search-input" 
-      placeholder="搜索工具分类..." 
-      value="{{searchText}}"
-      bindinput="onSearchInput"
-      confirm-type="search"
-      bindconfirm="onSearchConfirm"
-    />
-    <view class="search-icon">🔍</view>
-  </view>
-
-  <!-- 分类统计 -->
-  <view class="stats-section">
-    <view class="stats-item">
-      <text class="stats-number">{{totalCategories}}</text>
-      <text class="stats-label">分类总数</text>
-    </view>
-    <view class="stats-item">
-      <text class="stats-number">{{totalTools}}</text>
-      <text class="stats-label">工具总数</text>
+  <view class="search-section">
+    <view class="search-bar">
+      <view class="search-icon">🔍</view>
+      <input 
+        class="search-input" 
+        placeholder="搜索工具分类..." 
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+        bindconfirm="onSearchConfirm"
+      />
+      <view wx:if="{{searchText}}" class="clear-btn" bindtap="onClearSearch">✕</view>
     </view>
   </view>
 
-  <!-- 分类列表 -->
-  <view class="category-list">
+  <!-- 分类网格 -->
+  <view class="category-grid">
     <view 
       wx:for="{{filteredCategories}}" 
       wx:key="id"
-      class="category-item"
+      class="category-card {{item.toolCount === 0 ? 'disabled' : ''}}"
       bindtap="onCategoryTap"
       data-category="{{item}}"
     >
-      <view class="category-header">
-        <view class="category-icon">{{item.icon}}</view>
+      <!-- 卡片顶部装饰条 -->
+      <view class="card-decoration"></view>
+      
+      <!-- 卡片主要内容 -->
+      <view class="card-content">
+        <view class="category-icon-wrapper">
+          <view class="category-icon">{{item.icon}}</view>
+          <view wx:if="{{item.toolCount > 0}}" class="tool-count-badge">{{item.toolCount}}</view>
+        </view>
+        
         <view class="category-info">
           <text class="category-name">{{item.name}}</text>
           <text class="category-desc">{{item.description}}</text>
         </view>
-        <view class="category-count">{{item.toolCount}}个工具</view>
+        
+        <view class="category-arrow">
+          <text class="arrow-icon">{{item.toolCount > 0 ? '→' : '⚠️'}}</text>
+        </view>
       </view>
       
-      <!-- 工具预览 -->
-      <view class="tools-preview">
+      <!-- 工具预览栏 -->
+      <view wx:if="{{item.tools.length > 0}}" class="tools-preview-bar">
         <view 
           wx:for="{{item.tools}}" 
           wx:for-item="tool"
           wx:key="id"
-          class="tool-preview-item"
+          wx:if="{{index < 3}}"
+          class="tool-preview-chip"
           bindtap="onToolTap"
           data-tool="{{tool}}"
         >
-          <view class="tool-icon">{{tool.icon}}</view>
-          <text class="tool-name">{{tool.name}}</text>
+          <text class="tool-chip-icon">{{tool.icon}}</text>
+          <text class="tool-chip-name">{{tool.name}}</text>
+        </view>
+        <view wx:if="{{item.tools.length > 3}}" class="more-tools-indicator">
+          <text>+{{item.tools.length - 3}}</text>
         </view>
       </view>
     </view>
@@ -62,8 +78,18 @@
 
   <!-- 空状态 -->
   <view wx:if="{{filteredCategories.length === 0}}" class="empty-state">
-    <view class="empty-icon">📂</view>
-    <text class="empty-text">暂无相关分类</text>
-    <text class="empty-desc">尝试调整搜索条件</text>
+    <view class="empty-illustration">
+      <view class="empty-icon">🔍</view>
+      <view class="empty-circles">
+        <view class="circle circle-1"></view>
+        <view class="circle circle-2"></view>
+        <view class="circle circle-3"></view>
+      </view>
+    </view>
+    <text class="empty-title">未找到相关分类</text>
+    <text class="empty-desc">试试其他关键词，或浏览所有分类</text>
+    <view class="empty-action" bindtap="onClearSearch">
+      <text>查看全部分类</text>
+    </view>
   </view>
 </view> 

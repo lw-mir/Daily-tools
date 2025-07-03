@@ -17,50 +17,71 @@
   padding: 0;
 }
 
-/* 顶部导航栏样式 - 充满页面宽度 */
-.top-nav {
+/* 公告小喇叭样式 */
+.announcement-banner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: #fff;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
   padding: 20rpx 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #ff5252;
   position: sticky;
   top: 0;
   z-index: 100;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-.nav-left, .nav-right {
+.announcement-icon {
   width: 60rpx;
   height: 60rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  background: #f8f9fa;
-  transition: all 0.3s ease;
+  margin-right: 20rpx;
+  flex-shrink: 0;
 }
 
-.nav-left:active, .nav-right:active {
-  background: #e9ecef;
-  transform: scale(0.95);
+.horn-icon {
+  font-size: 32rpx;
+  animation: shake 2s infinite;
 }
 
-.nav-center {
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.announcement-content {
   flex: 1;
-  text-align: center;
+  overflow: hidden;
+  height: 40rpx;
+  position: relative;
 }
 
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #1a1a1a;
+.announcement-text {
+  position: absolute;
+  white-space: nowrap;
+  animation: scroll-left 10s linear infinite;
 }
 
-.nav-back, .nav-more {
-  color: #666;
+.scrolling-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.2);
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 /* 搜索栏样式 - 充满页面宽度 */
@@ -243,17 +264,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 15rpx 0 0 15rpx;
 }
 
 .tool-img {
   width: 100%;
   height: 100%;
-  border-radius: 15rpx 0 0 15rpx;
+  object-fit: contain;
 }
 
 .tool-content {
   flex: 1;
-  padding: 25rpx;
+  /* padding: 25rpx; */
   display: flex;
   flex-direction: column;
   justify-content: space-between;

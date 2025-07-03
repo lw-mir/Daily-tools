@@ -1,0 +1,277 @@
+<!--吃什么？转盘工具页面-->
+<view class="foodwheel-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-title">
+      <text class="title-text">🍽️ 吃什么？</text>
+    </view>
+    <view class="header-actions">
+      <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="onToggleFavorite">
+        <text class="favorite-icon">{{isFavorite ? '❤️' : '🤍'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页面标题 -->
+  <view class="page-content">
+    <text class="page-subtitle">让转盘帮你决定今天的美食</text>
+  </view>
+
+  <!-- 转盘区域 -->
+  <view class="wheel-container">
+    <view class="wheel-wrapper">
+      <!-- 转盘指针 -->
+      <view class="wheel-pointer">▼</view>
+      
+      <!-- 转盘主体 -->
+      <view class="wheel" id="wheel" style="transform: rotate({{wheelRotation}}deg);">
+        <view 
+          wx:for="{{foodOptions}}" 
+          wx:key="id" 
+          class="wheel-segment" 
+          style="transform: rotate({{item.rotation}}deg); background-color: {{item.color}};"
+        >
+          <view class="segment-content" style="transform: rotate({{item.rotation > 90 && item.rotation < 270 ? 180 : 0}}deg);">
+            <text class="food-emoji">{{item.emoji}}</text>
+            <!-- <text class="food-name">{{item.name}}</text> -->
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 控制按钮 -->
+  <view class="control-section">
+    <button 
+      class="spin-button {{isSpinning ? 'disabled' : ''}}" 
+      bindtap="spinWheel"
+      disabled="{{isSpinning}}"
+    >
+      {{isSpinning ? '转动中...' : '开始转盘'}}
+    </button>
+  </view>
+
+  <!-- 结果显示 -->
+  <view class="result-section" wx:if="{{lastResult}}">
+    <view class="result-card">
+      <text class="result-title">🎉 今天吃这个！</text>
+      <view class="result-food">
+        <text class="result-emoji">{{lastResult.emoji}}</text>
+        <text class="result-name">{{lastResult.name}}</text>
+      </view>
+      <text class="result-description">{{lastResult.description}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="action-btn secondary" bindtap="showHistory">查看历史</button>
+    <button class="action-btn secondary" bindtap="customizeOptions">自定义选项</button>
+  </view>
+</view>
+
+<!-- 历史记录弹窗 -->
+<view class="modal-overlay" wx:if="{{showHistoryModal}}" bindtap="hideHistory">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">历史记录</text>
+      <text class="modal-close" bindtap="hideHistory">✕</text>
+    </view>
+    <scroll-view class="history-list" scroll-y="true">
+      <view 
+        wx:for="{{historyList}}" 
+        wx:key="timestamp" 
+        class="history-item"
+      >
+        <view class="history-food">
+          <text class="history-emoji">{{item.emoji}}</text>
+          <text class="history-name">{{item.name}}</text>
+        </view>
+        <text class="history-time">{{item.timeString}}</text>
+      </view>
+      <view wx:if="{{historyList.length === 0}}" class="empty-history">
+        <text>暂无历史记录</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+
+<!-- 自定义选项管理弹窗 -->
+<view class="modal-overlay" wx:if="{{showManageModal}}" bindtap="hideManageModal">
+  <view class="modal-content manage-modal" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">管理餐饮选项</text>
+      <text class="modal-close" bindtap="hideManageModal">✕</text>
+    </view>
+    
+    <view class="manage-actions">
+      <button class="manage-btn primary" bindtap="showAddCustom">
+        <text class="btn-icon">➕</text>
+        <text>添加新选项</text>
+      </button>
+      <button class="manage-btn danger" bindtap="resetToDefault">
+        <text class="btn-icon">🔄</text>
+        <text>重置为默认</text>
+      </button>
+    </view>
+
+    <scroll-view class="options-list" scroll-y="true">
+      <view 
+        wx:for="{{foodOptions}}" 
+        wx:key="id" 
+        class="option-item"
+      >
+        <view class="option-info">
+          <text class="option-emoji">{{item.emoji}}</text>
+          <view class="option-details">
+            <text class="option-name">{{item.name}}</text>
+            <text class="option-type">{{item.type}}</text>
+          </view>
+          <view wx:if="{{item.isCustom}}" class="custom-badge">自定义</view>
+        </view>
+        <view class="option-actions">
+          <button 
+            class="option-btn edit" 
+            data-option="{{item}}"
+            bindtap="showEditOption"
+          >编辑</button>
+          <button 
+            class="option-btn delete" 
+            data-option="{{item}}"
+            bindtap="deleteOption"
+          >删除</button>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+
+<!-- 添加自定义选项弹窗 -->
+<view class="modal-overlay" wx:if="{{showCustomModal}}" bindtap="hideCustomModal">
+  <view class="modal-content form-modal" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">添加餐饮选项</text>
+      <text class="modal-close" bindtap="hideCustomModal">✕</text>
+    </view>
+    
+    <view class="form-content">
+      <view class="form-group">
+        <label class="form-label">餐饮名称 *</label>
+        <input 
+          class="form-input" 
+          placeholder="请输入餐饮名称"
+          value="{{customForm.name}}"
+          data-field="name"
+          bindinput="onFormInput"
+          maxlength="10"
+        />
+      </view>
+      
+      <view class="form-group">
+        <label class="form-label">表情符号 *</label>
+        <input 
+          class="form-input" 
+          placeholder="请输入表情符号，如 🍜"
+          value="{{customForm.emoji}}"
+          data-field="emoji"
+          bindinput="onFormInput"
+          maxlength="5"
+        />
+      </view>
+      
+      <view class="form-group">
+        <label class="form-label">餐饮类型</label>
+        <input 
+          class="form-input" 
+          placeholder="如：中式、西式、日式等"
+          value="{{customForm.type}}"
+          data-field="type"
+          bindinput="onFormInput"
+          maxlength="10"
+        />
+      </view>
+      
+      <view class="form-group">
+        <label class="form-label">描述</label>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入餐饮描述"
+          value="{{customForm.description}}"
+          data-field="description"
+          bindinput="onFormInput"
+          maxlength="50"
+        ></textarea>
+      </view>
+    </view>
+    
+    <view class="form-actions">
+      <button class="form-btn cancel" bindtap="hideCustomModal">取消</button>
+      <button class="form-btn confirm" bindtap="addCustomOption">确定</button>
+    </view>
+  </view>
+</view>
+
+<!-- 编辑选项弹窗 -->
+<view class="modal-overlay" wx:if="{{showEditModal}}" bindtap="hideEditModal">
+  <view class="modal-content form-modal" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">编辑餐饮选项</text>
+      <text class="modal-close" bindtap="hideEditModal">✕</text>
+    </view>
+    
+    <view class="form-content">
+      <view class="form-group">
+        <label class="form-label">餐饮名称 *</label>
+        <input 
+          class="form-input" 
+          placeholder="请输入餐饮名称"
+          value="{{customForm.name}}"
+          data-field="name"
+          bindinput="onFormInput"
+          maxlength="10"
+        />
+      </view>
+      
+      <view class="form-group">
+        <label class="form-label">表情符号 *</label>
+        <input 
+          class="form-input" 
+          placeholder="请输入表情符号，如 🍜"
+          value="{{customForm.emoji}}"
+          data-field="emoji"
+          bindinput="onFormInput"
+          maxlength="5"
+        />
+      </view>
+      
+      <view class="form-group">
+        <label class="form-label">餐饮类型</label>
+        <input 
+          class="form-input" 
+          placeholder="如：中式、西式、日式等"
+          value="{{customForm.type}}"
+          data-field="type"
+          bindinput="onFormInput"
+          maxlength="10"
+        />
+      </view>
+      
+      <view class="form-group">
+        <label class="form-label">描述</label>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入餐饮描述"
+          value="{{customForm.description}}"
+          data-field="description"
+          bindinput="onFormInput"
+          maxlength="50"
+        ></textarea>
+      </view>
+    </view>
+    
+    <view class="form-actions">
+      <button class="form-btn cancel" bindtap="hideEditModal">取消</button>
+      <button class="form-btn confirm" bindtap="saveEdit">保存</button>
+    </view>
+  </view>
+</view> 

@@ -11,6 +11,7 @@
       "disablePlugins": [],
       "outputPath": ""
     },
+    "es6": true,
     "coverView": false,
     "postcss": false,
     "minified": true,

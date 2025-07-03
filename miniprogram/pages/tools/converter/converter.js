@@ -1,11 +1,54 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const storage_1 = require("../../../utils/storage");
-const logger_1 = require("../../../utils/logger");
-const index_1 = require("../../../utils/index");
-const dataManager_1 = require("../../../utils/dataManager");
+var storage_1 = require("../../../utils/storage");
+var logger_1 = require("../../../utils/logger");
+var index_1 = require("../../../utils/index");
+var dataManager_1 = require("../../../utils/dataManager");
 // 单位定义
-const UNIT_DEFINITIONS = {
+var UNIT_DEFINITIONS = {
     length: [
         { id: 'mm', name: '毫米', symbol: 'mm', factor: 0.001 },
         { id: 'cm', name: '厘米', symbol: 'cm', factor: 0.01 },
@@ -56,7 +99,8 @@ Page({
             { id: 'weight', name: '重量', icon: '⚖️' },
             { id: 'temperature', name: '温度', icon: '🌡️' },
             { id: 'area', name: '面积', icon: '📐' },
-            { id: 'volume', name: '体积', icon: '🥤' }
+            { id: 'volume', name: '体积', icon: '🥤' },
+            { id: 'speed', name: '速度', icon: '🚀' }
         ],
         currentType: 'length',
         fromUnits: [],
@@ -68,29 +112,54 @@ Page({
         quickConversions: [],
         history: [],
         isLoading: false,
-        loadingText: '转换中...'
+        loadingText: '转换中...',
+        isFavorite: false
     },
-    async onLoad() {
-        logger_1.LoggerService.info('Converter page loaded');
-        this.initConverter();
-        await this.loadHistory();
-        // 添加到最近使用工具
-        try {
-            await dataManager_1.dataManager.addRecentTool('converter');
-            // 记录使用历史
-            await dataManager_1.dataManager.addUsageRecord({
-                toolId: 'converter',
-                toolName: '单位转换',
-                category: '工具'
+    onLoad: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        logger_1.LoggerService.info('Converter page loaded');
+                        this.initConverter();
+                        return [4 /*yield*/, this.loadHistory()];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2:
+                        _a.trys.push([2, 5, , 6]);
+                        return [4 /*yield*/, dataManager_1.dataManager.addRecentTool('converter')];
+                    case 3:
+                        _a.sent();
+                        // 记录使用历史
+                        return [4 /*yield*/, dataManager_1.dataManager.addUsageRecord({
+                                toolId: 'converter',
+                                toolName: '单位转换',
+                                category: '工具'
+                            })];
+                    case 4:
+                        // 记录使用历史
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
+                        error_1 = _a.sent();
+                        logger_1.LoggerService.error('Failed to record tool usage:', error_1);
+                        return [3 /*break*/, 6];
+                    case 6: 
+                    // 检查收藏状态
+                    return [4 /*yield*/, this.checkFavoriteStatus()];
+                    case 7:
+                        // 检查收藏状态
+                        _a.sent();
+                        return [2 /*return*/];
+                }
             });
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to record tool usage:', error);
-        }
+        });
     },
-    onShow() {
+    onShow: function () {
         // 恢复上次的转换状态
-        const lastState = storage_1.StorageService.get('converter_state');
+        var lastState = storage_1.StorageService.get('converter_state');
         if (lastState) {
             this.setData({
                 currentType: lastState.currentType || 'length',
@@ -101,7 +170,7 @@ Page({
             this.initConverter();
         }
     },
-    onHide() {
+    onHide: function () {
         // 保存当前转换状态
         storage_1.StorageService.set('converter_state', {
             currentType: this.data.currentType,
@@ -110,13 +179,13 @@ Page({
             toUnitIndex: this.data.toUnitIndex
         });
     },
-    onUnload() {
+    onUnload: function () {
         logger_1.LoggerService.info('Converter page unloaded');
     },
     // 初始化转换器
-    initConverter() {
-        const { currentType } = this.data;
-        const units = UNIT_DEFINITIONS[currentType] || [];
+    initConverter: function () {
+        var currentType = this.data.currentType;
+        var units = UNIT_DEFINITIONS[currentType] || [];
         this.setData({
             fromUnits: units,
             toUnits: units,
@@ -128,8 +197,8 @@ Page({
         }
     },
     // 获取快捷转换选项
-    getQuickConversions(type) {
-        const quickMap = {
+    getQuickConversions: function (type) {
+        var quickMap = {
             length: [
                 { id: '1', from: '1米', to: '厘米', description: '1米 = 100厘米', fromUnit: 'm', toUnit: 'cm', value: 1 },
                 { id: '2', from: '1千米', to: '米', description: '1千米 = 1000米', fromUnit: 'km', toUnit: 'm', value: 1 },
@@ -164,8 +233,8 @@ Page({
         return quickMap[type] || [];
     },
     // 转换类型改变
-    onTypeChange(e) {
-        const type = e.currentTarget.dataset.type;
+    onTypeChange: function (e) {
+        var type = e.currentTarget.dataset.type;
         this.setData({
             currentType: type,
             inputValue: '',
@@ -177,8 +246,8 @@ Page({
         logger_1.LoggerService.info('Conversion type changed to:', type);
     },
     // 输入值改变
-    onInputChange(e) {
-        const value = e.detail.value;
+    onInputChange: function (e) {
+        var value = e.detail.value;
         this.setData({ inputValue: value });
         if (value) {
             this.performConversion();
@@ -188,28 +257,28 @@ Page({
         }
     },
     // 输入确认
-    onInputConfirm() {
+    onInputConfirm: function () {
         this.performConversion();
     },
     // 源单位改变
-    onFromUnitChange(e) {
-        const index = parseInt(e.detail.value);
+    onFromUnitChange: function (e) {
+        var index = parseInt(e.detail.value);
         this.setData({ fromUnitIndex: index });
         if (this.data.inputValue) {
             this.performConversion();
         }
     },
     // 目标单位改变
-    onToUnitChange(e) {
-        const index = parseInt(e.detail.value);
+    onToUnitChange: function (e) {
+        var index = parseInt(e.detail.value);
         this.setData({ toUnitIndex: index });
         if (this.data.inputValue) {
             this.performConversion();
         }
     },
     // 交换单位
-    onSwapUnits() {
-        const { fromUnitIndex, toUnitIndex, outputValue } = this.data;
+    onSwapUnits: function () {
+        var _a = this.data, fromUnitIndex = _a.fromUnitIndex, toUnitIndex = _a.toUnitIndex, outputValue = _a.outputValue;
         this.setData({
             fromUnitIndex: toUnitIndex,
             toUnitIndex: fromUnitIndex,
@@ -222,59 +291,73 @@ Page({
         logger_1.LoggerService.info('Units swapped');
     },
     // 执行转换
-    async performConversion() {
-        const { inputValue, fromUnits, toUnits, fromUnitIndex, toUnitIndex, currentType } = this.data;
-        if (!inputValue || !fromUnits.length || !toUnits.length) {
-            return;
-        }
-        const inputNum = parseFloat(inputValue);
-        if (isNaN(inputNum)) {
-            this.setData({ outputValue: '无效输入' });
-            return;
-        }
-        try {
-            const fromUnit = fromUnits[fromUnitIndex];
-            const toUnit = toUnits[toUnitIndex];
-            let result;
-            if (currentType === 'temperature') {
-                // 温度转换需要特殊处理
-                result = this.convertTemperature(inputNum, fromUnit, toUnit);
-            }
-            else {
-                // 其他单位转换
-                result = this.convertUnit(inputNum, fromUnit, toUnit);
-            }
-            const formattedResult = this.formatResult(result);
-            this.setData({ outputValue: formattedResult });
-            // 保存到历史记录
-            if (inputValue !== '' && formattedResult !== '0') {
-                await this.saveToHistory(inputValue, formattedResult, fromUnit.name, toUnit.name);
-            }
-            logger_1.LoggerService.info('Conversion completed:', {
-                input: `${inputValue} ${fromUnit.name}`,
-                output: `${formattedResult} ${toUnit.name}`
+    performConversion: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, inputValue, fromUnits, toUnits, fromUnitIndex, toUnitIndex, currentType, inputNum, fromUnit, toUnit, result, formattedResult, error_2;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this.data, inputValue = _a.inputValue, fromUnits = _a.fromUnits, toUnits = _a.toUnits, fromUnitIndex = _a.fromUnitIndex, toUnitIndex = _a.toUnitIndex, currentType = _a.currentType;
+                        if (!inputValue || !fromUnits.length || !toUnits.length) {
+                            return [2 /*return*/];
+                        }
+                        inputNum = parseFloat(inputValue);
+                        if (isNaN(inputNum)) {
+                            this.setData({ outputValue: '无效输入' });
+                            return [2 /*return*/];
+                        }
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 4, , 5]);
+                        fromUnit = fromUnits[fromUnitIndex];
+                        toUnit = toUnits[toUnitIndex];
+                        result = void 0;
+                        if (currentType === 'temperature') {
+                            // 温度转换需要特殊处理
+                            result = this.convertTemperature(inputNum, fromUnit, toUnit);
+                        }
+                        else {
+                            // 其他单位转换
+                            result = this.convertUnit(inputNum, fromUnit, toUnit);
+                        }
+                        formattedResult = this.formatResult(result);
+                        this.setData({ outputValue: formattedResult });
+                        if (!(inputValue !== '' && formattedResult !== '0')) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.saveToHistory(inputValue, formattedResult, fromUnit.name, toUnit.name)];
+                    case 2:
+                        _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        logger_1.LoggerService.info('Conversion completed:', {
+                            input: inputValue + " " + fromUnit.name,
+                            output: formattedResult + " " + toUnit.name
+                        });
+                        return [3 /*break*/, 5];
+                    case 4:
+                        error_2 = _b.sent();
+                        logger_1.LoggerService.error('Conversion error:', error_2);
+                        this.setData({ outputValue: '转换错误' });
+                        wx.showToast({
+                            title: '转换失败',
+                            icon: 'none',
+                            duration: 2000
+                        });
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
+                }
             });
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Conversion error:', error);
-            this.setData({ outputValue: '转换错误' });
-            wx.showToast({
-                title: '转换失败',
-                icon: 'none',
-                duration: 2000
-            });
-        }
+        });
     },
     // 单位转换（非温度）
-    convertUnit(value, fromUnit, toUnit) {
+    convertUnit: function (value, fromUnit, toUnit) {
         // 先转换到基础单位，再转换到目标单位
-        const baseValue = value * fromUnit.factor;
+        var baseValue = value * fromUnit.factor;
         return baseValue / toUnit.factor;
     },
     // 温度转换
-    convertTemperature(value, fromUnit, toUnit) {
+    convertTemperature: function (value, fromUnit, toUnit) {
         // 先转换到摄氏度
-        let celsius;
+        var celsius;
         switch (fromUnit.id) {
             case 'celsius':
                 celsius = value;
@@ -301,7 +384,7 @@ Page({
         }
     },
     // 格式化结果
-    formatResult(result) {
+    formatResult: function (result) {
         if (!isFinite(result)) {
             return '无穷大';
         }
@@ -309,8 +392,8 @@ Page({
             return '未定义';
         }
         // 根据数值大小选择合适的精度
-        const absResult = Math.abs(result);
-        let precision;
+        var absResult = Math.abs(result);
+        var precision;
         if (absResult >= 1000000) {
             precision = 2;
         }
@@ -327,17 +410,17 @@ Page({
         if (absResult > 1e12 || (absResult < 1e-6 && absResult > 0)) {
             return result.toExponential(4);
         }
-        const rounded = parseFloat(result.toPrecision(precision));
+        var rounded = parseFloat(result.toPrecision(precision));
         // 移除末尾的0
         return rounded.toString().replace(/\.?0+$/, '');
     },
     // 快捷转换
-    onQuickConversion(e) {
-        const conversion = e.currentTarget.dataset.conversion;
-        const { fromUnits, toUnits } = this.data;
+    onQuickConversion: function (e) {
+        var conversion = e.currentTarget.dataset.conversion;
+        var _a = this.data, fromUnits = _a.fromUnits, toUnits = _a.toUnits;
         // 找到对应的单位索引
-        const fromIndex = fromUnits.findIndex(unit => unit.id === conversion.fromUnit);
-        const toIndex = toUnits.findIndex(unit => unit.id === conversion.toUnit);
+        var fromIndex = fromUnits.findIndex(function (unit) { return unit.id === conversion.fromUnit; });
+        var toIndex = toUnits.findIndex(function (unit) { return unit.id === conversion.toUnit; });
         if (fromIndex !== -1 && toIndex !== -1) {
             this.setData({
                 inputValue: conversion.value.toString(),
@@ -353,70 +436,100 @@ Page({
         }
     },
     // 保存到历史记录
-    async saveToHistory(inputValue, outputValue, fromUnit, toUnit) {
-        const history = [...this.data.history];
-        const now = new Date();
-        const historyItem = {
-            id: Date.now().toString(),
-            type: this.data.currentType,
-            inputValue,
-            outputValue,
-            fromUnit,
-            toUnit,
-            time: index_1.formatTime(now.getTime(), 'HH:mm:ss'),
-            timestamp: now.getTime()
-        };
-        history.unshift(historyItem);
-        // 限制历史记录数量
-        if (history.length > 50) {
-            history.splice(50);
-        }
-        this.setData({ history });
-        try {
-            // 保存到数据管理器
-            await dataManager_1.dataManager.setCacheData('converter_history', history);
-            // 同时记录转换操作
-            await dataManager_1.dataManager.addUsageRecord({
-                toolId: 'converter',
-                toolName: '单位转换',
-                category: '工具',
-                data: {
-                    type: this.data.currentType,
-                    inputValue,
-                    outputValue,
-                    fromUnit,
-                    toUnit
+    saveToHistory: function (inputValue, outputValue, fromUnit, toUnit) {
+        return __awaiter(this, void 0, void 0, function () {
+            var history, now, historyItem, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        history = __spreadArrays(this.data.history);
+                        now = new Date();
+                        historyItem = {
+                            id: Date.now().toString(),
+                            type: this.data.currentType,
+                            inputValue: inputValue,
+                            outputValue: outputValue,
+                            fromUnit: fromUnit,
+                            toUnit: toUnit,
+                            time: index_1.formatTime(now.getTime(), 'HH:mm:ss'),
+                            timestamp: now.getTime()
+                        };
+                        history.unshift(historyItem);
+                        // 限制历史记录数量
+                        if (history.length > 50) {
+                            history.splice(50);
+                        }
+                        this.setData({ history: history });
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 4, , 5]);
+                        // 保存到数据管理器
+                        return [4 /*yield*/, dataManager_1.dataManager.setCacheData('converter_history', history)];
+                    case 2:
+                        // 保存到数据管理器
+                        _a.sent();
+                        // 同时记录转换操作
+                        return [4 /*yield*/, dataManager_1.dataManager.addUsageRecord({
+                                toolId: 'converter',
+                                toolName: '单位转换',
+                                category: '工具',
+                                data: {
+                                    type: this.data.currentType,
+                                    inputValue: inputValue,
+                                    outputValue: outputValue,
+                                    fromUnit: fromUnit,
+                                    toUnit: toUnit
+                                }
+                            })];
+                    case 3:
+                        // 同时记录转换操作
+                        _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        error_3 = _a.sent();
+                        logger_1.LoggerService.error('Failed to save converter history:', error_3);
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to save converter history:', error);
-        }
+        });
     },
     // 加载历史记录
-    async loadHistory() {
-        try {
-            const history = await dataManager_1.dataManager.getCacheData('converter_history') || [];
-            this.setData({ history });
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to load converter history:', error);
-            // 回退到本地存储
-            const history = storage_1.StorageService.get('converter_history') || [];
-            this.setData({ history });
-        }
+    loadHistory: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var history, error_4, history;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getCacheData('converter_history')];
+                    case 1:
+                        history = (_a.sent()) || [];
+                        this.setData({ history: history });
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_4 = _a.sent();
+                        logger_1.LoggerService.error('Failed to load converter history:', error_4);
+                        history = storage_1.StorageService.get('converter_history') || [];
+                        this.setData({ history: history });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
     },
     // 选择历史记录
-    onSelectHistory(e) {
-        const item = e.currentTarget.dataset.item;
+    onSelectHistory: function (e) {
+        var _this = this;
+        var item = e.currentTarget.dataset.item;
         // const { fromUnits, toUnits } = this.data;
         // 如果历史记录的类型与当前类型不同，先切换类型
         if (item.type !== this.data.currentType) {
             this.setData({ currentType: item.type });
             this.initConverter();
             // 等待数据更新后再设置值
-            setTimeout(() => {
-                this.applyHistoryItem(item);
+            setTimeout(function () {
+                _this.applyHistoryItem(item);
             }, 100);
         }
         else {
@@ -424,11 +537,11 @@ Page({
         }
     },
     // 应用历史记录项
-    applyHistoryItem(item) {
-        const { fromUnits, toUnits } = this.data;
+    applyHistoryItem: function (item) {
+        var _a = this.data, fromUnits = _a.fromUnits, toUnits = _a.toUnits;
         // 找到对应的单位索引
-        const fromIndex = fromUnits.findIndex(unit => unit.name === item.fromUnit);
-        const toIndex = toUnits.findIndex(unit => unit.name === item.toUnit);
+        var fromIndex = fromUnits.findIndex(function (unit) { return unit.name === item.fromUnit; });
+        var toIndex = toUnits.findIndex(function (unit) { return unit.name === item.toUnit; });
         if (fromIndex !== -1 && toIndex !== -1) {
             this.setData({
                 inputValue: item.inputValue,
@@ -444,34 +557,48 @@ Page({
         }
     },
     // 清空历史记录
-    onClearHistory() {
+    onClearHistory: function () {
+        var _this = this;
         wx.showModal({
             title: '确认清空',
             content: '确定要清空所有转换历史吗？',
-            success: async (res) => {
-                if (res.confirm) {
-                    this.setData({ history: [] });
-                    try {
-                        await dataManager_1.dataManager.setCacheData('converter_history', []);
+            success: function (res) { return __awaiter(_this, void 0, void 0, function () {
+                var error_5;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (!res.confirm) return [3 /*break*/, 5];
+                            this.setData({ history: [] });
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, dataManager_1.dataManager.setCacheData('converter_history', [])];
+                        case 2:
+                            _a.sent();
+                            return [3 /*break*/, 4];
+                        case 3:
+                            error_5 = _a.sent();
+                            logger_1.LoggerService.error('Failed to clear converter history:', error_5);
+                            return [3 /*break*/, 4];
+                        case 4:
+                            wx.showToast({
+                                title: '历史记录已清空',
+                                icon: 'success',
+                                duration: 1500
+                            });
+                            _a.label = 5;
+                        case 5: return [2 /*return*/];
                     }
-                    catch (error) {
-                        logger_1.LoggerService.error('Failed to clear converter history:', error);
-                    }
-                    wx.showToast({
-                        title: '历史记录已清空',
-                        icon: 'success',
-                        duration: 1500
-                    });
-                }
-            }
+                });
+            }); }
         });
     },
     // 复制结果
-    onCopyResult() {
-        const { outputValue } = this.data;
+    onCopyResult: function () {
+        var outputValue = this.data.outputValue;
         wx.setClipboardData({
             data: outputValue,
-            success: () => {
+            success: function () {
                 wx.showToast({
                     title: '已复制到剪贴板',
                     icon: 'success',
@@ -479,7 +606,7 @@ Page({
                 });
                 logger_1.LoggerService.info('Result copied to clipboard:', outputValue);
             },
-            fail: (error) => {
+            fail: function (error) {
                 logger_1.LoggerService.error('Failed to copy result:', error);
                 wx.showToast({
                     title: '复制失败',
@@ -488,5 +615,70 @@ Page({
                 });
             }
         });
-    }
+    },
+    /**
+     * 检查收藏状态
+     */
+    checkFavoriteStatus: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var isFavorite, error_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.isFavorite('converter')];
+                    case 1:
+                        isFavorite = _a.sent();
+                        this.setData({ isFavorite: isFavorite });
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_6 = _a.sent();
+                        console.error('[Converter] 检查收藏状态失败:', error_6);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    },
+    /**
+     * 切换收藏状态
+     */
+    onToggleFavorite: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, error_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.toggleFavorite('converter')];
+                    case 1:
+                        result = _a.sent();
+                        if (result.success) {
+                            this.setData({ isFavorite: result.isFavorite });
+                            wx.showToast({
+                                title: result.isFavorite ? '已添加到收藏' : '已取消收藏',
+                                icon: 'success',
+                                duration: 1500
+                            });
+                        }
+                        else {
+                            wx.showToast({
+                                title: result.message || '操作失败',
+                                icon: 'error'
+                            });
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_7 = _a.sent();
+                        console.error('[Converter] 切换收藏失败:', error_7);
+                        wx.showToast({
+                            title: '操作失败',
+                            icon: 'error'
+                        });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    },
 });

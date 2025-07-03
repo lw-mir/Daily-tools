@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "图片转换",
+  "navigationBarBackgroundColor": "#4CAF50",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "loading": "/components/common/loading/loading"
+  }
+} 

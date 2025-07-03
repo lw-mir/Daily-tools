@@ -1,5 +1,13 @@
 <!--qrcode.wxml-->
 <view class="qrcode-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <text class="page-title">二维码工具</text>
+    <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="onToggleFavorite">
+      {{isFavorite ? '❤️' : '🤍'}}
+    </view>
+  </view>
+
   <!-- 功能切换 -->
   <view class="tab-bar">
     <view 

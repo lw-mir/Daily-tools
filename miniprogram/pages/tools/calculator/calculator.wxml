@@ -1,5 +1,17 @@
 <!--calculator.wxml-->
 <view class="calculator-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-title">
+      <text class="title-text">计算器</text>
+    </view>
+    <view class="header-actions">
+      <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="onToggleFavorite">
+        <text class="favorite-icon">{{isFavorite ? '❤️' : '🤍'}}</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 显示屏区域 -->
   <view class="display-section">
     <!-- 历史表达式 -->

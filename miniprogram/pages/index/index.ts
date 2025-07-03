@@ -54,39 +54,54 @@ Component({
       {
         id: 'eat-what',
         name: '吃什么？',
-        description: '用于数打和定制神奇的工具',
+        description: '随机选择美食的转盘工具',
         image: '/images/eat-what.jpg',
-        icon: '🍽️'
+        icon: '🍽️',
+        category: 'foodwheel',
+        tags: ['美食', '随机'],
+        isFavorite: false
       },
       {
         id: 'image-convert',
         name: '图片转化',
-        description: '用于处理或升级有关图像转换的工',
+        description: '图像格式转换和处理工具',
         image: '/images/image-convert.jpg',
-        icon: '🖼️'
+        icon: '🖼️',
+        category: 'imageconverter',
+        tags: ['图片', '转换'],
+        isFavorite: false
       },
       {
         id: 'calculator-tool',
         name: '计算工具',
-        description: '用于任何数学以及设或转换物理',
+        description: '数学计算和单位转换工具',
         image: '/images/calculator.jpg',
-        icon: '🔢'
+        icon: '🔢',
+        category: 'calculator',
+        tags: ['计算', '数学'],
+        isFavorite: false
       },
       {
         id: 'ruler',
-        name: '卷尺',
-        description: '用于测量长度的工具',
-        image: '/images/ruler.jpg',  
-        icon: '📏'
+        name: '测量工具',
+        description: '长度测量和尺寸计算工具',
+        image: '/images/ruler.jpg',
+        icon: '📏',
+        category: 'converter',
+        tags: ['测量', '长度'],
+        isFavorite: false
       },
       {
         id: 'pliers',
-        name: '钳子',
-        description: '用于夹持、弯曲或切断物体的工',
+        name: '实用工具',
+        description: '各种实用的日常小工具',
         image: '/images/pliers.jpg',
-        icon: '🔧'
+        icon: '🔧',
+        category: 'tools',
+        tags: ['工具', '实用'],
+        isFavorite: false
       }
-    ],
+    ] as Tool[],
     
     // 最近使用工具
     recentTools: [] as Tool[],
@@ -314,6 +329,13 @@ Component({
      */
     onTabChange(e: any) {
       const tab = e.currentTarget.dataset.tab
+      
+      // 如果点击的是"我的"标签页，直接跳转到个人中心页面
+      if (tab === 'mine') {
+        this.navigateToProfile()
+        return
+      }
+      
       this.setData({
         currentTab: tab
       })
@@ -436,7 +458,7 @@ Component({
      * 加载最近使用工具
      */
     loadRecentTools() {
-      const recentToolIds = app.globalData?.recentTools || []
+      const recentToolIds = (app.globalData && app.globalData.recentTools) || []
       const recentTools: Tool[] = []
       
       // 根据ID获取工具信息
@@ -631,9 +653,19 @@ Component({
             url: '/pages/tools/converter/converter'
           })
           break
+        case 'imageconverter':
+          wx.navigateTo({
+            url: '/pages/tools/imageconverter/imageconverter'
+          })
+          break
         case 'qrcode':
           wx.navigateTo({
             url: '/pages/tools/qrcode/qrcode'
+          })
+          break
+        case 'foodwheel':
+          wx.navigateTo({
+            url: '/pages/tools/foodwheel/foodwheel'
           })
           break
         default:
@@ -756,6 +788,7 @@ interface Tool {
   name: string
   description: string
   icon: string
+  image?: string
   tags: string[]
   isFavorite: boolean
   category: string

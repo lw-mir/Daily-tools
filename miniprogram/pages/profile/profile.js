@@ -1,9 +1,56 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const storage_1 = require("../../utils/storage");
-const logger_1 = require("../../utils/logger");
-const index_1 = require("../../utils/index");
-const dataManager_1 = require("../../utils/dataManager");
+var storage_1 = require("../../utils/storage");
+var logger_1 = require("../../utils/logger");
+var index_1 = require("../../utils/index");
+var dataManager_1 = require("../../utils/dataManager");
 Page({
     data: {
         userInfo: {
@@ -33,11 +80,11 @@ Page({
         isLoading: false,
         loadingText: '加载中...'
     },
-    onLoad() {
+    onLoad: function () {
         logger_1.LoggerService.info('Profile page loaded');
         this.initProfile();
     },
-    onShow() {
+    onShow: function () {
         // 每次显示时刷新数据
         this.loadUserData();
         this.loadStats();
@@ -45,11 +92,11 @@ Page({
         this.loadRecentTools();
         this.loadSettings();
     },
-    onUnload() {
+    onUnload: function () {
         logger_1.LoggerService.info('Profile page unloaded');
     },
     // 初始化个人中心
-    initProfile() {
+    initProfile: function () {
         this.setData({ isLoading: true, loadingText: '加载个人信息...' });
         try {
             // 尝试获取用户信息
@@ -70,38 +117,39 @@ Page({
         }
     },
     // 获取用户信息
-    getUserInfo() {
-        const userInfo = storage_1.StorageService.get('user_info');
+    getUserInfo: function () {
+        var _this = this;
+        var userInfo = storage_1.StorageService.get('user_info');
         if (userInfo) {
             this.setData({
-                userInfo,
+                userInfo: userInfo,
                 isLoggedIn: true
             });
         }
         else {
             // 尝试从微信获取用户信息
             wx.getUserInfo({
-                success: (res) => {
-                    const userInfo = res.userInfo;
-                    this.setData({
-                        userInfo,
+                success: function (res) {
+                    var userInfo = res.userInfo;
+                    _this.setData({
+                        userInfo: userInfo,
                         isLoggedIn: true
                     });
                     storage_1.StorageService.set('user_info', userInfo);
                     logger_1.LoggerService.info('User info obtained:', userInfo);
                 },
-                fail: () => {
+                fail: function () {
                     logger_1.LoggerService.info('User info not available');
                 }
             });
         }
     },
     // 用户登录
-    onGetUserInfo(e) {
+    onGetUserInfo: function (e) {
         if (e.detail.userInfo) {
-            const userInfo = e.detail.userInfo;
+            var userInfo = e.detail.userInfo;
             this.setData({
-                userInfo,
+                userInfo: userInfo,
                 isLoggedIn: true
             });
             storage_1.StorageService.set('user_info', userInfo);
@@ -114,58 +162,83 @@ Page({
         }
     },
     // 加载用户数据
-    async loadUserData() {
-        try {
-            const userProfile = await dataManager_1.dataManager.getUserProfile();
-            if (userProfile) {
-                this.setData({
-                    userInfo: {
-                        nickName: userProfile.nickName,
-                        avatarUrl: userProfile.avatarUrl
-                    },
-                    isLoggedIn: userProfile.isLoggedIn
-                });
-            }
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to load user data:', error);
-        }
+    loadUserData: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var userProfile, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getUserProfile()];
+                    case 1:
+                        userProfile = _a.sent();
+                        if (userProfile) {
+                            this.setData({
+                                userInfo: {
+                                    nickName: userProfile.nickName,
+                                    avatarUrl: userProfile.avatarUrl
+                                },
+                                isLoggedIn: userProfile.isLoggedIn
+                            });
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        logger_1.LoggerService.error('Failed to load user data:', error_1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
     },
     // 加载统计数据
-    async loadStats() {
-        try {
-            const statistics = await dataManager_1.dataManager.getAppStatistics();
-            const favoriteTools = await dataManager_1.dataManager.getFavoriteTools();
-            if (statistics) {
-                // 计算活跃天数
-                const activeDays = Object.keys(statistics.dailyUsage).length;
-                this.setData({
-                    stats: {
-                        totalUsage: Math.floor(statistics.totalUsageTime / 1000),
-                        toolsUsed: Object.keys(statistics.toolUsageCount).length,
-                        daysActive: activeDays,
-                        favorites: favoriteTools.length
-                    }
-                });
-            }
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to load stats:', error);
-        }
+    loadStats: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var statistics, favoriteTools, activeDays, error_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getAppStatistics()];
+                    case 1:
+                        statistics = _a.sent();
+                        return [4 /*yield*/, dataManager_1.dataManager.getFavoriteTools()];
+                    case 2:
+                        favoriteTools = _a.sent();
+                        if (statistics) {
+                            activeDays = Object.keys(statistics.dailyUsage).length;
+                            this.setData({
+                                stats: {
+                                    totalUsage: Math.floor(statistics.totalUsageTime / 1000),
+                                    toolsUsed: Object.keys(statistics.toolUsageCount).length,
+                                    daysActive: activeDays,
+                                    favorites: favoriteTools.length
+                                }
+                            });
+                        }
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_2 = _a.sent();
+                        logger_1.LoggerService.error('Failed to load stats:', error_2);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
     },
     // 原有的loadStats方法内容
-    _loadStatsOld() {
+    _loadStatsOld: function () {
         try {
-            const app = getApp();
-            if (app.globalData && app.globalData.dataManager) {
-                const dataManager = app.globalData.dataManager;
+            var app_1 = getApp();
+            if (app_1.globalData && app_1.globalData.dataManager) {
+                var dataManager_2 = app_1.globalData.dataManager;
                 // 获取使用统计
-                const stats = dataManager.getUsageStats();
-                this.setData({ stats });
+                var stats = dataManager_2.getUsageStats();
+                this.setData({ stats: stats });
             }
             else {
                 // 从本地存储获取统计数据
-                const localStats = storage_1.StorageService.get('usage_stats') || {
+                var localStats = storage_1.StorageService.get('usage_stats') || {
                     totalUsage: 0,
                     toolsUsed: 0,
                     daysActive: 1,
@@ -179,38 +252,64 @@ Page({
         }
     },
     // 加载收藏工具
-    async loadFavoriteTools() {
-        try {
-            const favoriteIds = await dataManager_1.dataManager.getFavoriteTools();
-            const favoriteTools = this.getToolsById(favoriteIds);
-            this.setData({ favoriteTools });
-            logger_1.LoggerService.info('Favorite tools loaded:', favoriteTools.length);
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to load favorite tools:', error);
-        }
+    loadFavoriteTools: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var favoriteIds, favoriteTools, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getFavoriteTools()];
+                    case 1:
+                        favoriteIds = _a.sent();
+                        favoriteTools = this.getToolsById(favoriteIds);
+                        this.setData({ favoriteTools: favoriteTools });
+                        logger_1.LoggerService.info('Favorite tools loaded:', favoriteTools.length);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_3 = _a.sent();
+                        logger_1.LoggerService.error('Failed to load favorite tools:', error_3);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
     },
     // 加载最近使用工具
-    async loadRecentTools() {
-        try {
-            const recentIds = await dataManager_1.dataManager.getRecentTools();
-            const usageHistory = await dataManager_1.dataManager.getUsageHistory();
-            // 获取工具信息并添加最后使用时间
-            const recentTools = this.getToolsById(recentIds).map(tool => {
-                const lastUsage = usageHistory.find(record => record.toolId === tool.id);
-                return Object.assign(Object.assign({}, tool), { lastUsed: lastUsage ? this.formatLastUsed(lastUsage.timestamp) : '未知' });
+    loadRecentTools: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var recentIds, usageHistory_1, recentTools, error_4;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getRecentTools()];
+                    case 1:
+                        recentIds = _a.sent();
+                        return [4 /*yield*/, dataManager_1.dataManager.getUsageHistory()];
+                    case 2:
+                        usageHistory_1 = _a.sent();
+                        recentTools = this.getToolsById(recentIds).map(function (tool) {
+                            var lastUsage = usageHistory_1.find(function (record) { return record.toolId === tool.id; });
+                            return __assign(__assign({}, tool), { lastUsed: lastUsage ? _this.formatLastUsed(lastUsage.timestamp) : '未知' });
+                        });
+                        this.setData({ recentTools: recentTools });
+                        logger_1.LoggerService.info('Recent tools loaded:', recentTools.length);
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_4 = _a.sent();
+                        logger_1.LoggerService.error('Failed to load recent tools:', error_4);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
             });
-            this.setData({ recentTools });
-            logger_1.LoggerService.info('Recent tools loaded:', recentTools.length);
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to load recent tools:', error);
-        }
+        });
     },
     // 根据ID获取工具信息
-    getToolsById(toolIds) {
+    getToolsById: function (toolIds) {
         // 这里应该有一个工具配置数组，暂时返回模拟数据
-        const allTools = [
+        var allTools = [
             { id: 'calculator', name: '计算器', icon: '🔢', path: '/pages/tools/calculator/calculator' },
             { id: 'converter', name: '单位转换', icon: '📏', path: '/pages/tools/converter/converter' },
             { id: 'qrcode', name: '二维码', icon: '📱', path: '/pages/tools/qrcode/qrcode' },
@@ -218,45 +317,57 @@ Page({
             { id: 'text', name: '文本工具', icon: '📝', path: '/pages/tools/text/text' },
             { id: 'time', name: '时间工具', icon: '⏰', path: '/pages/tools/time/time' }
         ];
-        return toolIds.map(id => allTools.find(tool => tool.id === id)).filter(Boolean);
+        return toolIds.map(function (id) { return allTools.find(function (tool) { return tool.id === id; }); }).filter(Boolean);
     },
     // 格式化最后使用时间
-    formatLastUsed(timestamp) {
+    formatLastUsed: function (timestamp) {
         if (!timestamp)
             return '未知';
-        const now = Date.now();
-        const diff = now - timestamp;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
+        var now = Date.now();
+        var diff = now - timestamp;
+        var minutes = Math.floor(diff / 60000);
+        var hours = Math.floor(diff / 3600000);
+        var days = Math.floor(diff / 86400000);
         if (minutes < 1)
             return '刚刚';
         if (minutes < 60)
-            return `${minutes}分钟前`;
+            return minutes + "\u5206\u949F\u524D";
         if (hours < 24)
-            return `${hours}小时前`;
+            return hours + "\u5C0F\u65F6\u524D";
         if (days < 7)
-            return `${days}天前`;
+            return days + "\u5929\u524D";
         return index_1.formatTime(timestamp, 'MM-dd');
     },
     // 加载设置
-    async loadSettings() {
-        try {
-            const settings = await dataManager_1.dataManager.getUserSettings();
-            if (settings) {
-                this.setData({
-                    currentTheme: this.getThemeName(settings.theme),
-                    notificationEnabled: settings.notifications.enabled
-                });
-            }
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to load settings:', error);
-        }
+    loadSettings: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var settings, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getUserSettings()];
+                    case 1:
+                        settings = _a.sent();
+                        if (settings) {
+                            this.setData({
+                                currentTheme: this.getThemeName(settings.theme),
+                                notificationEnabled: settings.notifications.enabled
+                            });
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_5 = _a.sent();
+                        logger_1.LoggerService.error('Failed to load settings:', error_5);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
     },
     // 获取主题显示名称
-    getThemeName(themeId) {
-        const themeMap = {
+    getThemeName: function (themeId) {
+        var themeMap = {
             'light': '默认',
             'dark': '深色',
             'auto': '跟随系统'
@@ -264,38 +375,49 @@ Page({
         return themeMap[themeId] || '默认';
     },
     // 计算缓存大小
-    async calculateCacheSize() {
-        try {
-            const storageUsage = await dataManager_1.dataManager.getStorageUsage();
-            // 转换为合适的单位
-            let cacheSize;
-            const sizeInBytes = storageUsage.used;
-            if (sizeInBytes < 1024) {
-                cacheSize = `${sizeInBytes}B`;
-            }
-            else if (sizeInBytes < 1024 * 1024) {
-                cacheSize = `${(sizeInBytes / 1024).toFixed(1)}KB`;
-            }
-            else {
-                cacheSize = `${(sizeInBytes / (1024 * 1024)).toFixed(1)}MB`;
-            }
-            this.setData({ cacheSize });
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to calculate cache size:', error);
-            this.setData({ cacheSize: '未知' });
-        }
+    calculateCacheSize: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var storageUsage, cacheSize, sizeInBytes, error_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getStorageUsage()];
+                    case 1:
+                        storageUsage = _a.sent();
+                        cacheSize = void 0;
+                        sizeInBytes = storageUsage.used;
+                        if (sizeInBytes < 1024) {
+                            cacheSize = sizeInBytes + "B";
+                        }
+                        else if (sizeInBytes < 1024 * 1024) {
+                            cacheSize = (sizeInBytes / 1024).toFixed(1) + "KB";
+                        }
+                        else {
+                            cacheSize = (sizeInBytes / (1024 * 1024)).toFixed(1) + "MB";
+                        }
+                        this.setData({ cacheSize: cacheSize });
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_6 = _a.sent();
+                        logger_1.LoggerService.error('Failed to calculate cache size:', error_6);
+                        this.setData({ cacheSize: '未知' });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
     },
     // 工具点击
-    onToolTap(e) {
-        const tool = e.currentTarget.dataset.tool;
+    onToolTap: function (e) {
+        var tool = e.currentTarget.dataset.tool;
         if (tool && tool.path) {
             wx.navigateTo({
                 url: tool.path,
-                success: () => {
+                success: function () {
                     logger_1.LoggerService.info('Navigated to tool:', tool.name);
                 },
-                fail: (error) => {
+                fail: function (error) {
                     logger_1.LoggerService.error('Failed to navigate:', error);
                     wx.showToast({
                         title: '页面跳转失败',
@@ -307,23 +429,24 @@ Page({
         }
     },
     // 取消收藏
-    onUnfavorite(e) {
-        const tool = e.currentTarget.dataset.tool;
+    onUnfavorite: function (e) {
+        var _this = this;
+        var tool = e.currentTarget.dataset.tool;
         wx.showModal({
             title: '取消收藏',
-            content: `确定要取消收藏"${tool.name}"吗？`,
-            success: (res) => {
+            content: "\u786E\u5B9A\u8981\u53D6\u6D88\u6536\u85CF\"" + tool.name + "\"\u5417\uFF1F",
+            success: function (res) {
                 if (res.confirm) {
-                    const app = getApp();
-                    if (app.globalData && app.globalData.dataManager) {
-                        const dataManager = app.globalData.dataManager;
-                        dataManager.removeFavoriteTool(tool.id);
+                    var app_2 = getApp();
+                    if (app_2.globalData && app_2.globalData.dataManager) {
+                        var dataManager_3 = app_2.globalData.dataManager;
+                        dataManager_3.removeFavoriteTool(tool.id);
                     }
                     // 更新本地数据
-                    const favoriteTools = this.data.favoriteTools.filter(t => t.id !== tool.id);
-                    this.setData({ favoriteTools });
+                    var favoriteTools = _this.data.favoriteTools.filter(function (t) { return t.id !== tool.id; });
+                    _this.setData({ favoriteTools: favoriteTools });
                     // 更新统计
-                    this.loadStats();
+                    _this.loadStats();
                     wx.showToast({
                         title: '已取消收藏',
                         icon: 'success',
@@ -335,7 +458,7 @@ Page({
         });
     },
     // 管理收藏
-    onManageFavorites() {
+    onManageFavorites: function () {
         wx.showToast({
             title: '功能开发中...',
             icon: 'none',
@@ -343,65 +466,92 @@ Page({
         });
     },
     // 清空最近使用
-    onClearRecent() {
+    onClearRecent: function () {
+        var _this = this;
         wx.showModal({
             title: '清空记录',
             content: '确定要清空所有使用记录吗？',
-            success: async (res) => {
-                if (res.confirm) {
-                    try {
-                        await dataManager_1.dataManager.clearRecentTools();
-                        this.setData({ recentTools: [] });
-                        wx.showToast({
-                            title: '已清空记录',
-                            icon: 'success',
-                            duration: 1500
-                        });
-                        logger_1.LoggerService.info('Recent tools cleared');
+            success: function (res) { return __awaiter(_this, void 0, void 0, function () {
+                var error_7;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (!res.confirm) return [3 /*break*/, 4];
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, dataManager_1.dataManager.clearRecentTools()];
+                        case 2:
+                            _a.sent();
+                            this.setData({ recentTools: [] });
+                            wx.showToast({
+                                title: '已清空记录',
+                                icon: 'success',
+                                duration: 1500
+                            });
+                            logger_1.LoggerService.info('Recent tools cleared');
+                            return [3 /*break*/, 4];
+                        case 3:
+                            error_7 = _a.sent();
+                            logger_1.LoggerService.error('Failed to clear recent tools:', error_7);
+                            wx.showToast({
+                                title: '清空失败',
+                                icon: 'none',
+                                duration: 1500
+                            });
+                            return [3 /*break*/, 4];
+                        case 4: return [2 /*return*/];
                     }
-                    catch (error) {
-                        logger_1.LoggerService.error('Failed to clear recent tools:', error);
-                        wx.showToast({
-                            title: '清空失败',
-                            icon: 'none',
-                            duration: 1500
-                        });
-                    }
-                }
-            }
+                });
+            }); }
         });
     },
     // 主题设置
-    onThemeSetting() {
+    onThemeSetting: function () {
         this.setData({ showThemeModal: true });
     },
     // 关闭主题弹窗
-    onCloseThemeModal() {
+    onCloseThemeModal: function () {
         this.setData({ showThemeModal: false });
     },
     // 选择主题
-    async onThemeSelect(e) {
-        const theme = e.currentTarget.dataset.theme;
-        this.setData({
-            currentTheme: theme.name,
-            showThemeModal: false
-        });
-        try {
-            // 保存设置
-            await dataManager_1.dataManager.updateSetting('theme', theme.id);
-            wx.showToast({
-                title: `已切换到${theme.name}主题`,
-                icon: 'success',
-                duration: 1500
+    onThemeSelect: function (e) {
+        return __awaiter(this, void 0, void 0, function () {
+            var theme, error_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        theme = e.currentTarget.dataset.theme;
+                        this.setData({
+                            currentTheme: theme.name,
+                            showThemeModal: false
+                        });
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        // 保存设置
+                        return [4 /*yield*/, dataManager_1.dataManager.updateSetting('theme', theme.id)];
+                    case 2:
+                        // 保存设置
+                        _a.sent();
+                        wx.showToast({
+                            title: "\u5DF2\u5207\u6362\u5230" + theme.name + "\u4E3B\u9898",
+                            icon: 'success',
+                            duration: 1500
+                        });
+                        logger_1.LoggerService.info('Theme changed to:', theme.name);
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_8 = _a.sent();
+                        logger_1.LoggerService.error('Failed to save theme setting:', error_8);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
             });
-            logger_1.LoggerService.info('Theme changed to:', theme.name);
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to save theme setting:', error);
-        }
+        });
     },
     // 语言设置
-    onLanguageSetting() {
+    onLanguageSetting: function () {
         wx.showToast({
             title: '暂时只支持中文',
             icon: 'none',
@@ -409,80 +559,120 @@ Page({
         });
     },
     // 通知设置改变
-    async onNotificationChange(e) {
-        const enabled = e.detail.value;
-        this.setData({ notificationEnabled: enabled });
-        try {
-            // 保存设置
-            const settings = await dataManager_1.dataManager.getUserSettings();
-            if (settings) {
-                settings.notifications.enabled = enabled;
-                await dataManager_1.dataManager.saveUserSettings(settings);
-            }
-            wx.showToast({
-                title: enabled ? '已开启通知' : '已关闭通知',
-                icon: 'success',
-                duration: 1500
+    onNotificationChange: function (e) {
+        return __awaiter(this, void 0, void 0, function () {
+            var enabled, settings, error_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        enabled = e.detail.value;
+                        this.setData({ notificationEnabled: enabled });
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 5, , 6]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getUserSettings()];
+                    case 2:
+                        settings = _a.sent();
+                        if (!settings) return [3 /*break*/, 4];
+                        settings.notifications.enabled = enabled;
+                        return [4 /*yield*/, dataManager_1.dataManager.saveUserSettings(settings)];
+                    case 3:
+                        _a.sent();
+                        _a.label = 4;
+                    case 4:
+                        wx.showToast({
+                            title: enabled ? '已开启通知' : '已关闭通知',
+                            icon: 'success',
+                            duration: 1500
+                        });
+                        logger_1.LoggerService.info('Notification setting changed:', enabled);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        error_9 = _a.sent();
+                        logger_1.LoggerService.error('Failed to save notification setting:', error_9);
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/];
+                }
             });
-            logger_1.LoggerService.info('Notification setting changed:', enabled);
-        }
-        catch (error) {
-            logger_1.LoggerService.error('Failed to save notification setting:', error);
-        }
+        });
     },
     // 缓存管理
-    onCacheSetting() {
-        const { cacheSize } = this.data;
+    onCacheSetting: function () {
+        var _this = this;
+        var cacheSize = this.data.cacheSize;
         wx.showModal({
             title: '缓存管理',
-            content: `当前缓存大小：${cacheSize}\n\n清理缓存会删除所有本地数据，包括收藏、历史记录等。确定要清理吗？`,
+            content: "\u5F53\u524D\u7F13\u5B58\u5927\u5C0F\uFF1A" + cacheSize + "\n\n\u6E05\u7406\u7F13\u5B58\u4F1A\u5220\u9664\u6240\u6709\u672C\u5730\u6570\u636E\uFF0C\u5305\u62EC\u6536\u85CF\u3001\u5386\u53F2\u8BB0\u5F55\u7B49\u3002\u786E\u5B9A\u8981\u6E05\u7406\u5417\uFF1F",
             confirmText: '清理',
             confirmColor: '#ff4757',
-            success: (res) => {
+            success: function (res) {
                 if (res.confirm) {
-                    this.clearCache();
+                    _this.clearCache();
                 }
             }
         });
     },
     // 清理缓存
-    async clearCache() {
-        wx.showLoading({ title: '清理中...' });
-        try {
-            // 备份用户设置
-            const userSettings = await dataManager_1.dataManager.getUserSettings();
-            const userProfile = await dataManager_1.dataManager.getUserProfile();
-            // 清除所有数据
-            await dataManager_1.dataManager.clearAllData();
-            // 恢复重要数据
-            if (userProfile) {
-                await dataManager_1.dataManager.saveUserProfile(userProfile);
-            }
-            if (userSettings) {
-                await dataManager_1.dataManager.saveUserSettings(userSettings);
-            }
-            // 重新初始化数据
-            this.initProfile();
-            wx.hideLoading();
-            wx.showToast({
-                title: '缓存已清理',
-                icon: 'success',
-                duration: 1500
+    clearCache: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var userSettings, userProfile, error_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        wx.showLoading({ title: '清理中...' });
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 9, , 10]);
+                        return [4 /*yield*/, dataManager_1.dataManager.getUserSettings()];
+                    case 2:
+                        userSettings = _a.sent();
+                        return [4 /*yield*/, dataManager_1.dataManager.getUserProfile()];
+                    case 3:
+                        userProfile = _a.sent();
+                        // 清除所有数据
+                        return [4 /*yield*/, dataManager_1.dataManager.clearAllData()];
+                    case 4:
+                        // 清除所有数据
+                        _a.sent();
+                        if (!userProfile) return [3 /*break*/, 6];
+                        return [4 /*yield*/, dataManager_1.dataManager.saveUserProfile(userProfile)];
+                    case 5:
+                        _a.sent();
+                        _a.label = 6;
+                    case 6:
+                        if (!userSettings) return [3 /*break*/, 8];
+                        return [4 /*yield*/, dataManager_1.dataManager.saveUserSettings(userSettings)];
+                    case 7:
+                        _a.sent();
+                        _a.label = 8;
+                    case 8:
+                        // 重新初始化数据
+                        this.initProfile();
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: '缓存已清理',
+                            icon: 'success',
+                            duration: 1500
+                        });
+                        logger_1.LoggerService.info('Cache cleared successfully');
+                        return [3 /*break*/, 10];
+                    case 9:
+                        error_10 = _a.sent();
+                        wx.hideLoading();
+                        logger_1.LoggerService.error('Failed to clear cache:', error_10);
+                        wx.showToast({
+                            title: '清理失败',
+                            icon: 'none',
+                            duration: 1500
+                        });
+                        return [3 /*break*/, 10];
+                    case 10: return [2 /*return*/];
+                }
             });
-            logger_1.LoggerService.info('Cache cleared successfully');
-        }
-        catch (error) {
-            wx.hideLoading();
-            logger_1.LoggerService.error('Failed to clear cache:', error);
-            wx.showToast({
-                title: '清理失败',
-                icon: 'none',
-                duration: 1500
-            });
-        }
+        });
     },
     // 意见反馈
-    onFeedback() {
+    onFeedback: function () {
         wx.showModal({
             title: '意见反馈',
             content: '感谢您的反馈！请通过以下方式联系我们：\n\n• 微信群：搜索"Dailytools用户群"\n• 邮箱：feedback@dailytools.com',
@@ -491,7 +681,7 @@ Page({
         });
     },
     // 关于我们
-    onAbout() {
+    onAbout: function () {
         wx.showModal({
             title: '关于 Dailytools',
             content: 'Dailytools v1.0.0\n\n一个集成多种实用工具的微信小程序，致力于为用户提供便捷的日常服务。\n\n© 2024 Dailytools Team',
@@ -500,7 +690,7 @@ Page({
         });
     },
     // 分享应用
-    onShare() {
+    onShare: function () {
         wx.showShareMenu({
             withShareTicket: true,
             menus: ['shareAppMessage', 'shareTimeline']
@@ -512,7 +702,7 @@ Page({
         });
     },
     // 分享给朋友
-    onShareAppMessage() {
+    onShareAppMessage: function () {
         return {
             title: 'Dailytools - 你的日常工具箱',
             path: '/pages/index/index',
@@ -520,7 +710,7 @@ Page({
         };
     },
     // 分享到朋友圈
-    onShareTimeline() {
+    onShareTimeline: function () {
         return {
             title: 'Dailytools - 实用工具集合',
             imageUrl: '/images/share-cover.png'
