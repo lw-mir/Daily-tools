@@ -1,0 +1,17 @@
+.score-container{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:34rpx;
+color:#ffffff;
+background:linear-gradient(135deg,#0f9b0f 0%, #56ab2f 100%);
+text-shadow:0 2rpx 4rpx rgba(0,0,0,.2);
+}
+
+.placeholder{
+padding:40rpx 60rpx;
+background:rgba(255,255,255,0.15);
+border-radius:24rpx;
+backdrop-filter:blur(8rpx);
+} 

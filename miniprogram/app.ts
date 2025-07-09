@@ -10,6 +10,25 @@ const APP_CONFIG = {
   maxFavoriteTools: 20
 }
 
+// 扩展应用选项接口
+interface IAppOption {
+  globalData: {
+    version: string
+    theme: 'light' | 'dark'
+    recentTools: string[]
+    favoriteTools: string[]
+    systemInfo: WechatMiniprogram.SystemInfo | undefined
+    userInfo: WechatMiniprogram.UserInfo | undefined
+  }
+  getSystemInfo(): void
+  checkAuthStatus(): Promise<void>
+  checkLoginStatus(): void
+  doLogin(): void
+  loadUserData(): Promise<void>
+  addRecentTool(toolId: string): Promise<void>
+  toggleFavoriteTool(toolId: string): Promise<void>
+}
+
 App<IAppOption>({
   globalData: {
     version: APP_CONFIG.version,
@@ -37,8 +56,8 @@ App<IAppOption>({
       // 加载用户数据
       await this.loadUserData!()
 
-      // 获取用户登录状态
-      this.checkLoginStatus!()
+      // 检查授权状态
+      await this.checkAuthStatus!()
     } catch (error) {
       console.error('应用启动失败:', error)
     }
@@ -74,6 +93,37 @@ App<IAppOption>({
       console.log('系统信息获取成功', systemInfo)
     } catch (error) {
       console.error('获取系统信息失败', error)
+    }
+  },
+
+  /**
+   * 检查授权状态
+   */
+  async checkAuthStatus() {
+    try {
+      const { AuthManager } = require('./utils/authManager') as any
+      const authManager = AuthManager.getInstance()
+      
+      // 检查是否已登录
+      const isLoggedIn = await authManager.isLoggedIn()
+      
+      if (!isLoggedIn) {
+        console.log('用户未登录，跳转到授权页面')
+        // 跳转到授权页面
+        wx.redirectTo({
+          url: '/pages/auth/auth'
+        })
+      } else {
+        console.log('用户已登录')
+        // 检查登录状态是否有效
+        this.checkLoginStatus!()
+      }
+    } catch (error) {
+      console.error('检查授权状态失败:', error)
+      // 出错时也跳转到授权页面
+      wx.redirectTo({
+        url: '/pages/auth/auth'
+      })
     }
   },
 

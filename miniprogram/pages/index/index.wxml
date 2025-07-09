@@ -98,8 +98,8 @@
         </view>
       </view>
 
-      <!-- 推荐标签页 -->
-      <view wx:if="{{currentTab === 'recommend'}}" class="recommend-content">
+      <!-- 游戏标签页 -->
+      <view wx:if="{{currentTab === 'games'}}" class="recommend-content">
         <view class="recommend-tools">
           <view 
             wx:for="{{recommendTools}}" 

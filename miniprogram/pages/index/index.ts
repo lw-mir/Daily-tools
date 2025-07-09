@@ -20,7 +20,7 @@ Component({
     // 标签列表
     tabList: [
       { id: 'tools', name: '工具' },
-      { id: 'recommend', name: '推荐' },
+      { id: 'games', name: '游戏' },
       { id: 'hot', name: '热门' },
       { id: 'mine', name: '我的' }
     ],
@@ -72,19 +72,19 @@ Component({
         isFavorite: false
       },
       {
-        id: 'calculator-tool',
-        name: '计算工具',
-        description: '数学计算和单位转换工具',
+        id: 'score-510k',
+        name: '510K计分器',
+        description: '纸牌游戏510K计分辅助',
         image: '/images/calculator.jpg',
-        icon: '🔢',
-        category: 'calculator',
-        tags: ['计算', '数学'],
+        icon: '🃏',
+        category: 'score510k',
+        tags: ['游戏', '计分'],
         isFavorite: false
       },
       {
         id: 'ruler',
-        name: '测量工具',
-        description: '长度测量和尺寸计算工具',
+        name: '单位转换',
+        description: '单位转换工具',
         image: '/images/ruler.jpg',
         icon: '📏',
         category: 'converter',
@@ -333,6 +333,12 @@ Component({
       // 如果点击的是"我的"标签页，直接跳转到个人中心页面
       if (tab === 'mine') {
         this.navigateToProfile()
+        return
+      }
+
+      // 如果点击的是"游戏"标签页，跳转到游戏库页面
+      if (tab === 'games') {
+        this.navigateToGameLibrary()
         return
       }
       
@@ -668,6 +674,11 @@ Component({
             url: '/pages/tools/foodwheel/foodwheel'
           })
           break
+        case 'score510k':
+          wx.navigateTo({
+            url: '/pages/tools/score510k/score510k'
+          })
+          break
         default:
           wx.showToast({
             title: '功能开发中',
@@ -740,6 +751,21 @@ Component({
     navigateToProfile() {
       wx.navigateTo({
         url: '/pages/profile/profile'
+      })
+    },
+
+    /**
+     * 导航到游戏库页面
+     */
+    navigateToGameLibrary() {
+      wx.navigateTo({
+        url: '/pages/gamelibrary/gamelibrary',
+        fail: () => {
+          wx.showToast({
+            title: '游戏库功能开发中',
+            icon: 'none'
+          })
+        }
       })
     },
 

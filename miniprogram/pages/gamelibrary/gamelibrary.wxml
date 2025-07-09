@@ -1,0 +1,32 @@
+<view class="game-library-container">
+  <view class="header">
+    <text class="title">小游戏库</text>
+  </view>
+
+  <scroll-view scroll-y class="page-scroll">
+    <view class="game-grid">
+      <view 
+        wx:for="{{games}}" 
+        wx:key="id" 
+        class="game-card" 
+        bindtap="onGameTap"
+        data-game="{{item}}"
+      >
+        <view class="card-bg"></view>
+        <view class="game-card-content">
+          <view class="game-icon">
+            <text class="emoji-icon">{{item.icon}}</text>
+          </view>
+          <view class="game-info">
+            <text class="game-name">{{item.name}}</text>
+            <text class="game-desc">{{item.description}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{games.length === 0}}" class="empty">
+    <text>暂时还没有小游戏，敬请期待！</text>
+  </view>
+</view> 

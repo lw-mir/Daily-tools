@@ -1,8 +1,8 @@
 {
   "pages": [
+    "pages/auth/auth",
     "pages/index/index",
     "pages/logs/logs",
-    "pages/tools/calculator/calculator",
     "pages/tools/converter/converter",
     "pages/tools/imageconverter/imageconverter",
     "pages/tools/foodwheel/foodwheel",
@@ -10,7 +10,10 @@
     "pages/favorites/favorites",
     "pages/history/history",
     "pages/category/category",
-    "pages/help/help"
+    "pages/help/help",
+    "pages/gamelibrary/gamelibrary",
+    "pages/games/tictactoe/tictactoe",
+    "pages/tools/score510k/score510k"
   ],
   "window": {
     "navigationBarTextStyle": "black",

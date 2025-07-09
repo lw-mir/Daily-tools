@@ -135,48 +135,22 @@ export class AuthManager {
   }
 
   /**
-   * 检查已有授权
+   * 检查已有授权（注意：不再检查scope.userInfo，因为getUserProfile每次都需要用户主动触发）
    */
   private async checkExistingAuth(): Promise<AuthResult> {
     return new Promise((resolve) => {
-      wx.getSetting({
-        success: (res) => {
-          if (res.authSetting['scope.userInfo']) {
-            // 已经授权，直接获取用户信息
-            wx.getUserInfo({
-              success: async (userRes) => {
-                const rawUserInfo = userRes.userInfo;
-                
-                // 处理用户信息
-                const processedUserInfo = await userInfoProcessor.processUserInfo(rawUserInfo);
-                
-                // 保存登录状态
-                const loginState: LoginState = {
-                  isLoggedIn: true,
-                  userInfo: processedUserInfo,
-                  loginTime: Date.now(),
-                  expireTime: Date.now() + this.LOGIN_EXPIRE_TIME
-                };
-                this.saveLoginState(loginState);
-                
-                LoggerService.info('使用已有授权登录成功');
-                resolve({
-                  success: true,
-                  userInfo: processedUserInfo
-                });
-              },
-              fail: () => {
-                resolve({ success: false, error: '获取用户信息失败' });
-              }
-            });
-          } else {
-            resolve({ success: false, error: '未授权' });
-          }
-        },
-        fail: () => {
-          resolve({ success: false, error: '检查授权状态失败' });
-        }
-      });
+             // 检查本地是否有有效的登录状态
+       const loginState = this.getLoginState();
+       if (loginState && loginState.isLoggedIn && loginState.userInfo && loginState.expireTime > Date.now()) {
+         LoggerService.info('使用本地登录状态');
+         resolve({
+           success: true,
+           userInfo: loginState.userInfo
+         });
+       } else {
+         // 没有有效的本地登录状态，需要重新授权
+         resolve({ success: false, error: '需要重新授权' });
+       }
     });
   }
 
@@ -185,13 +159,25 @@ export class AuthManager {
    */
   private async requestUserProfile(): Promise<UserInfo | null> {
     return new Promise((resolve) => {
+      console.log('AuthManager: 开始调用 wx.getUserProfile...');
+      
+      // 检查是否支持 getUserProfile
+      if (!wx.canIUse('getUserProfile')) {
+        console.error('当前微信版本不支持 getUserProfile');
+        LoggerService.error('当前微信版本不支持 getUserProfile');
+        resolve(null);
+        return;
+      }
+      
       wx.getUserProfile({
-        desc: '用于完善用户资料',
+        desc: '用于完善用户资料', // 声明获取用户个人信息后的用途
         success: (res) => {
+          console.log('AuthManager: wx.getUserProfile 调用成功:', res);
           LoggerService.info('获取用户信息成功:', res.userInfo);
           resolve(res.userInfo);
         },
         fail: (error) => {
+          console.log('AuthManager: wx.getUserProfile 调用失败:', error);
           LoggerService.warn('用户拒绝授权:', error);
           resolve(null);
         }
@@ -235,19 +221,13 @@ export class AuthManager {
     canIUse: boolean;
   }> {
     return new Promise((resolve) => {
-      wx.getSetting({
-        success: (res) => {
-          resolve({
-            hasUserInfo: !!res.authSetting['scope.userInfo'],
-            canIUse: wx.canIUse('button.open-type.getUserInfo')
-          });
-        },
-        fail: () => {
-          resolve({
-            hasUserInfo: false,
-            canIUse: wx.canIUse('button.open-type.getUserInfo')
-          });
-        }
+      // 检查本地是否有有效的用户信息
+      const loginState = this.getLoginState();
+      const hasValidUserInfo = !!(loginState && loginState.isLoggedIn && loginState.userInfo && loginState.expireTime > Date.now());
+      
+      resolve({
+        hasUserInfo: hasValidUserInfo,
+        canIUse: wx.canIUse('getUserProfile')
       });
     });
   }

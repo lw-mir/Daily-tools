@@ -1,0 +1,10 @@
+{
+  "console": {
+    "hideNetworkWarnings": true,
+    "hideDeprecationWarnings": true,
+    "hideSharedArrayBufferWarnings": true
+  },
+  "compiler": {
+    "suppressSharedArrayBufferWarning": true
+  }
+} 

@@ -1,0 +1,119 @@
+<!--pages/auth/auth.wxml-->
+<view class="auth-container">
+  <!-- 头部Logo和标题 -->
+  <view class="auth-header">
+    <image class="app-logo" src="/images/logo.png" mode="aspectFit"></image>
+    <text class="app-title">Dailytools</text>
+    <text class="app-subtitle">实用的日常工具集合</text>
+  </view>
+
+  <!-- 授权说明 -->
+  <view class="auth-content">
+    <view class="auth-desc">
+      <text class="desc-title">欢迎使用 Dailytools</text>
+      <text class="desc-text">为了给您提供更好的服务，需要获取您的基本信息</text>
+    </view>
+
+    <!-- 权限说明 -->
+    <view class="permission-list">
+      <view class="permission-item">
+        <image class="permission-icon" src="/images/icons/user.png"></image>
+        <view class="permission-text">
+          <text class="permission-title">基本信息</text>
+          <text class="permission-desc">用于个人中心展示</text>
+        </view>
+      </view>
+      <view class="permission-item">
+        <image class="permission-icon" src="/images/icons/save.png"></image>
+        <view class="permission-text">
+          <text class="permission-title">数据同步</text>
+          <text class="permission-desc">保存您的使用记录和偏好</text>
+        </view>
+      </view>
+      <view class="permission-item">
+        <image class="permission-icon" src="/images/icons/star.png"></image>
+        <view class="permission-text">
+          <text class="permission-title">个性化服务</text>
+          <text class="permission-desc">提供定制化的工具推荐</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在授权中...</text>
+  </view>
+
+  <!-- 错误信息 -->
+  <view class="error-container" wx:if="{{errorMessage}}">
+    <image class="error-icon" src="/images/icons/error.png"></image>
+    <text class="error-text">{{errorMessage}}</text>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="auth-actions">
+    <!-- 主要授权按钮 -->
+    <button 
+      class="auth-btn primary"
+      wx:if="{{!isLoading}}"
+      bindtap="onAuthorize"
+      disabled="{{isLoading}}"
+    >
+      <image class="btn-icon" src="/images/icons/wechat.png"></image>
+      <text>微信授权登录</text>
+    </button>
+
+    <!-- 测试按钮 -->
+    <button 
+      class="auth-btn secondary"
+      wx:if="{{!isLoading}}"
+      bindtap="onTestAuthorize"
+      style="margin-top: 20rpx;"
+    >
+      <text>测试授权弹框</text>
+    </button>
+
+    <!-- 重试按钮 -->
+    <button 
+      class="auth-btn secondary"
+      wx:if="{{canRetry && !isLoading}}"
+      bindtap="onRetry"
+      style="margin-top: 20rpx;"
+    >
+      <image class="btn-icon" src="/images/icons/refresh.png"></image>
+      <text>重新尝试</text>
+    </button>
+
+    <!-- 跳过登录按钮 -->
+    <button 
+      class="auth-btn tertiary"
+      wx:if="{{!isLoading}}"
+      bindtap="onSkipLogin"
+      style="margin-top: 20rpx;"
+    >
+      <text>暂不登录</text>
+    </button>
+  </view>
+
+  <!-- 调试信息 -->
+  <view class="debug-container" wx:if="{{debugInfo}}">
+    <view class="debug-toggle" bindtap="showDebugInfo">
+      <text class="debug-toggle-text">{{showDebugInfo ? '隐藏' : '显示'}}调试信息</text>
+    </view>
+    <view class="debug-content" wx:if="{{showDebugInfo}}">
+      <text class="debug-text">{{debugInfo}}</text>
+    </view>
+  </view>
+
+  <!-- 用户协议 -->
+  <view class="agreement-container">
+    <text class="agreement-text">
+      点击授权即表示同意
+      <text class="agreement-link">《用户协议》</text>
+      和
+      <text class="agreement-link">《隐私政策》</text>
+    </text>
+  </view>
+</view> 
