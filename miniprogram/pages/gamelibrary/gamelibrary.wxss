@@ -2,60 +2,675 @@
 .game-library-container {
   min-height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-  padding: 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0;
   box-sizing: border-box;
+  position: relative;
+  overflow-x: hidden;
 }
 
+/* 页面头部 - 增强视觉效果 */
 .header {
-  padding: 24rpx 24rpx;
-  margin: 0 18rpx 20rpx 18rpx;
+  padding: 20rpx 40rpx 20rpx;
   text-align: center;
-  background: rgba(255,255,255,0.25);
-  border-radius: 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.06);
-  backdrop-filter: blur(10rpx);
+  /* 更丰富的渐变背景 */
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.22) 25%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    rgba(255, 255, 255, 0.12) 100%);
+  backdrop-filter: blur(30rpx);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 
+    0 6rpx 30rpx rgba(0, 0, 0, 0.15),
+    0 2rpx 10rpx rgba(255, 255, 255, 0.1) inset;
+  /* 限制最大宽度，居中显示 */
+  max-width: 600rpx;
+  margin: 0 auto;
+  border-radius: 0 0 35rpx 35rpx;
+  /* 增强边框立体感 */
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border-top: none;
+  border-bottom: 2rpx solid rgba(255, 255, 255, 0.2);
+  /* 添加溢出隐藏以确保气泡效果不超出边界 */
+  overflow: hidden;
+}
+
+/* 主要气泡背景层 - 增强效果 */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* 更大更柔和的气泡背景 */
+  background-image: 
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 35%, transparent 65%),
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 30%, transparent 60%),
+    radial-gradient(circle at 65% 85%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.08) 25%, transparent 55%),
+    radial-gradient(circle at 35% 70%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 20%, transparent 50%);
+  z-index: -3;
+  border-radius: inherit;
+  animation: mainBubbleFloat 12s ease-in-out infinite;
+}
+
+/* 小气泡装饰层 - 增加更多层次 */
+.header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* 更丰富的小气泡背景 */
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.5) 1rpx, transparent 2rpx),
+    radial-gradient(rgba(255, 255, 255, 0.4) 1.5rpx, transparent 3rpx),
+    radial-gradient(rgba(255, 255, 255, 0.35) 2rpx, transparent 4rpx),
+    radial-gradient(rgba(255, 255, 255, 0.3) 1rpx, transparent 2rpx),
+    radial-gradient(rgba(255, 255, 255, 0.25) 2.5rpx, transparent 5rpx),
+    radial-gradient(rgba(255, 255, 255, 0.2) 1.5rpx, transparent 3rpx),
+    radial-gradient(rgba(255, 255, 255, 0.15) 3rpx, transparent 6rpx);
+  background-size: 
+    70rpx 70rpx, 
+    120rpx 120rpx, 
+    90rpx 90rpx,
+    50rpx 50rpx,
+    160rpx 160rpx,
+    80rpx 80rpx,
+    200rpx 200rpx;
+  background-position: 
+    8rpx 15rpx, 
+    60rpx 80rpx, 
+    110rpx 35rpx,
+    150rpx 65rpx,
+    25rpx 100rpx,
+    180rpx 20rpx,
+    40rpx 120rpx;
+  z-index: -2;
+  border-radius: inherit;
+  animation: bubbleFloat 10s ease-in-out infinite;
+}
+
+/* 新增星星装饰层 */
+.header {
+  position: relative;
+}
+
+.header .star-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.8) 0.5rpx, transparent 1rpx),
+    radial-gradient(rgba(255, 255, 255, 0.6) 0.8rpx, transparent 1.5rpx),
+    radial-gradient(rgba(255, 255, 255, 0.7) 0.3rpx, transparent 0.8rpx),
+    radial-gradient(rgba(255, 255, 255, 0.5) 1rpx, transparent 2rpx);
+  background-size: 
+    300rpx 300rpx,
+    250rpx 250rpx,
+    180rpx 180rpx,
+    400rpx 400rpx;
+  background-position: 
+    50rpx 30rpx,
+    120rpx 90rpx,
+    200rpx 50rpx,
+    80rpx 110rpx;
+  z-index: -1;
+  border-radius: inherit;
+  animation: starTwinkle 6s ease-in-out infinite;
+}
+
+/* 主要气泡浮动动画 - 更慢更优雅 */
+@keyframes mainBubbleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  33% {
+    transform: translateY(-3rpx) scale(1.01);
+    opacity: 0.9;
+  }
+  66% {
+    transform: translateY(-6rpx) scale(1.02);
+    opacity: 1;
+  }
+}
+
+/* 气泡浮动动画 - 调整节奏 */
+@keyframes bubbleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-8rpx) scale(1.03);
+    opacity: 1;
+  }
+}
+
+/* 星星闪烁动画 */
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  75% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
 }
 
 .title {
-  font-size: 40rpx;
+  font-size: 56rpx;
   font-weight: 800;
   color: #ffffff;
+  margin-bottom: 0;
+  text-shadow: 
+    0 4rpx 20rpx rgba(0, 0, 0, 0.5),
+    0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  display: block;
+  letter-spacing: 4rpx;
+  /* 更丰富的渐变文字效果 */
+  background: linear-gradient(135deg, 
+    #ffffff 0%, 
+    #f8f9ff 25%, 
+    #e8f0ff 50%,
+    #f0f5ff 75%,
+    #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  /* 添加发光效果 */
+  filter: drop-shadow(0 0 10rpx rgba(255, 255, 255, 0.3));
 }
 
-.game-list {
-  /* 已废弃 */
+/* 增强标题装饰元素 */
+.title::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -20rpx;
+  transform: translateX(-50%);
+  width: 120rpx;
+  height: 6rpx;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.8), 
+    rgba(255, 255, 255, 0.3),
+    transparent);
+  border-radius: 3rpx;
+  box-shadow: 
+    0 2rpx 10rpx rgba(255, 255, 255, 0.4),
+    0 0 20rpx rgba(255, 255, 255, 0.2);
+  animation: titleGlow 4s ease-in-out infinite;
 }
 
-/* 新布局 */
+/* 标题发光动画 */
+@keyframes titleGlow {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateX(-50%) scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1.1);
+  }
+}
+
+/* 在头部样式后添加更多装饰元素 */
+
+/* 光环装饰效果 */
+.header .glow-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300rpx;
+  height: 300rpx;
+  transform: translate(-50%, -50%);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -4;
+  animation: glowRing 8s linear infinite;
+}
+
+.header .glow-ring::before {
+  content: '';
+  position: absolute;
+  top: -10rpx;
+  left: -10rpx;
+  right: -10rpx;
+  bottom: -10rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  animation: glowRing 12s linear infinite reverse;
+}
+
+.header .glow-ring::after {
+  content: '';
+  position: absolute;
+  top: 20rpx;
+  left: 20rpx;
+  right: 20rpx;
+  bottom: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  animation: glowRing 10s linear infinite;
+}
+
+/* 光环旋转动画 */
+@keyframes glowRing {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+/* 装饰角标 */
+.header .corner-decoration {
+  position: absolute;
+  width: 40rpx;
+  height: 40rpx;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header .corner-decoration.top-left {
+  top: 20rpx;
+  left: 20rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 0 0 20rpx 0;
+  animation: cornerPulse 4s ease-in-out infinite;
+}
+
+.header .corner-decoration.top-right {
+  top: 20rpx;
+  right: 20rpx;
+  background: linear-gradient(225deg, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 0 0 0 20rpx;
+  animation: cornerPulse 4s ease-in-out infinite 1s;
+}
+
+.header .corner-decoration.bottom-left {
+  bottom: 20rpx;
+  left: 20rpx;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 0 20rpx 0 0;
+  animation: cornerPulse 4s ease-in-out infinite 2s;
+}
+
+.header .corner-decoration.bottom-right {
+  bottom: 20rpx;
+  right: 20rpx;
+  background: linear-gradient(315deg, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 20rpx 0 0 0;
+  animation: cornerPulse 4s ease-in-out infinite 3s;
+}
+
+/* 角标脉冲动画 */
+@keyframes cornerPulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+/* 增强副标题样式 */
+.subtitle {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 400;
+  display: block;
+  margin-top: 25rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  /* 添加轻微发光 */
+  filter: drop-shadow(0 0 5rpx rgba(255, 255, 255, 0.2));
+  position: relative;
+}
+
+/* 副标题装饰 */
+.subtitle::before,
+.subtitle::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.6);
+  animation: starPulse 3s ease-in-out infinite;
+}
+
+.subtitle::before {
+  left: -40rpx;
+  animation-delay: 0s;
+}
+
+.subtitle::after {
+  right: -40rpx;
+  animation-delay: 1.5s;
+}
+
+/* 星星脉冲动画 */
+@keyframes starPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.3);
+  }
+}
+
+/* 增强标题下划线动画 */
+@keyframes titleGlow {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateX(-50%) scaleX(1);
+    box-shadow: 
+      0 2rpx 10rpx rgba(255, 255, 255, 0.4),
+      0 0 20rpx rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1.1);
+    box-shadow: 
+      0 4rpx 20rpx rgba(255, 255, 255, 0.6),
+      0 0 30rpx rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* 响应式设计 - 小屏幕优化 */
+@media screen and (max-width: 375px) {
+  .header {
+    padding: 50rpx 30rpx 40rpx;
+    max-width: 100%;
+    border-radius: 0 0 30rpx 30rpx;
+  }
+  
+  .title {
+    font-size: 48rpx;
+    letter-spacing: 2rpx;
+  }
+  
+  .title::before {
+    width: 80rpx;
+    height: 4rpx;
+    bottom: -15rpx;
+  }
+  
+  .subtitle {
+    font-size: 24rpx;
+    margin-top: 20rpx;
+  }
+}
+
+/* 响应式设计 - 大屏幕优化 */
+@media screen and (min-width: 414px) {
+  .header {
+    padding: 70rpx 50rpx 55rpx;
+    max-width: 650rpx;
+    border-radius: 0 0 40rpx 40rpx;
+  }
+  
+  .title {
+    font-size: 64rpx;
+    letter-spacing: 6rpx;
+  }
+  
+  .title::before {
+    width: 140rpx;
+    height: 8rpx;
+    bottom: -25rpx;
+  }
+}
+
+/* 主要内容滚动区域 */
 .page-scroll {
-  height: calc(100vh - 120rpx);
+  height: calc(100vh - 180rpx);
   background: transparent;
+  padding-top: 30rpx;
 }
 
+/* 游戏分类容器 */
+.game-category {
+  margin-bottom: 60rpx;
+  padding: 0 30rpx;
+}
+
+/* 分类头部 - 优化层级和间距 */
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 35rpx;
+  margin-bottom: 25rpx;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 25rpx;
+  backdrop-filter: blur(15rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  /* 增加卡片投影 */
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+}
+
+.category-header:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+}
+
+.category-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.category-right {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 强化图标色彩 */
+.category-icon {
+  font-size: 52rpx;
+  margin-right: 25rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90rpx;
+  height: 90rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  backdrop-filter: blur(10rpx);
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  /* 增强图标色彩 */
+  filter: saturate(1.4) brightness(1.1);
+}
+
+.category-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* 增加留白 */
+  gap: 8rpx;
+}
+
+.category-title {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 3rpx 12rpx rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* 使用圆润字体 */
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+}
+
+.category-desc {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4rpx;
+}
+
+.category-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 12rpx 24rpx;
+  border-radius: 25rpx;
+  backdrop-filter: blur(10rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 优化展开收起图标交互 */
+.expand-icon {
+  width: 70rpx;
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  backdrop-filter: blur(10rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.expand-icon:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.expand-arrow {
+  font-size: 26rpx;
+  color: #ffffff;
+  font-weight: 600;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(0deg);
+}
+
+.expand-icon.expanded .expand-arrow {
+  transform: rotate(180deg);
+}
+
+/* 游戏网格布局 */
 .game-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300rpx, 1fr));
-  gap: 24rpx;
-  padding: 0 20rpx 40rpx;
-  box-sizing: border-box;
+  gap: 25rpx;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
 }
 
+.game-grid.expanded {
+  max-height: none;
+  opacity: 1;
+  transform: scaleY(1);
+  margin-bottom: 0;
+}
+
+.game-grid.collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: scaleY(0);
+  margin-bottom: -25rpx;
+  pointer-events: none;
+}
+
+/* 游戏卡片 - 增强质感和投影 */
 .game-card {
   position: relative;
   height: 220rpx;
-  border-radius: 24rpx;
+  border-radius: 25rpx;
   overflow: hidden;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2rpx solid rgba(255, 255, 255, 0.15);
+  /* 增加卡片投影 */
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.15);
+}
+
+.game-card:hover {
+  transform: translateY(-8rpx);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+}
+
+.game-card:active {
+  transform: scale(0.96);
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.18);
+}
+
+/* 不同分类的卡片背景 - 增强色彩饱和度 */
+.drinking-game .card-bg {
+  background: linear-gradient(135deg, #ff5252 0%, #ff7043 100%);
+}
+
+.casual-game .card-bg {
+  background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
+}
+
+.couple-game .card-bg {
+  background: linear-gradient(135deg, #ec407a 0%, #f06292 100%);
+}
+
+.card-game .card-bg {
+  background: linear-gradient(135deg, #5c6bc0 0%, #7986cb 100%);
 }
 
 .card-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.game-card:hover .card-bg {
+  transform: scale(1.05);
+}
+
+/* 游戏卡片内容 - 增加留白 */
 .game-card-content {
   position: relative;
   z-index: 2;
@@ -64,34 +679,359 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20rpx;
+  padding: 25rpx 20rpx;
   color: #fff;
   text-align: center;
-  backdrop-filter: blur(6rpx);
-}
-
-.game-card:active .card-bg {
-  transform: scale(1.05);
+  backdrop-filter: blur(8rpx);
+  background: rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
 }
 
 .game-icon {
-  font-size: 64rpx;
-  margin-bottom: 12rpx;
+  font-size: 55rpx;
+  margin-bottom: 15rpx;
+  text-shadow: 0 3rpx 12rpx rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  /* 增强图标色彩 */
+  filter: saturate(1.3) brightness(1.1);
+}
+
+.emoji-icon {
+  font-size: 55rpx;
+  line-height: 1;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  justify-content: center;
+  gap: 10rpx;
 }
 
 .game-name {
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 700;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 280rpx;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  text-align: center;
+  word-break: break-word;
+  /* 使用圆润字体 */
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
 }
 
 .game-desc {
-  font-size: 24rpx;
+  font-size: 22rpx;
   opacity: 0.9;
+  line-height: 1.5;
+  text-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.4);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 280rpx;
+  text-align: center;
+  word-break: break-word;
 }
 
+/* 占位符标识 */
+.placeholder-badge {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 15rpx;
+  backdrop-filter: blur(10rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  z-index: 3;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+
+.placeholder-text {
+  font-size: 20rpx;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 占位符卡片特殊样式 */
+.game-card:has(.placeholder-badge) {
+  opacity: 0.85;
+}
+
+.game-card:has(.placeholder-badge) .card-bg {
+  background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%) !important;
+}
+
+.game-card:has(.placeholder-badge):active {
+  transform: scale(0.98);
+}
+
+/* 底部间距 */
+.bottom-padding {
+  height: 80rpx;
+}
+
+/* 空状态（备用） */
 .empty {
-  margin-top: 60rpx;
+  margin-top: 120rpx;
   text-align: center;
-  font-size: 28rpx;
-  color: #95a5a6;
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 80rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 140rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 750rpx) {
+  .game-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280rpx, 1fr));
+    gap: 20rpx;
+  }
+  
+  .category-header {
+    padding: 25rpx 30rpx;
+  }
+  
+  .category-icon {
+    width: 70rpx;
+    height: 70rpx;
+    font-size: 40rpx;
+    margin-right: 20rpx;
+  }
+  
+  .category-title {
+    font-size: 34rpx;
+  }
+  
+  .category-desc {
+    font-size: 24rpx;
+  }
+  
+  .category-count {
+    font-size: 24rpx;
+    padding: 10rpx 20rpx;
+  }
+  
+  .expand-icon {
+    width: 60rpx;
+    height: 60rpx;
+  }
+  
+  .expand-arrow {
+    font-size: 22rpx;
+  }
+  
+  .game-card {
+    height: 210rpx;
+  }
+  
+  .game-card-content {
+    padding: 20rpx 15rpx;
+  }
+  
+  .game-icon {
+    font-size: 48rpx;
+    margin-bottom: 12rpx;
+  }
+  
+  .emoji-icon {
+    font-size: 48rpx;
+  }
+  
+  .game-name {
+    font-size: 26rpx;
+    max-width: 260rpx;
+    line-height: 1.3;
+  }
+  
+  .game-desc {
+    font-size: 20rpx;
+    max-width: 260rpx;
+    line-height: 1.4;
+  }
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .game-library-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
+  .header {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .category-header {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .category-header:active {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .category-icon {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .category-count {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .expand-icon {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  .game-card {
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .game-card-content {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  .placeholder-badge {
+    background: rgba(0, 0, 0, 0.4);
+  }
+} 
+
+/* 小屏幕适配 */
+@media (max-width: 375px) {
+  .header {
+    padding: 60rpx 40rpx 50rpx;
+    min-height: 240rpx;
+  }
+
+  .header .title {
+    font-size: 56rpx;
+    margin-bottom: 20rpx;
+  }
+
+  .header .subtitle {
+    font-size: 24rpx;
+    margin-top: 20rpx;
+  }
+
+  .header .subtitle::before,
+  .header .subtitle::after {
+    font-size: 18rpx;
+    left: -35rpx;
+    right: -35rpx;
+  }
+
+  .header .glow-ring {
+    width: 250rpx;
+    height: 250rpx;
+  }
+
+  .header .corner-decoration {
+    width: 35rpx;
+    height: 35rpx;
+  }
+
+  .header .corner-decoration.top-left,
+  .header .corner-decoration.top-right {
+    top: 15rpx;
+  }
+
+  .header .corner-decoration.top-left,
+  .header .corner-decoration.bottom-left {
+    left: 15rpx;
+  }
+
+  .header .corner-decoration.top-right,
+  .header .corner-decoration.bottom-right {
+    right: 15rpx;
+  }
+
+  .header .corner-decoration.bottom-left,
+  .header .corner-decoration.bottom-right {
+    bottom: 15rpx;
+  }
+
+  .category-item {
+    margin-bottom: 20rpx;
+    padding: 25rpx;
+  }
+}
+
+/* 大屏幕适配 */
+@media (min-width: 414px) {
+  .header {
+    padding: 80rpx 50rpx 70rpx;
+    min-height: 320rpx;
+  }
+
+  .header .title {
+    font-size: 72rpx;
+    margin-bottom: 30rpx;
+  }
+
+  .header .subtitle {
+    font-size: 28rpx;
+    margin-top: 30rpx;
+  }
+
+  .header .subtitle::before,
+  .header .subtitle::after {
+    font-size: 22rpx;
+    left: -45rpx;
+    right: -45rpx;
+  }
+
+  .header .glow-ring {
+    width: 350rpx;
+    height: 350rpx;
+  }
+
+  .header .corner-decoration {
+    width: 45rpx;
+    height: 45rpx;
+  }
+
+  .header .corner-decoration.top-left,
+  .header .corner-decoration.top-right {
+    top: 25rpx;
+  }
+
+  .header .corner-decoration.top-left,
+  .header .corner-decoration.bottom-left {
+    left: 25rpx;
+  }
+
+  .header .corner-decoration.top-right,
+  .header .corner-decoration.bottom-right {
+    right: 25rpx;
+  }
+
+  .header .corner-decoration.bottom-left,
+  .header .corner-decoration.bottom-right {
+    bottom: 25rpx;
+  }
+
+  .category-item {
+    margin-bottom: 30rpx;
+    padding: 35rpx;
+  }
 } 

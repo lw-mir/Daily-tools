@@ -1,32 +1,197 @@
 <view class="game-library-container">
+  <!-- 页面头部 -->
   <view class="header">
-    <text class="title">小游戏库</text>
+    <!-- 光环装饰 -->
+    <view class="glow-ring"></view>
+    
+    <!-- 角标装饰 -->
+    <view class="corner-decoration top-left"></view>
+    <view class="corner-decoration top-right"></view>
+    <view class="corner-decoration bottom-left"></view>
+    <view class="corner-decoration bottom-right"></view>
+    
+    <!-- 星星装饰层 -->
+    <view class="star-decoration"></view>
+    
+    <view class="title">游戏库</view>
+    <view class="subtitle">精选小游戏合集</view>
   </view>
 
+  <!-- 主要内容区域 -->
   <scroll-view scroll-y class="page-scroll">
-    <view class="game-grid">
-      <view 
-        wx:for="{{games}}" 
-        wx:key="id" 
-        class="game-card" 
-        bindtap="onGameTap"
-        data-game="{{item}}"
-      >
-        <view class="card-bg"></view>
-        <view class="game-card-content">
-          <view class="game-icon">
-            <text class="emoji-icon">{{item.icon}}</text>
+    <!-- 酒桌游戏分类 -->
+    <view class="game-category">
+      <view class="category-header" bindtap="toggleCategory" data-category="drinking">
+        <view class="category-left">
+          <view class="category-icon">🍻</view>
+          <view class="category-info">
+            <text class="category-title">酒桌游戏</text>
+            <text class="category-desc">聚会必备，气氛担当</text>
           </view>
-          <view class="game-info">
-            <text class="game-name">{{item.name}}</text>
-            <text class="game-desc">{{item.description}}</text>
+        </view>
+                  <view class="category-right">
+            <view class="category-count">{{drinkingGames.length}}</view>
+            <view class="expand-icon {{categoryExpanded.drinking ? 'expanded' : ''}}">
+            <text class="expand-arrow">▼</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="game-grid {{categoryExpanded.drinking ? 'expanded' : 'collapsed'}}">
+        <view 
+          wx:for="{{drinkingGames}}" 
+          wx:key="id" 
+          class="game-card drinking-game" 
+          bindtap="onGameTap"
+          data-game="{{item}}"
+        >
+          <view class="card-bg"></view>
+          <view class="game-card-content">
+            <view class="game-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="game-info">
+              <text class="game-name">{{item.name}}</text>
+              <text class="game-desc">{{item.description}}</text>
+            </view>
+            <view wx:if="{{item.isPlaceholder}}" class="placeholder-badge">
+              <text class="placeholder-text">敬请期待</text>
+            </view>
           </view>
         </view>
       </view>
     </view>
-  </scroll-view>
 
-  <view wx:if="{{games.length === 0}}" class="empty">
-    <text>暂时还没有小游戏，敬请期待！</text>
-  </view>
+    <!-- 摸鱼游戏分类 -->
+    <view class="game-category">
+      <view class="category-header" bindtap="toggleCategory" data-category="casual">
+        <view class="category-left">
+          <view class="category-icon">🐟</view>
+          <view class="category-info">
+            <text class="category-title">摸鱼游戏</text>
+            <text class="category-desc">休闲放松，打发时间</text>
+          </view>
+        </view>
+        <view class="category-right">
+          <view class="category-count">{{casualGames.length}}</view>
+          <view class="expand-icon {{categoryExpanded.casual ? 'expanded' : ''}}">
+            <text class="expand-arrow">▼</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="game-grid {{categoryExpanded.casual ? 'expanded' : 'collapsed'}}">
+        <view 
+          wx:for="{{casualGames}}" 
+          wx:key="id" 
+          class="game-card casual-game" 
+          bindtap="onGameTap"
+          data-game="{{item}}"
+        >
+          <view class="card-bg"></view>
+          <view class="game-card-content">
+            <view class="game-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="game-info">
+              <text class="game-name">{{item.name}}</text>
+              <text class="game-desc">{{item.description}}</text>
+            </view>
+            <view wx:if="{{item.isPlaceholder}}" class="placeholder-badge">
+              <text class="placeholder-text">敬请期待</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 情侣游戏分类 -->
+    <view class="game-category">
+      <view class="category-header" bindtap="toggleCategory" data-category="couple">
+        <view class="category-left">
+          <view class="category-icon">💕</view>
+          <view class="category-info">
+            <text class="category-title">情侣游戏</text>
+            <text class="category-desc">增进感情，甜蜜互动</text>
+          </view>
+        </view>
+        <view class="category-right">
+          <view class="category-count">{{coupleGames.length}}</view>
+          <view class="expand-icon {{categoryExpanded.couple ? 'expanded' : ''}}">
+            <text class="expand-arrow">▼</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="game-grid {{categoryExpanded.couple ? 'expanded' : 'collapsed'}}">
+        <view 
+          wx:for="{{coupleGames}}" 
+          wx:key="id" 
+          class="game-card couple-game" 
+          bindtap="onGameTap"
+          data-game="{{item}}"
+        >
+          <view class="card-bg"></view>
+          <view class="game-card-content">
+            <view class="game-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="game-info">
+              <text class="game-name">{{item.name}}</text>
+              <text class="game-desc">{{item.description}}</text>
+            </view>
+            <view wx:if="{{item.isPlaceholder}}" class="placeholder-badge">
+              <text class="placeholder-text">敬请期待</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 扑克游戏分类 -->
+    <view class="game-category">
+      <view class="category-header" bindtap="toggleCategory" data-category="card">
+        <view class="category-left">
+          <view class="category-icon">🃏</view>
+          <view class="category-info">
+            <text class="category-title">扑克游戏</text>
+            <text class="category-desc">经典卡牌，策略对战</text>
+          </view>
+        </view>
+        <view class="category-right">
+          <view class="category-count">{{cardGames.length}}</view>
+          <view class="expand-icon {{categoryExpanded.card ? 'expanded' : ''}}">
+            <text class="expand-arrow">▼</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="game-grid {{categoryExpanded.card ? 'expanded' : 'collapsed'}}">
+        <view 
+          wx:for="{{cardGames}}" 
+          wx:key="id" 
+          class="game-card card-game" 
+          bindtap="onGameTap"
+          data-game="{{item}}"
+        >
+          <view class="card-bg"></view>
+          <view class="game-card-content">
+            <view class="game-icon">
+              <text class="emoji-icon">{{item.icon}}</text>
+            </view>
+            <view class="game-info">
+              <text class="game-name">{{item.name}}</text>
+              <text class="game-desc">{{item.description}}</text>
+            </view>
+            <view wx:if="{{item.isPlaceholder}}" class="placeholder-badge">
+              <text class="placeholder-text">敬请期待</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部间距 -->
+    <view class="bottom-padding"></view>
+  </scroll-view>
 </view> 

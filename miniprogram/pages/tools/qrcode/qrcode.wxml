@@ -54,7 +54,7 @@
           <view class="type-btn-icon">{{item.icon}}</view>
           <text class="type-btn-text">{{item.name}}</text>
         </view>
-      </div>
+      </view>
     </view>
 
     <!-- 内容输入 -->
