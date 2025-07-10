@@ -73,13 +73,13 @@
         <!-- 工具精选区域 -->
         <view class="featured-section">
           <view class="section-header">
-            <text class="section-title">工具精选</text>
+            <text class="section-title">热门推荐</text>
           </view>
           <view class="featured-tools">
             <view 
               wx:for="{{featuredTools}}" 
               wx:key="id"
-              class="featured-tool-item"
+              class="featured-tool-item featured-tool-{{index}}"
               bindtap="onToolTap"
               data-tool="{{item}}"
             >

@@ -210,12 +210,12 @@
 
 .input-row, .output-row {
   display: flex;
-  gap: 20rpx;
+  gap: 15rpx;
   align-items: center;
 }
 
 .value-input {
-  flex: 1;
+  flex: 2;
   height: 90rpx;
   border: 2rpx solid #e1e8ed;
   border-radius: 20rpx;
@@ -233,7 +233,7 @@
 }
 
 .value-output {
-  flex: 1;
+  flex: 2;
   height: 90rpx;
   border: 2rpx solid #e1e8ed;
   border-radius: 20rpx;
@@ -255,12 +255,17 @@
 }
 
 .unit-picker {
-  min-width: 160rpx;
+  flex: 1;
+  min-width: 120rpx;
+  max-width: 180rpx;
   height: 90rpx;
   border: 2rpx solid #e1e8ed;
   border-radius: 20rpx;
   background: #fff;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .unit-picker:active {
@@ -269,6 +274,7 @@
 }
 
 .picker-display {
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -277,18 +283,28 @@
 }
 
 .unit-text {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #2c3e50;
   font-weight: 600;
   text-align: center;
   flex: 1;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .picker-arrow {
-  font-size: 24rpx;
+  font-size: 20rpx;
   color: #8e9aaf;
   transition: all 0.3s ease;
-  margin-left: 8rpx;
+  margin-left: 6rpx;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* 增大picker弹出选择框的字体大小 */

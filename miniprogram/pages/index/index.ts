@@ -19,9 +19,9 @@ Component({
     
     // 标签列表
     tabList: [
-      { id: 'tools', name: '工具' },
+      { id: 'tools', name: '首页' },
       { id: 'games', name: '游戏' },
-      { id: 'hot', name: '热门' },
+      { id: 'hot', name: '社区' },
       { id: 'mine', name: '我的' }
     ],
     
@@ -54,7 +54,7 @@ Component({
       {
         id: 'eat-what',
         name: '吃什么？',
-        description: '随机选择美食的转盘工具',
+        description: '随机选择美食的转盘',
         image: '/images/eat-what.png',
         icon: '🍽️',
         category: 'foodwheel',
@@ -62,13 +62,23 @@ Component({
         isFavorite: false
       },
       {
-        id: 'image-convert',
-        name: '图片转化',
-        description: '图像格式转换和处理工具',
-        image: '/images/image-convert.png',
-        icon: '🖼️',
-        category: 'imageconverter',
-        tags: ['图片', '转换'],
+        id: 'drinking-dice',
+        name: '酒桌骰子',
+        description: '经典的酒桌骰子游戏',
+        image: '/images/dice-game.png',
+        icon: '🎲',
+        category: 'game',
+        tags: ['游戏', '酒桌', '骰子'],
+        isFavorite: false
+      },
+      {
+        id: 'drinking-ludo',
+        name: '酒桌飞行棋',
+        description: '趣味酒桌飞行棋游戏',
+        image: '/images/ludo-game.png',
+        icon: '🎮',
+        category: 'game',
+        tags: ['游戏', '酒桌', '飞行棋'],
         isFavorite: false
       },
       {
@@ -82,23 +92,23 @@ Component({
         isFavorite: false
       },
       {
-        id: 'ruler',
-        name: '单位转换',
-        description: '单位转换工具',
-        image: '/images/ruler.jpg',
-        icon: '📏',
-        category: 'converter',
-        tags: ['测量', '长度'],
+        id: 'image-convert',
+        name: '图片转化',
+        description: '图像格式转换和处理',
+        image: '/images/image-convert.png',
+        icon: '🖼️',
+        category: 'imageconverter',
+        tags: ['图片', '转换'],
         isFavorite: false
       },
       {
-        id: 'pliers',
-        name: '实用工具',
-        description: '各种实用的日常小工具',
-        image: '/images/pliers.jpg',
-        icon: '🔧',
-        category: 'tools',
-        tags: ['工具', '实用'],
+        id: 'unit-converter',
+        name: '单位转换',
+        description: '长度等单位转换',
+        image: '/images/unit-converter.png',
+        icon: '📏',
+        category: 'converter',
+        tags: ['转换', '单位'],
         isFavorite: false
       }
     ] as Tool[],
@@ -677,6 +687,11 @@ Component({
         case 'score510k':
           wx.navigateTo({
             url: '/pages/tools/score510k/score510k'
+          })
+          break
+        case 'game':
+          wx.navigateTo({
+            url: '/pages/gamelibrary/gamelibrary'
           })
           break
         default:

@@ -41,6 +41,13 @@ Page({
         isPlaceholder: true
       },
       {
+        id: 'drinking-ludo',
+        name: '酒桌飞行棋',
+        description: '趣味酒桌飞行棋游戏',
+        icon: '🎮',
+        isPlaceholder: true
+      },
+      {
         id: 'king-game',
         name: '国王游戏',
         description: '抽签游戏，刺激有趣',
