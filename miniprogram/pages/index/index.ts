@@ -658,6 +658,24 @@ Component({
     navigateToTool(tool: Tool) {
       console.log('导航到工具:', tool)
       
+      // 优先根据工具ID判断特定游戏
+      if (tool.id === 'drinking-dice') {
+        wx.navigateTo({
+          url: '/pages/games/dice/dice'
+        })
+        return
+      }
+      
+      // 其他特定游戏的直接跳转
+      if (tool.id === 'drinking-ludo') {
+        wx.showToast({
+          title: '酒桌飞行棋敬请期待',
+          icon: 'none'
+        })
+        return
+      }
+      
+      // 其他工具根据category判断
       switch (tool.category) {
         case 'calculator':
           wx.navigateTo({

@@ -167,15 +167,15 @@ Component({
     // 标签列表
     tabList: [{
         id: 'tools',
-        name: '工具'
+        name: '首页'
       },
       {
-        id: 'recommend',
-        name: '推荐'
+        id: 'games',
+        name: '游戏'
       },
       {
         id: 'hot',
-        name: '热门'
+        name: '社区'
       },
       {
         id: 'mine',
@@ -208,51 +208,61 @@ Component({
     featuredTools: [{
         id: 'eat-what',
         name: '吃什么？',
-        description: '随机选择美食的转盘工具',
-        image: '/images/eat-what.jpg',
+        description: '随机选择美食的转盘',
+        image: '/images/eat-what.png',
         icon: '🍽️',
         category: 'foodwheel',
         tags: ['美食', '随机'],
         isFavorite: false
       },
       {
+        id: 'drinking-dice',
+        name: '酒桌骰子',
+        description: '经典的酒桌骰子游戏',
+        image: '/images/dice-game.png',
+        icon: '🎲',
+        category: 'game',
+        tags: ['游戏', '酒桌', '骰子'],
+        isFavorite: false
+      },
+      {
+        id: 'drinking-ludo',
+        name: '酒桌飞行棋',
+        description: '趣味酒桌飞行棋游戏',
+        image: '/images/ludo-game.png',
+        icon: '🎮',
+        category: 'game',
+        tags: ['游戏', '酒桌', '飞行棋'],
+        isFavorite: false
+      },
+      {
+        id: 'score-510k',
+        name: '510K计分器',
+        description: '纸牌游戏510K计分辅助',
+        image: '/images/510k.png',
+        icon: '🃏',
+        category: 'score510k',
+        tags: ['游戏', '计分'],
+        isFavorite: false
+      },
+      {
         id: 'image-convert',
         name: '图片转化',
-        description: '图像格式转换和处理工具',
-        image: '/images/image-convert.jpg',
+        description: '图像格式转换和处理',
+        image: '/images/image-convert.png',
         icon: '🖼️',
-        category: 'converter',
+        category: 'imageconverter',
         tags: ['图片', '转换'],
         isFavorite: false
       },
       {
-        id: 'calculator-tool',
-        name: '计算工具',
-        description: '数学计算工具',
-        image: '/images/calculator.jpg',
-        icon: '🔢',
-        category: 'calculator',
-        tags: ['计算', '数学'],
-        isFavorite: false
-      },
-      {
-        id: 'ruler',
+        id: 'unit-converter',
         name: '单位转换',
-        description: '单位转换工具',
-        image: '/images/ruler.jpg',
+        description: '长度等单位转换',
+        image: '/images/unit-converter.png',
         icon: '📏',
         category: 'converter',
-        tags: ['测量', '长度'],
-        isFavorite: false
-      },
-      {
-        id: 'pliers',
-        name: '实用工具',
-        description: '各种实用的日常小工具',
-        image: '/images/pliers.jpg',
-        icon: '🔧',
-        category: 'tools',
-        tags: ['工具', '实用'],
+        tags: ['转换', '单位'],
         isFavorite: false
       }
     ],
@@ -466,6 +476,16 @@ Component({
      */
     onTabChange: function (e) {
       var tab = e.currentTarget.dataset.tab;
+      // 如果点击的是"我的"标签页，直接跳转到个人中心页面
+      if (tab === 'mine') {
+        this.navigateToProfile();
+        return;
+      }
+      // 如果点击的是"游戏"标签页，跳转到游戏库页面
+      if (tab === 'games') {
+        this.navigateToGameLibrary();
+        return;
+      }
       this.setData({
         currentTab: tab
       });
@@ -776,6 +796,23 @@ Component({
      */
     navigateToTool: function (tool) {
       console.log('导航到工具:', tool);
+      // 优先根据工具ID判断特定游戏
+      if (tool.id === 'drinking-dice') {
+        wx.navigateTo({
+          url: '/pages/games/dice/dice'
+        });
+        return;
+      }
+
+      // 其他特定游戏的直接跳转
+      if (tool.id === 'drinking-ludo') {
+        wx.showToast({
+          title: '酒桌飞行棋敬请期待',
+          icon: 'none'
+        });
+        return;
+      }
+      // 其他工具根据category判断
       switch (tool.category) {
         case 'calculator':
           wx.navigateTo({
@@ -787,6 +824,11 @@ Component({
             url: '/pages/tools/converter/converter'
           });
           break;
+        case 'imageconverter':
+          wx.navigateTo({
+            url: '/pages/tools/imageconverter/imageconverter'
+          });
+          break;
         case 'qrcode':
           wx.navigateTo({
             url: '/pages/tools/qrcode/qrcode'
@@ -795,6 +837,16 @@ Component({
         case 'foodwheel':
           wx.navigateTo({
             url: '/pages/tools/foodwheel/foodwheel'
+          });
+          break;
+        case 'score510k':
+          wx.navigateTo({
+            url: '/pages/tools/score510k/score510k'
+          });
+          break;
+        case 'game':
+          wx.navigateTo({
+            url: '/pages/gamelibrary/gamelibrary'
           });
           break;
         default:
@@ -882,6 +934,20 @@ Component({
     navigateToProfile: function () {
       wx.navigateTo({
         url: '/pages/profile/profile'
+      });
+    },
+    /**
+     * 导航到游戏库页面
+     */
+    navigateToGameLibrary: function () {
+      wx.navigateTo({
+        url: '/pages/gamelibrary/gamelibrary',
+        fail: function () {
+          wx.showToast({
+            title: '游戏库功能开发中',
+            icon: 'none'
+          });
+        }
       });
     },
     bindViewTap: function () {

@@ -908,6 +908,231 @@ var DataManager = /** @class */ (function () {
             });
         });
     };
+    /**
+     * 获取用户统计数据
+     */
+    DataManager.prototype.getUserStats = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, statistics, favoriteTools, usageHistory, toolsUsed, daysActive, error_4;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, Promise.all([
+                                this.getAppStatistics(),
+                                this.getFavoriteTools(),
+                                this.getUsageHistory()
+                            ])];
+                    case 1:
+                        _a = _b.sent(), statistics = _a[0], favoriteTools = _a[1], usageHistory = _a[2];
+                        if (!statistics || !favoriteTools || !usageHistory) {
+                            return [2 /*return*/, null];
+                        }
+                        toolsUsed = Object.keys(statistics.toolUsageCount).length;
+                        daysActive = Object.keys(statistics.dailyUsage).length;
+                        return [2 /*return*/, {
+                                totalUsage: statistics.totalSessions,
+                                toolsUsed: toolsUsed,
+                                daysActive: daysActive,
+                                favorites: favoriteTools.length
+                            }];
+                    case 2:
+                        error_4 = _b.sent();
+                        console.error('Failed to get user stats:', error_4);
+                        return [2 /*return*/, null];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * 记录工具使用
+     */
+    DataManager.prototype.recordToolUsage = function (toolId, toolName) {
+        return __awaiter(this, void 0, void 0, function () {
+            var record, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 4, , 5]);
+                        record = {
+                            toolId: toolId,
+                            toolName: toolName || toolId,
+                            category: 'general'
+                        };
+                        return [4 /*yield*/, this.addUsageRecord(record)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.updateStatistics(toolId)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.addRecentTool(toolId)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 4:
+                        error_5 = _a.sent();
+                        console.error('Failed to record tool usage:', error_5);
+                        return [2 /*return*/, false];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * 移除收藏工具
+     */
+    DataManager.prototype.removeFavoriteTool = function (toolId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var favoriteTools, updatedTools, error_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.getFavoriteTools()];
+                    case 1:
+                        favoriteTools = _a.sent();
+                        if (!favoriteTools)
+                            return [2 /*return*/, false];
+                        updatedTools = favoriteTools.filter(function (id) { return id !== toolId; });
+                        return [4 /*yield*/, this.saveFavoriteTools(updatedTools)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
+                        error_6 = _a.sent();
+                        console.error('Failed to remove favorite tool:', error_6);
+                        return [2 /*return*/, false];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * 更新用户设置
+     */
+    DataManager.prototype.updateUserSettings = function (updates) {
+        return __awaiter(this, void 0, void 0, function () {
+            var currentSettings, updatedSettings, error_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.getUserSettings()];
+                    case 1:
+                        currentSettings = _a.sent();
+                        if (!currentSettings)
+                            return [2 /*return*/, false];
+                        updatedSettings = __assign(__assign({}, currentSettings), updates);
+                        return [4 /*yield*/, this.saveUserSettings(updatedSettings)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
+                        error_7 = _a.sent();
+                        console.error('Failed to update user settings:', error_7);
+                        return [2 /*return*/, false];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * 获取缓存信息
+     */
+    DataManager.prototype.getCacheInfo = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var storageUsage, error_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.getStorageUsage()];
+                    case 1:
+                        storageUsage = _a.sent();
+                        return [2 /*return*/, {
+                                size: storageUsage.used,
+                                items: Object.keys(wx.getStorageInfoSync().keys).length
+                            }];
+                    case 2:
+                        error_8 = _a.sent();
+                        console.error('Failed to get cache info:', error_8);
+                        return [2 /*return*/, null];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * 清理缓存
+     */
+    DataManager.prototype.clearCache = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var usageHistory, thirtyDaysAgo_1, filteredHistory, error_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 5, , 6]);
+                        // 清理过期缓存
+                        return [4 /*yield*/, this.cleanExpiredCache()];
+                    case 1:
+                        // 清理过期缓存
+                        _a.sent();
+                        return [4 /*yield*/, this.getUsageHistory()];
+                    case 2:
+                        usageHistory = _a.sent();
+                        if (!usageHistory) return [3 /*break*/, 4];
+                        thirtyDaysAgo_1 = Date.now() - 30 * 24 * 60 * 60 * 1000;
+                        filteredHistory = usageHistory.filter(function (record) { return record.timestamp > thirtyDaysAgo_1; });
+                        return [4 /*yield*/, this.saveUsageHistory(filteredHistory)];
+                    case 3:
+                        _a.sent();
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, true];
+                    case 5:
+                        error_9 = _a.sent();
+                        console.error('Failed to clear cache:', error_9);
+                        return [2 /*return*/, false];
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * 获取最近使用工具（带时间戳）
+     */
+    DataManager.prototype.getRecentToolsWithTimestamp = function (limit) {
+        if (limit === void 0) { limit = 5; }
+        return __awaiter(this, void 0, void 0, function () {
+            var usageHistory, recentMap_1, error_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.getUsageHistory()];
+                    case 1:
+                        usageHistory = _a.sent();
+                        if (!usageHistory)
+                            return [2 /*return*/, []];
+                        recentMap_1 = new Map();
+                        usageHistory
+                            .sort(function (a, b) { return b.timestamp - a.timestamp; })
+                            .forEach(function (record) {
+                            if (!recentMap_1.has(record.toolId)) {
+                                recentMap_1.set(record.toolId, record.timestamp);
+                            }
+                        });
+                        return [2 /*return*/, Array.from(recentMap_1.entries())
+                                .map(function (_a) {
+                                var toolId = _a[0], timestamp = _a[1];
+                                return ({ toolId: toolId, timestamp: timestamp });
+                            })
+                                .slice(0, limit)];
+                    case 2:
+                        error_10 = _a.sent();
+                        console.error('Failed to get recent tools with timestamp:', error_10);
+                        return [2 /*return*/, []];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     // 存储键名常量
     DataManager.KEYS = {
         USER_PROFILE: 'user_profile',

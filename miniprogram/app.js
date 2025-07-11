@@ -63,7 +63,7 @@ App({
                         console.log('应用启动', options);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 4, , 5]);
+                        _a.trys.push([1, 5, , 6]);
                         DataManager = require('./utils/dataManager').DataManager;
                         dataManager = DataManager.getInstance();
                         // 初始化数据管理器
@@ -77,19 +77,22 @@ App({
                         this.getSystemInfo();
                         // 加载用户数据
                         return [4 /*yield*/, this.loadUserData()
-                            // 获取用户登录状态
+                            // 检查授权状态
                         ];
                     case 3:
                         // 加载用户数据
                         _a.sent();
-                        // 获取用户登录状态
-                        this.checkLoginStatus();
-                        return [3 /*break*/, 5];
+                        // 检查授权状态
+                        return [4 /*yield*/, this.checkAuthStatus()];
                     case 4:
+                        // 检查授权状态
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
                         error_1 = _a.sent();
                         console.error('应用启动失败:', error_1);
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/];
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -121,6 +124,47 @@ App({
         catch (error) {
             console.error('获取系统信息失败', error);
         }
+    },
+    /**
+     * 检查授权状态
+     */
+    checkAuthStatus: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var AuthManager, authManager, isLoggedIn, error_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        AuthManager = require('./utils/authManager').AuthManager;
+                        authManager = AuthManager.getInstance();
+                        return [4 /*yield*/, authManager.isLoggedIn()];
+                    case 1:
+                        isLoggedIn = _a.sent();
+                        if (!isLoggedIn) {
+                            console.log('用户未登录，跳转到授权页面');
+                            // 跳转到授权页面
+                            wx.redirectTo({
+                                url: '/pages/auth/auth'
+                            });
+                        }
+                        else {
+                            console.log('用户已登录');
+                            // 检查登录状态是否有效
+                            this.checkLoginStatus();
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_2 = _a.sent();
+                        console.error('检查授权状态失败:', error_2);
+                        // 出错时也跳转到授权页面
+                        wx.redirectTo({
+                            url: '/pages/auth/auth'
+                        });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
     },
     /**
      * 检查登录状态
@@ -161,7 +205,7 @@ App({
      */
     loadUserData: function () {
         return __awaiter(this, void 0, void 0, function () {
-            var DataManager, dataManager, recentTools, favoriteTools, settings, error_2;
+            var DataManager, dataManager, recentTools, favoriteTools, settings, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -183,8 +227,8 @@ App({
                         console.log('用户数据加载成功');
                         return [3 /*break*/, 5];
                     case 4:
-                        error_2 = _a.sent();
-                        console.error('用户数据加载失败', error_2);
+                        error_3 = _a.sent();
+                        console.error('用户数据加载失败', error_3);
                         return [3 /*break*/, 5];
                     case 5: return [2 /*return*/];
                 }
@@ -196,7 +240,7 @@ App({
      */
     addRecentTool: function (toolId) {
         return __awaiter(this, void 0, void 0, function () {
-            var DataManager, dataManager, _a, error_3;
+            var DataManager, dataManager, _a, error_4;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -217,8 +261,8 @@ App({
                         console.log('添加最近使用工具', { toolId: toolId });
                         return [3 /*break*/, 4];
                     case 3:
-                        error_3 = _b.sent();
-                        console.error('添加最近使用工具失败:', error_3);
+                        error_4 = _b.sent();
+                        console.error('添加最近使用工具失败:', error_4);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
@@ -230,7 +274,7 @@ App({
      */
     toggleFavoriteTool: function (toolId) {
         return __awaiter(this, void 0, void 0, function () {
-            var DataManager, dataManager, result, _a, action, error_4;
+            var DataManager, dataManager, result, _a, action, error_5;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -264,8 +308,8 @@ App({
                         _b.label = 4;
                     case 4: return [3 /*break*/, 6];
                     case 5:
-                        error_4 = _b.sent();
-                        console.error('切换收藏状态失败:', error_4);
+                        error_5 = _b.sent();
+                        console.error('切换收藏状态失败:', error_5);
                         wx.showToast({
                             title: '操作失败',
                             icon: 'none'

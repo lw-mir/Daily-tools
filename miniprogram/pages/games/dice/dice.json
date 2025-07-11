@@ -1,0 +1,9 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "酒桌骰子",
+  "navigationBarBackgroundColor": "#ff6b6b",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f8f9fa",
+  "enablePullDownRefresh": false,
+  "disableScroll": false
+} 

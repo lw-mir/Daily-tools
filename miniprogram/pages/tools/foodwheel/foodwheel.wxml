@@ -106,11 +106,9 @@
     
     <view class="manage-actions">
       <button class="manage-btn primary" bindtap="showAddCustom">
-        <text class="btn-icon">➕</text>
         <text>添加新选项</text>
       </button>
       <button class="manage-btn danger" bindtap="resetToDefault">
-        <text class="btn-icon">🔄</text>
         <text>重置为默认</text>
       </button>
     </view>

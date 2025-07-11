@@ -59,6 +59,29 @@ Page({
                             icon: '📏',
                             description: '长度、重量、温度等单位转换',
                             path: '/pages/tools/converter/converter'
+                        },
+                        {
+                            id: 'imageconverter',
+                            name: '图片转换',
+                            icon: '🖼️',
+                            description: '图片格式转换工具',
+                            path: '/pages/tools/imageconverter/imageconverter'
+                        }
+                    ],
+                    toolCount: 2
+                },
+                {
+                    id: 'entertainment',
+                    name: '娱乐工具',
+                    icon: '🎮',
+                    description: '休闲娱乐和生活趣味工具',
+                    tools: [
+                        {
+                            id: 'foodwheel',
+                            name: '今天吃什么',
+                            icon: '🍽️',
+                            description: '随机选择美食的转盘工具',
+                            path: '/pages/tools/foodwheel/foodwheel'
                         }
                     ],
                     toolCount: 1
@@ -68,14 +91,6 @@ Page({
                     name: '文本工具',
                     icon: '📝',
                     description: '文本处理和编辑工具',
-                    tools: [],
-                    toolCount: 0
-                },
-                {
-                    id: 'image',
-                    name: '图像工具',
-                    icon: '🖼️',
-                    description: '图片处理和编辑工具',
                     tools: [],
                     toolCount: 0
                 },
@@ -147,6 +162,17 @@ Page({
         this.filterCategories(searchText);
     },
     /**
+     * 清除搜索
+     */
+    onClearSearch: function () {
+        this.setData({ searchText: '' });
+        this.filterCategories('');
+        // 提供触觉反馈
+        wx.vibrateShort({
+            type: 'light'
+        });
+    },
+    /**
      * 过滤分类
      */
     filterCategories: function (searchText) {
@@ -167,7 +193,7 @@ Page({
             return nameMatch || descMatch || toolMatch;
         });
         this.setData({ filteredCategories: filtered });
-        console.log('[Category] 搜索结果:', filtered.length);
+        console.log('[Category] 过滤结果:', filtered.length);
     },
     /**
      * 分类点击处理
@@ -175,30 +201,43 @@ Page({
     onCategoryTap: function (e) {
         var _this = this;
         var category = e.currentTarget.dataset.category;
-        console.log('[Category] 点击分类:', category.name);
-        // 如果分类下有工具，显示工具列表
-        if (category.tools.length > 0) {
-            wx.showActionSheet({
-                itemList: category.tools.map(function (tool) { return tool.name; }),
-                success: function (res) {
-                    var selectedTool = category.tools[res.tapIndex];
-                    _this.navigateToTool(selectedTool);
-                }
-            });
+        if (!category) {
+            console.error('[Category] 分类数据为空');
+            return;
         }
-        else {
+        console.log('[Category] 点击分类:', category.name);
+        // 如果没有工具，显示提示
+        if (category.toolCount === 0) {
             wx.showToast({
                 title: '该分类暂无工具',
-                icon: 'none'
+                icon: 'none',
+                duration: 2000
             });
+            return;
         }
+        // 触觉反馈
+        wx.vibrateShort({
+            type: 'light'
+        });
+        // 如果只有一个工具，直接跳转
+        if (category.tools.length === 1) {
+            this.navigateToTool(category.tools[0]);
+            return;
+        }
+        // 多个工具时，可以显示工具列表或其他处理
+        wx.showActionSheet({
+            itemList: category.tools.map(function (tool) { return tool.name; }),
+            success: function (res) {
+                var selectedTool = category.tools[res.tapIndex];
+                _this.navigateToTool(selectedTool);
+            }
+        });
     },
     /**
      * 工具点击处理
      */
     onToolTap: function (e) {
-        // 阻止事件冒泡
-        e.stopPropagation();
+        e.stopPropagation(); // 阻止事件冒泡
         var tool = e.currentTarget.dataset.tool;
         this.navigateToTool(tool);
     },
@@ -206,20 +245,37 @@ Page({
      * 导航到工具页面
      */
     navigateToTool: function (tool) {
-        console.log('[Category] 导航到工具:', tool.name);
-        // 添加使用记录
-        dataManager_1.dataManager.addUsageRecord({
-            toolId: tool.id,
-            toolName: tool.name,
-            category: 'tools'
+        if (!tool || !tool.path) {
+            console.error('[Category] 工具路径无效:', tool);
+            wx.showToast({
+                title: '工具暂不可用',
+                icon: 'error'
+            });
+            return;
+        }
+        console.log('[Category] 导航到工具:', tool.name, tool.path);
+        // 触觉反馈
+        wx.vibrateShort({
+            type: 'light'
         });
-        // 导航到工具页面
+        // 记录使用历史
+        try {
+            dataManager_1.dataManager.addUsageRecord({
+                toolId: tool.id,
+                toolName: tool.name,
+                category: 'tools'
+            });
+        }
+        catch (error) {
+            console.warn('[Category] 记录历史失败:', error);
+        }
+        // 页面跳转
         wx.navigateTo({
             url: tool.path,
             fail: function (error) {
-                console.error('[Category] 导航失败:', error);
+                console.error('[Category] 页面跳转失败:', error);
                 wx.showToast({
-                    title: '页面不存在',
+                    title: '页面跳转失败',
                     icon: 'error'
                 });
             }

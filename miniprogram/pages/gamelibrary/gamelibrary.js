@@ -1,12 +1,4 @@
-// gameLibrary.ts
-interface GameItem {
-  id: string
-  name: string
-  description: string
-  icon: string
-  isPlaceholder?: boolean
-}
-
+"use strict";
 Page({
   data: {
     // 分类展开状态
@@ -16,10 +8,8 @@ Page({
       couple: true,
       card: true
     },
-
     // 酒桌游戏
-    drinkingGames: [
-      {
+    drinkingGames: [{
         id: 'truth-or-dare',
         name: '真心话大冒险',
         description: '经典聚会游戏，增进友谊',
@@ -54,11 +44,9 @@ Page({
         icon: '👑',
         isPlaceholder: true
       }
-    ] as GameItem[],
-
+    ],
     // 摸鱼游戏
-    casualGames: [
-      {
+    casualGames: [{
         id: '2048',
         name: '2048',
         description: '经典数字合并小游戏',
@@ -93,11 +81,9 @@ Page({
         icon: '🫧',
         isPlaceholder: true
       }
-    ] as GameItem[],
-
+    ],
     // 情侣游戏
-    coupleGames: [
-      {
+    coupleGames: [{
         id: 'love-test',
         name: '爱情测试',
         description: '测试你们的默契度',
@@ -125,11 +111,9 @@ Page({
         icon: '🎨',
         isPlaceholder: true
       }
-    ] as GameItem[],
-
+    ],
     // 扑克游戏
-    cardGames: [
-      {
+    cardGames: [{
         id: 'poker-24',
         name: '24点',
         description: '四张牌算出24',
@@ -157,52 +141,49 @@ Page({
         icon: '🂠',
         isPlaceholder: true
       }
-    ] as GameItem[]
+    ]
   },
-
   // 页面加载
-  onLoad() {
-    console.log('游戏库页面加载')
+  onLoad: function () {
+    console.log('游戏库页面加载');
   },
-
   // 切换分类展开状态
-  toggleCategory(e: any) {
-    const category = e.currentTarget.dataset.category
-    const key = `categoryExpanded.${category}`
-    this.setData({
-      [key]: !this.data.categoryExpanded[category as keyof typeof this.data.categoryExpanded]
-    })
+  toggleCategory: function (e) {
+    var _a;
+    var category = e.currentTarget.dataset.category;
+    var key = "categoryExpanded." + category;
+    this.setData((_a = {},
+      _a[key] = !this.data.categoryExpanded[category],
+      _a));
   },
-
   // 游戏点击事件
-  onGameTap(e: any) {
-    const game: GameItem = e.currentTarget.dataset.game
-    
+  onGameTap: function (e) {
+    var game = e.currentTarget.dataset.game;
     // 如果是占位符游戏，显示提示
     if (game.isPlaceholder) {
-      wx.showToast({ 
-        title: `${game.name} 敬请期待`, 
+      wx.showToast({
+        title: game.name + " \u656C\u8BF7\u671F\u5F85",
         icon: 'none',
         duration: 2000
-      })
-      return
+      });
+      return;
     }
-
     // 已实现的游戏路由
-    const routeMap: Record<string, string> = {
+    var routeMap = {
       'tic-tac-toe': '/pages/games/tictactoe/tictactoe',
       '2048': '/pages/games/2048/2048'
-    }
-    
-    const target = routeMap[game.id]
+    };
+    var target = routeMap[game.id];
     if (target) {
-      wx.navigateTo({ url: target })
+      wx.navigateTo({
+        url: target
+      });
     } else {
-      wx.showToast({ 
-        title: `${game.name} 敬请期待`, 
+      wx.showToast({
+        title: game.name + " \u656C\u8BF7\u671F\u5F85",
         icon: 'none',
         duration: 2000
-      })
+      });
     }
   }
-}) 
+});

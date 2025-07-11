@@ -59,7 +59,7 @@ var dataManager_1 = require("../../../utils/dataManager");
 Page({
     data: {
         foodOptions: [],
-        wheelRotation: 0,
+        wheelRotation: -90,
         isSpinning: false,
         lastResult: null,
         showHistoryModal: false,
@@ -150,7 +150,10 @@ Page({
             '#F8C471', '#82E0AA'
         ];
         var segmentAngle = 360 / defaultFoods.length;
-        var foodOptions = defaultFoods.map(function (food, index) { return (__assign(__assign({}, food), { color: colors[index % colors.length], rotation: index * segmentAngle, isCustom: false })); });
+        var foodOptions = defaultFoods.map(function (food, index) { return (__assign(__assign({}, food), { color: colors[index % colors.length], 
+            // 从12点钟方向开始，第一个选项在12点钟位置（-90度补偿CSS旋转）
+            // 每个选项按顺序顺时针分布
+            rotation: index * segmentAngle, isCustom: false })); });
         this.setData({
             foodOptions: foodOptions
         });
@@ -165,12 +168,19 @@ Page({
             '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#F8C471'
         ];
         var segmentAngle = 360 / options.length;
+        console.log('=== 更新转盘角度分布 ===');
+        console.log('选项总数:', options.length);
+        console.log('每个扇形角度:', segmentAngle.toFixed(1), '度');
         options.forEach(function (option, index) {
+            // 从12点钟方向开始，第一个选项在12点钟位置
+            // 每个选项按顺序顺时针分布
             option.rotation = index * segmentAngle;
             if (!option.color) {
                 option.color = colors[index % colors.length];
             }
+            console.log("\u9009\u9879" + (index + 1) + ": " + option.name + " " + option.emoji + " - \u89D2\u5EA6: " + option.rotation.toFixed(1) + "\u00B0 - \u989C\u8272: " + option.color);
         });
+        console.log('=====================');
     },
     /**
      * 加载自定义选项
@@ -254,10 +264,36 @@ Page({
         var baseRotations = Math.floor(Math.random() * 4) + 3; // 3-6圈
         var randomAngle = Math.random() * 360;
         var totalRotation = this.data.wheelRotation + baseRotations * 360 + randomAngle;
-        // 计算最终停止的扇形区域
-        var normalizedAngle = totalRotation % 360;
-        var selectedIndex = Math.floor(normalizedAngle / segmentAngle);
-        var selectedFood = foodOptions[selectedIndex] || foodOptions[0]; // 防止数组越界
+        // 计算转盘最终停止的角度，考虑初始-90度偏移
+        var finalAngle = (totalRotation + 90) % 360; // 加90度补偿初始偏移
+        // 指针固定在12点钟方向
+        // 转盘从12点钟方向开始，第一个选项在12点钟位置
+        // 计算指针相对于转盘的位置
+        var pointerRelativeAngle = (360 - finalAngle) % 360;
+        // 计算指针指向哪个扇形区域
+        var selectedIndex = Math.floor(pointerRelativeAngle / segmentAngle);
+        // 确保索引在有效范围内
+        var validIndex = selectedIndex >= foodOptions.length ? 0 : selectedIndex;
+        var selectedFood = foodOptions[validIndex];
+        // 详细调试信息
+        console.log('=== 转盘计算详情（12点钟起始）===');
+        console.log('总旋转角度:', totalRotation);
+        console.log('最终停止角度（补偿后）:', finalAngle);
+        console.log('指针相对转盘角度:', pointerRelativeAngle);
+        console.log('扇形角度:', segmentAngle);
+        console.log('选中索引:', validIndex);
+        console.log('选中食物:', selectedFood.name, selectedFood.emoji);
+        console.log('');
+        // 打印扇形区域分布（从12点钟开始顺时针）
+        console.log('扇形区域分布（从12点钟开始顺时针）:');
+        foodOptions.forEach(function (food, index) {
+            var startAngle = index * segmentAngle;
+            var endAngle = (index + 1) * segmentAngle;
+            var isSelected = index === validIndex;
+            console.log("\u7D22\u5F15" + index + ": " + food.name + " " + food.emoji + " - \u89D2\u5EA6\u8303\u56F4: " + startAngle.toFixed(1) + "\u00B0-" + endAngle.toFixed(1) + "\u00B0 " + (isSelected ? '← 选中' : ''));
+        });
+        console.log('指针相对角度:', pointerRelativeAngle.toFixed(1), '°');
+        console.log('==================');
         return {
             finalRotation: totalRotation,
             selectedFood: selectedFood
@@ -351,6 +387,7 @@ Page({
     showAddCustom: function () {
         this.setData({
             showCustomModal: true,
+            // 确保表单为空状态
             customForm: {
                 name: '',
                 emoji: '',
@@ -364,7 +401,14 @@ Page({
      */
     hideCustomModal: function () {
         this.setData({
-            showCustomModal: false
+            showCustomModal: false,
+            // 取消时清空表单数据
+            customForm: {
+                name: '',
+                emoji: '',
+                type: '',
+                description: ''
+            }
         });
     },
     /**
@@ -420,17 +464,28 @@ Page({
             rotation: 0,
             isCustom: true
         };
+        // 将新选项添加到数组末尾，保持添加顺序
         var foodOptions = __spreadArrays(this.data.foodOptions, [newOption]);
+        // 重新计算所有选项的转盘位置，确保按顺序均等分布
         this.updateWheelRotations(foodOptions);
         this.setData({
             foodOptions: foodOptions,
-            showCustomModal: false
+            showCustomModal: false,
+            // 清空表单
+            customForm: {
+                name: '',
+                emoji: '',
+                type: '',
+                description: ''
+            }
         });
+        // 保存自定义选项到本地存储
         this.saveCustomOptions(foodOptions);
         wx.showToast({
             title: '添加成功',
             icon: 'success'
         });
+        console.log('添加自定义选项成功:', newOption.name, '当前选项总数:', foodOptions.length);
     },
     /**
      * 显示编辑选项弹窗
@@ -456,7 +511,14 @@ Page({
     hideEditModal: function () {
         this.setData({
             showEditModal: false,
-            editingOption: null
+            editingOption: null,
+            // 取消编辑时清空表单数据
+            customForm: {
+                name: '',
+                emoji: '',
+                type: '',
+                description: ''
+            }
         });
     },
     /**
@@ -499,16 +561,27 @@ Page({
             }
             return option;
         });
+        // 编辑不会改变选项数量，但需要确保转盘角度分布正确
+        this.updateWheelRotations(foodOptions);
         this.setData({
             foodOptions: foodOptions,
             showEditModal: false,
-            editingOption: null
+            editingOption: null,
+            // 清空表单
+            customForm: {
+                name: '',
+                emoji: '',
+                type: '',
+                description: ''
+            }
         });
+        // 保存更新后的选项到本地存储
         this.saveCustomOptions(foodOptions);
         wx.showToast({
             title: '修改成功',
             icon: 'success'
         });
+        console.log('编辑选项成功:', name.trim());
     },
     /**
      * 删除选项
@@ -531,15 +604,18 @@ Page({
                         });
                         return;
                     }
+                    // 重新计算剩余选项的转盘位置，确保均等分布
                     _this.updateWheelRotations(foodOptions);
                     _this.setData({
                         foodOptions: foodOptions
                     });
+                    // 保存更新后的选项到本地存储
                     _this.saveCustomOptions(foodOptions);
                     wx.showToast({
                         title: '删除成功',
                         icon: 'success'
                     });
+                    console.log('删除选项成功:', option.name, '剩余选项数:', foodOptions.length);
                 }
             }
         });
@@ -587,7 +663,7 @@ Page({
             var app_1 = getApp();
             var dataManager_2 = app_1.globalData && app_1.globalData.dataManager;
             if (dataManager_2 && typeof dataManager_2.recordToolUsage === 'function') {
-                dataManager_2.recordToolUsage('foodwheel', '吃什么？转盘');
+                dataManager_2.recordToolUsage('foodwheel', '吃什么转盘');
             }
         }
         catch (error) {

@@ -13,6 +13,7 @@
     "pages/help/help",
     "pages/gamelibrary/gamelibrary",
     "pages/games/tictactoe/tictactoe",
+    "pages/games/dice/dice",
     "pages/tools/score510k/score510k"
   ],
   "window": {

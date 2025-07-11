@@ -383,6 +383,10 @@ Page({
         evalExpression = this.processScientificFunctions(evalExpression);
         // 处理阶乘
         evalExpression = this.processFactorial(evalExpression);
+        // 处理百分号
+        evalExpression = evalExpression.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+        // 将^替换为指数运算符**
+        evalExpression = evalExpression.replace(/\^/g, '**');
         // 使用安全的表达式求值
         return this.safeEval(evalExpression);
     },
@@ -446,7 +450,7 @@ Page({
         // 这里使用Function构造器作为替代方案
         try {
             // 验证表达式只包含安全字符
-            if (!/^[0-9+\-*/.() \t\n\r]+$/.test(expression)) {
+            if (!/^[0-9+\-*/.%^eE() \t\n\r]+$/.test(expression)) {
                 throw new Error('无效的表达式');
             }
             return Function('"use strict"; return (' + expression + ')')();

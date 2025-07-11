@@ -1,0 +1,45 @@
+<!--酒桌骰子游戏页面-->
+<view class="dice-container">
+  
+  <!-- 标题区域 -->
+  <view class="title-area">
+    <text class="game-title">🎲 酒桌骰子</text>
+    <text class="game-subtitle">点击骰子开始摇骰</text>
+  </view>
+
+  <!-- 骰子显示区域 -->
+  <view class="dice-area">
+    <view class="dice-wrapper">
+      <view class="dice {{isRolling ? 'rolling' : ''}}" bindtap="rollDice">
+        <view class="dice-face">
+          <view class="dots dots-{{diceValue}}">
+            <!-- 动态生成骰子点数 -->
+            <view wx:if="{{diceValue >= 1}}" class="dot dot-1"></view>
+            <view wx:if="{{diceValue >= 2}}" class="dot dot-2"></view>
+            <view wx:if="{{diceValue >= 3}}" class="dot dot-3"></view>
+            <view wx:if="{{diceValue >= 4}}" class="dot dot-4"></view>
+            <view wx:if="{{diceValue >= 5}}" class="dot dot-5"></view>
+            <view wx:if="{{diceValue === 6}}" class="dot dot-6"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 结果显示 -->
+  <view class="result-area">
+    <view class="result-display">
+      <text class="result-number">{{diceValue}}</text>
+      <text class="result-text">点</text>
+    </view>
+    <view wx:if="{{rollCount > 0}}" class="roll-count">
+      <text>已摇 {{rollCount}} 次</text>
+    </view>
+  </view>
+
+  <!-- 操作提示 -->
+  <view class="tips-area">
+    <text class="tips-text">{{isRolling ? '摇骰中...' : '点击骰子开始游戏'}}</text>
+  </view>
+
+</view> 

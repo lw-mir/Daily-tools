@@ -51,7 +51,7 @@ interface PageData {
 (Page as any)({
   data: {
     foodOptions: [],
-    wheelRotation: 0,
+    wheelRotation: -90, // 初始旋转-90度，让第一个选项在12点钟位置
     isSpinning: false,
     lastResult: null,
     showHistoryModal: false,
@@ -140,6 +140,8 @@ interface PageData {
     const foodOptions: FoodOption[] = defaultFoods.map((food, index) => ({
       ...food,
       color: colors[index % colors.length],
+      // 从12点钟方向开始，第一个选项在12点钟位置（-90度补偿CSS旋转）
+      // 每个选项按顺序顺时针分布
       rotation: index * segmentAngle,
       isCustom: false
     }));
@@ -161,12 +163,22 @@ interface PageData {
 
     const segmentAngle = 360 / options.length;
     
+    console.log('=== 更新转盘角度分布 ===');
+    console.log('选项总数:', options.length);
+    console.log('每个扇形角度:', segmentAngle.toFixed(1), '度');
+    
     options.forEach((option, index) => {
+      // 从12点钟方向开始，第一个选项在12点钟位置
+      // 每个选项按顺序顺时针分布
       option.rotation = index * segmentAngle;
       if (!option.color) {
         option.color = colors[index % colors.length];
       }
+      
+      console.log(`选项${index + 1}: ${option.name} ${option.emoji} - 角度: ${option.rotation.toFixed(1)}° - 颜色: ${option.color}`);
     });
+    
+    console.log('=====================');
   },
 
   /**
@@ -262,10 +274,41 @@ interface PageData {
     const randomAngle = Math.random() * 360;
     const totalRotation = this.data.wheelRotation + baseRotations * 360 + randomAngle;
     
-    // 计算最终停止的扇形区域
-    const normalizedAngle = totalRotation % 360;
-    const selectedIndex = Math.floor(normalizedAngle / segmentAngle);
-    const selectedFood = foodOptions[selectedIndex] || foodOptions[0]; // 防止数组越界
+    // 计算转盘最终停止的角度，考虑初始-90度偏移
+    const finalAngle = (totalRotation + 90) % 360; // 加90度补偿初始偏移
+    
+    // 指针固定在12点钟方向
+    // 转盘从12点钟方向开始，第一个选项在12点钟位置
+    // 计算指针相对于转盘的位置
+    const pointerRelativeAngle = (360 - finalAngle) % 360;
+    
+    // 计算指针指向哪个扇形区域
+    const selectedIndex = Math.floor(pointerRelativeAngle / segmentAngle);
+    
+    // 确保索引在有效范围内
+    const validIndex = selectedIndex >= foodOptions.length ? 0 : selectedIndex;
+    const selectedFood = foodOptions[validIndex];
+    
+    // 详细调试信息
+    console.log('=== 转盘计算详情（12点钟起始）===');
+    console.log('总旋转角度:', totalRotation);
+    console.log('最终停止角度（补偿后）:', finalAngle);
+    console.log('指针相对转盘角度:', pointerRelativeAngle);
+    console.log('扇形角度:', segmentAngle);
+    console.log('选中索引:', validIndex);
+    console.log('选中食物:', selectedFood.name, selectedFood.emoji);
+    console.log('');
+    
+    // 打印扇形区域分布（从12点钟开始顺时针）
+    console.log('扇形区域分布（从12点钟开始顺时针）:');
+    foodOptions.forEach((food: FoodOption, index: number) => {
+      const startAngle = index * segmentAngle;
+      const endAngle = (index + 1) * segmentAngle;
+      const isSelected = index === validIndex;
+      console.log(`索引${index}: ${food.name} ${food.emoji} - 角度范围: ${startAngle.toFixed(1)}°-${endAngle.toFixed(1)}° ${isSelected ? '← 选中' : ''}`);
+    });
+    console.log('指针相对角度:', pointerRelativeAngle.toFixed(1), '°');
+    console.log('==================');
     
     return {
       finalRotation: totalRotation,
@@ -371,6 +414,7 @@ interface PageData {
   showAddCustom() {
     this.setData({
       showCustomModal: true,
+      // 确保表单为空状态
       customForm: {
         name: '',
         emoji: '',
@@ -385,7 +429,14 @@ interface PageData {
    */
   hideCustomModal() {
     this.setData({
-      showCustomModal: false
+      showCustomModal: false,
+      // 取消时清空表单数据
+      customForm: {
+        name: '',
+        emoji: '',
+        type: '',
+        description: ''
+      }
     });
   },
 
@@ -449,20 +500,33 @@ interface PageData {
       isCustom: true
     };
 
+    // 将新选项添加到数组末尾，保持添加顺序
     const foodOptions = [...this.data.foodOptions, newOption];
+    
+    // 重新计算所有选项的转盘位置，确保按顺序均等分布
     this.updateWheelRotations(foodOptions);
     
     this.setData({
       foodOptions,
-      showCustomModal: false
+      showCustomModal: false,
+      // 清空表单
+      customForm: {
+        name: '',
+        emoji: '',
+        type: '',
+        description: ''
+      }
     });
 
+    // 保存自定义选项到本地存储
     this.saveCustomOptions(foodOptions);
 
     wx.showToast({
       title: '添加成功',
       icon: 'success'
     });
+
+    console.log('添加自定义选项成功:', newOption.name, '当前选项总数:', foodOptions.length);
   },
 
   /**
@@ -490,7 +554,14 @@ interface PageData {
   hideEditModal() {
     this.setData({
       showEditModal: false,
-      editingOption: null
+      editingOption: null,
+      // 取消编辑时清空表单数据
+      customForm: {
+        name: '',
+        emoji: '',
+        type: '',
+        description: ''
+      }
     });
   },
 
@@ -546,18 +617,31 @@ interface PageData {
       return option;
     });
 
+    // 编辑不会改变选项数量，但需要确保转盘角度分布正确
+    this.updateWheelRotations(foodOptions);
+
     this.setData({
       foodOptions,
       showEditModal: false,
-      editingOption: null
+      editingOption: null,
+      // 清空表单
+      customForm: {
+        name: '',
+        emoji: '',
+        type: '',
+        description: ''
+      }
     });
 
+    // 保存更新后的选项到本地存储
     this.saveCustomOptions(foodOptions);
 
     wx.showToast({
       title: '修改成功',
       icon: 'success'
     });
+
+    console.log('编辑选项成功:', name.trim());
   },
 
   /**
@@ -583,18 +667,22 @@ interface PageData {
             return;
           }
 
+          // 重新计算剩余选项的转盘位置，确保均等分布
           this.updateWheelRotations(foodOptions);
           
           this.setData({
             foodOptions
           });
 
+          // 保存更新后的选项到本地存储
           this.saveCustomOptions(foodOptions);
 
           wx.showToast({
             title: '删除成功',
             icon: 'success'
           });
+
+          console.log('删除选项成功:', option.name, '剩余选项数:', foodOptions.length);
         }
       }
     });
@@ -645,7 +733,7 @@ interface PageData {
       const app = getApp() as any;
       const dataManager = app.globalData && app.globalData.dataManager;
       if (dataManager && typeof dataManager.recordToolUsage === 'function') {
-        dataManager.recordToolUsage('foodwheel', '吃什么？转盘');
+        dataManager.recordToolUsage('foodwheel', '吃什么转盘');
       }
     } catch (error) {
       console.error('记录使用情况失败:', error);

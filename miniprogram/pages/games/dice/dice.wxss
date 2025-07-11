@@ -1,0 +1,241 @@
+/* 酒桌骰子游戏页面样式 */
+.dice-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 标题区域 */
+.title-area {
+  text-align: center;
+  margin-bottom: 80rpx;
+}
+
+.game-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.game-subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+}
+
+/* 骰子区域 */
+.dice-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 60rpx;
+}
+
+.dice-wrapper {
+  position: relative;
+  perspective: 1000rpx;
+}
+
+/* 骰子样式 */
+.dice {
+  width: 200rpx;
+  height: 200rpx;
+  background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+  border-radius: 30rpx;
+  box-shadow: 
+    0 20rpx 40rpx rgba(0, 0, 0, 0.3),
+    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.8),
+    inset 0 -2rpx 4rpx rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.dice:hover {
+  transform: scale(1.05) rotateX(5deg) rotateY(5deg);
+  box-shadow: 
+    0 25rpx 50rpx rgba(0, 0, 0, 0.4),
+    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.9),
+    inset 0 -2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 摇骰子动画 */
+.dice.rolling {
+  animation: rollDice 1s ease-in-out;
+}
+
+@keyframes rollDice {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  25% {
+    transform: rotateX(180deg) rotateY(90deg) rotateZ(45deg) scale(1.1);
+  }
+  50% {
+    transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg) scale(1.2);
+  }
+  75% {
+    transform: rotateX(540deg) rotateY(270deg) rotateZ(135deg) scale(1.1);
+  }
+  100% {
+    transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) scale(1);
+  }
+}
+
+.dice-face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 30rpx;
+}
+
+/* 骰子点数样式 */
+.dots {
+  width: 140rpx;
+  height: 140rpx;
+  display: grid;
+  padding: 20rpx;
+  position: relative;
+}
+
+.dot {
+  width: 24rpx;
+  height: 24rpx;
+  background: #333;
+  border-radius: 50%;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 1点 */
+.dots-1 {
+  grid-template: 1fr / 1fr;
+  place-items: center;
+}
+
+/* 2点 */
+.dots-2 {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+.dots-2 .dot-1 { grid-area: 1 / 1; }
+.dots-2 .dot-2 { grid-area: 2 / 2; }
+
+/* 3点 */
+.dots-3 {
+  grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
+}
+.dots-3 .dot-1 { grid-area: 1 / 1; }
+.dots-3 .dot-2 { grid-area: 2 / 2; }
+.dots-3 .dot-3 { grid-area: 3 / 3; }
+
+/* 4点 */
+.dots-4 {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+.dots-4 .dot-1 { grid-area: 1 / 1; }
+.dots-4 .dot-2 { grid-area: 1 / 2; }
+.dots-4 .dot-3 { grid-area: 2 / 1; }
+.dots-4 .dot-4 { grid-area: 2 / 2; }
+
+/* 5点 */
+.dots-5 {
+  grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
+}
+.dots-5 .dot-1 { grid-area: 1 / 1; }
+.dots-5 .dot-2 { grid-area: 1 / 3; }
+.dots-5 .dot-3 { grid-area: 2 / 2; }
+.dots-5 .dot-4 { grid-area: 3 / 1; }
+.dots-5 .dot-5 { grid-area: 3 / 3; }
+
+/* 6点 */
+.dots-6 {
+  grid-template: 1fr 1fr 1fr / 1fr 1fr;
+}
+.dots-6 .dot-1 { grid-area: 1 / 1; }
+.dots-6 .dot-2 { grid-area: 1 / 2; }
+.dots-6 .dot-3 { grid-area: 2 / 1; }
+.dots-6 .dot-4 { grid-area: 2 / 2; }
+.dots-6 .dot-5 { grid-area: 3 / 1; }
+.dots-6 .dot-6 { grid-area: 3 / 2; }
+
+/* 结果显示区域 */
+.result-area {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.result-display {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10rpx);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.result-number {
+  font-size: 72rpx;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  display: inline-block;
+  margin-right: 10rpx;
+}
+
+.result-text {
+  font-size: 36rpx;
+  color: rgba(255, 255, 255, 0.9);
+  display: inline-block;
+}
+
+.roll-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 24rpx;
+}
+
+/* 操作提示 */
+.tips-area {
+  text-align: center;
+  margin-top: 40rpx;
+}
+
+.tips-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 20rpx 40rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 40rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5rpx);
+}
+
+/* 响应式设计 */
+@media (max-width: 400px) {
+  .dice {
+    width: 160rpx;
+    height: 160rpx;
+  }
+  
+  .dots {
+    width: 120rpx;
+    height: 120rpx;
+  }
+  
+  .dot {
+    width: 20rpx;
+    height: 20rpx;
+  }
+  
+  .result-number {
+    font-size: 60rpx;
+  }
+} 

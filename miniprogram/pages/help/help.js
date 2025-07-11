@@ -302,5 +302,105 @@ Page({
             searchText: '',
             filteredSections: this.data.helpSections
         });
+    },
+    /**
+     * 意见反馈
+     */
+    onFeedbackTap: function () {
+        console.log('[Help] 点击意见反馈');
+        // 添加触觉反馈
+        wx.vibrateShort({
+            type: 'light'
+        });
+        wx.showModal({
+            title: '意见反馈',
+            content: '感谢您使用Dailytools！您的宝贵意见将帮助我们改进产品。请通过以下方式联系我们：\n\n📧 邮箱：support@dailytools.com\n💬 微信群：点击确定加入用户群',
+            confirmText: '加入群聊',
+            cancelText: '稍后再说',
+            success: function (res) {
+                if (res.confirm) {
+                    // 这里可以添加加入微信群的逻辑
+                    wx.showToast({
+                        title: '功能开发中',
+                        icon: 'none'
+                    });
+                }
+            }
+        });
+    },
+    /**
+     * 应用评分
+     */
+    onRateTap: function () {
+        console.log('[Help] 点击应用评分');
+        // 添加触觉反馈
+        wx.vibrateShort({
+            type: 'light'
+        });
+        wx.showModal({
+            title: '给我们评分',
+            content: '如果您觉得Dailytools对您有帮助，请在小程序商店给我们一个好评！您的支持是我们前进的动力。',
+            confirmText: '去评分',
+            cancelText: '稍后再说',
+            success: function (res) {
+                if (res.confirm) {
+                    // 跳转到小程序评分页面
+                    wx.showToast({
+                        title: '谢谢支持！',
+                        icon: 'success'
+                    });
+                    // 这里可以添加跳转到评分页面的逻辑
+                    // 或者引导用户在微信中搜索小程序进行评价
+                }
+            }
+        });
+    },
+    /**
+     * 分享应用
+     */
+    onShareTap: function () {
+        console.log('[Help] 点击分享应用');
+        // 添加触觉反馈
+        wx.vibrateShort({
+            type: 'light'
+        });
+        wx.showActionSheet({
+            itemList: ['分享给朋友', '分享到朋友圈', '复制小程序码'],
+            success: function (res) {
+                switch (res.tapIndex) {
+                    case 0:
+                        // 分享给朋友
+                        wx.showShareMenu({
+                            withShareTicket: true,
+                            menus: ['shareAppMessage', 'shareTimeline']
+                        });
+                        wx.showToast({
+                            title: '请点击右上角分享',
+                            icon: 'none'
+                        });
+                        break;
+                    case 1:
+                        // 分享到朋友圈
+                        wx.showToast({
+                            title: '请点击右上角分享',
+                            icon: 'none'
+                        });
+                        break;
+                    case 2:
+                        // 复制分享文案
+                        var shareText = '推荐一个超实用的小程序【Dailytools】，包含计算器、单位转换、二维码等多种日常工具，简洁好用！';
+                        wx.setClipboardData({
+                            data: shareText,
+                            success: function () {
+                                wx.showToast({
+                                    title: '分享文案已复制',
+                                    icon: 'success'
+                                });
+                            }
+                        });
+                        break;
+                }
+            }
+        });
     }
 });
