@@ -1,45 +1,111 @@
-<!--酒桌骰子游戏页面-->
+<!--3D多骰子游戏页面-->
 <view class="dice-container">
   
-  <!-- 标题区域 -->
+  <!-- 顶部导航区域 -->
   <view class="title-area">
-    <text class="game-title">🎲 酒桌骰子</text>
-    <text class="game-subtitle">点击骰子开始摇骰</text>
+    <text class="game-title">🎲 3D多骰子游戏</text>
+    <text class="game-subtitle">设置骰子数量并开始摇骰</text>
   </view>
 
-  <!-- 骰子显示区域 -->
-  <view class="dice-area">
-    <view class="dice-wrapper">
-      <view class="dice {{isRolling ? 'rolling' : ''}}" bindtap="rollDice">
-        <view class="dice-face">
-          <view class="dots dots-{{diceValue}}">
-            <!-- 动态生成骰子点数 -->
-            <view wx:if="{{diceValue >= 1}}" class="dot dot-1"></view>
-            <view wx:if="{{diceValue >= 2}}" class="dot dot-2"></view>
-            <view wx:if="{{diceValue >= 3}}" class="dot dot-3"></view>
-            <view wx:if="{{diceValue >= 4}}" class="dot dot-4"></view>
-            <view wx:if="{{diceValue >= 5}}" class="dot dot-5"></view>
-            <view wx:if="{{diceValue === 6}}" class="dot dot-6"></view>
+  <!-- 主内容区域 -->
+  <view class="main-content">
+    
+    <!-- 骰子数量设置区域 -->
+    <view class="dice-count-area">
+      <view class="count-label">骰子数量</view>
+      <view class="count-controls">
+        <button class="count-btn" bindtap="adjustDiceCount" data-type="decrease" disabled="{{diceCount <= 1}}">-</button>
+        <input class="count-input" type="number" value="{{diceCount}}" bindinput="setDiceCount" maxlength="2" />
+        <button class="count-btn" bindtap="adjustDiceCount" data-type="increase" disabled="{{diceCount >= 10}}">+</button>
+      </view>
+    </view>
+
+    <!-- 骰子显示区域 -->
+    <view class="dice-area">
+      <view class="dice-grid">
+        <view wx:for="{{diceResults}}" wx:key="id" class="dice-wrapper">
+          <view class="dice-cube {{item.isRolling ? 'rolling' : ''}}" data-id="{{item.id}}">
+            <!-- 骰子的六个面 -->
+            <view class="dice-face front">
+              <view class="dots dots-{{item.value}}">
+                <view wx:if="{{item.value >= 1}}" class="dot dot-1"></view>
+                <view wx:if="{{item.value >= 2}}" class="dot dot-2"></view>
+                <view wx:if="{{item.value >= 3}}" class="dot dot-3"></view>
+                <view wx:if="{{item.value >= 4}}" class="dot dot-4"></view>
+                <view wx:if="{{item.value >= 5}}" class="dot dot-5"></view>
+                <view wx:if="{{item.value === 6}}" class="dot dot-6"></view>
+              </view>
+            </view>
+            <view class="dice-face back">
+              <view class="dots dots-{{7 - item.value}}">
+                <view wx:if="{{7 - item.value >= 1}}" class="dot dot-1"></view>
+                <view wx:if="{{7 - item.value >= 2}}" class="dot dot-2"></view>
+                <view wx:if="{{7 - item.value >= 3}}" class="dot dot-3"></view>
+                <view wx:if="{{7 - item.value >= 4}}" class="dot dot-4"></view>
+                <view wx:if="{{7 - item.value >= 5}}" class="dot dot-5"></view>
+                <view wx:if="{{7 - item.value === 6}}" class="dot dot-6"></view>
+              </view>
+            </view>
+            <view class="dice-face right">
+              <view class="dots dots-{{item.value > 3 ? item.value - 3 : item.value + 3}}">
+                <view wx:if="{{(item.value > 3 ? item.value - 3 : item.value + 3) >= 1}}" class="dot dot-1"></view>
+                <view wx:if="{{(item.value > 3 ? item.value - 3 : item.value + 3) >= 2}}" class="dot dot-2"></view>
+                <view wx:if="{{(item.value > 3 ? item.value - 3 : item.value + 3) >= 3}}" class="dot dot-3"></view>
+                <view wx:if="{{(item.value > 3 ? item.value - 3 : item.value + 3) >= 4}}" class="dot dot-4"></view>
+                <view wx:if="{{(item.value > 3 ? item.value - 3 : item.value + 3) >= 5}}" class="dot dot-5"></view>
+                <view wx:if="{{(item.value > 3 ? item.value - 3 : item.value + 3) === 6}}" class="dot dot-6"></view>
+              </view>
+            </view>
+            <view class="dice-face left">
+              <view class="dots dots-{{item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)}}">
+                <view wx:if="{{(item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)) >= 1}}" class="dot dot-1"></view>
+                <view wx:if="{{(item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)) >= 2}}" class="dot dot-2"></view>
+                <view wx:if="{{(item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)) >= 3}}" class="dot dot-3"></view>
+                <view wx:if="{{(item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)) >= 4}}" class="dot dot-4"></view>
+                <view wx:if="{{(item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)) >= 5}}" class="dot dot-5"></view>
+                <view wx:if="{{(item.value > 3 ? 7 - (item.value - 3) : 7 - (item.value + 3)) === 6}}" class="dot dot-6"></view>
+              </view>
+            </view>
+            <view class="dice-face top">
+              <view class="dots dots-{{item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4}}">
+                <view wx:if="{{(item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4) >= 1}}" class="dot dot-1"></view>
+                <view wx:if="{{(item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4) >= 2}}" class="dot dot-2"></view>
+                <view wx:if="{{(item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4) >= 3}}" class="dot dot-3"></view>
+                <view wx:if="{{(item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4) >= 4}}" class="dot dot-4"></view>
+                <view wx:if="{{(item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4) >= 5}}" class="dot dot-5"></view>
+                <view wx:if="{{(item.value === 1 ? 2 : item.value === 2 ? 1 : item.value === 3 ? 5 : item.value === 4 ? 6 : item.value === 5 ? 3 : 4) === 6}}" class="dot dot-6"></view>
+              </view>
+            </view>
+            <view class="dice-face bottom">
+              <view class="dots dots-{{item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3}}">
+                <view wx:if="{{(item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3) >= 1}}" class="dot dot-1"></view>
+                <view wx:if="{{(item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3) >= 2}}" class="dot dot-2"></view>
+                <view wx:if="{{(item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3) >= 3}}" class="dot dot-3"></view>
+                <view wx:if="{{(item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3) >= 4}}" class="dot dot-4"></view>
+                <view wx:if="{{(item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3) >= 5}}" class="dot dot-5"></view>
+                <view wx:if="{{(item.value === 1 ? 5 : item.value === 2 ? 6 : item.value === 3 ? 2 : item.value === 4 ? 1 : item.value === 5 ? 4 : 3) === 6}}" class="dot dot-6"></view>
+              </view>
+            </view>
           </view>
         </view>
       </view>
     </view>
-  </view>
 
-  <!-- 结果显示 -->
-  <view class="result-area">
-    <view class="result-display">
-      <text class="result-number">{{diceValue}}</text>
-      <text class="result-text">点</text>
+    <!-- 摇骰子按钮 -->
+    <view class="action-area">
+      <button class="roll-btn {{isRolling ? 'rolling' : ''}}" bindtap="rollDice" disabled="{{isRolling}}">
+        <text class="roll-text">{{isRolling ? '摇骰中...' : '摇骰子'}}</text>
+      </button>
     </view>
-    <view wx:if="{{rollCount > 0}}" class="roll-count">
-      <text>已摇 {{rollCount}} 次</text>
-    </view>
-  </view>
 
-  <!-- 操作提示 -->
-  <view class="tips-area">
-    <text class="tips-text">{{isRolling ? '摇骰中...' : '点击骰子开始游戏'}}</text>
+    <!-- 结果显示 -->
+    <view class="result-area">
+      <view class="game-stats">
+        <text class="roll-count">已摇 {{rollCount}} 次</text>
+        <button class="reset-btn" bindtap="resetGame">重置</button>
+      </view>
+    </view>
+    
   </view>
 
 </view> 

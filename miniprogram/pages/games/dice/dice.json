@@ -1,9 +1,10 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "酒桌骰子",
-  "navigationBarBackgroundColor": "#ff6b6b",
+  "navigationBarTitleText": "3D多骰子游戏",
+  "navigationBarBackgroundColor": "#667eea",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#f8f9fa",
+  "backgroundColor": "#667eea",
+  "backgroundTextStyle": "light",
   "enablePullDownRefresh": false,
   "disableScroll": false
 } 

@@ -1,241 +1,662 @@
-/* 酒桌骰子游戏页面样式 */
+/* 3D多骰子游戏页面样式 */
 .dice-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40rpx 30rpx;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  box-sizing: border-box;
+  perspective: 1000px;
+  position: relative;
 }
 
-/* 标题区域 */
+/* 顶部导航区域 */
 .title-area {
+  background: linear-gradient(180deg, #667eea 0%, rgba(102, 126, 234, 0.95) 100%);
+  backdrop-filter: blur(20rpx);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+  padding: 20rpx 40rpx 40rpx;
   text-align: center;
-  margin-bottom: 80rpx;
+  /* 移除 sticky 定位，让它与导航栏自然连接 */
+  margin-top: 0;
+  z-index: 100;
 }
 
 .game-title {
-  font-size: 48rpx;
-  font-weight: bold;
+  font-size: 56rpx;
+  font-weight: 700;
   color: #ffffff;
-  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
   display: block;
-  margin-bottom: 20rpx;
+  margin-bottom: 16rpx;
+  letter-spacing: 2rpx;
 }
 
 .game-subtitle {
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   display: block;
+  font-weight: 400;
 }
 
-/* 骰子区域 */
-.dice-area {
+/* 主内容区域 */
+.main-content {
+  flex: 1;
+  padding: 40rpx 30rpx;
+  padding-bottom: 320rpx; /* 为固定的结果区域留出空间 */
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 40rpx;
+}
+
+/* 骰子数量设置区域 */
+.dice-count-area {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20rpx);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+.count-label {
+  font-size: 32rpx;
+  color: #ffffff;
+  margin-bottom: 24rpx;
+  text-align: center;
+  font-weight: 600;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.2);
+}
+
+.count-controls {
+  display: flex;
   align-items: center;
-  margin-bottom: 60rpx;
+  justify-content: center;
+  gap: 24rpx;
+  height: auto;
+  min-height: 88rpx;
 }
 
+.count-btn {
+  width: 88rpx !important;
+  height: 88rpx !important;
+  min-width: 88rpx !important;
+  min-height: 88rpx !important;
+  max-width: 88rpx !important;
+  max-height: 88rpx !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%) !important;
+  color: #667eea !important;
+  font-size: 40rpx !important;
+  font-weight: bold !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+  box-shadow: 
+    0 6rpx 20rpx rgba(0, 0, 0, 0.15),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  flex-shrink: 0 !important;
+  outline: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.count-btn::after {
+  display: none !important;
+  border: none !important;
+  content: none !important;
+}
+
+.count-btn::before {
+  display: none !important;
+  border: none !important;
+  content: none !important;
+}
+
+/* 针对微信小程序button组件的特殊重置 */
+.count-btn[type="default"] {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%) !important;
+}
+
+.count-btn[disabled] {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%) !important;
+}
+
+/* 强制移除微信button的默认样式 */
+button.count-btn {
+  font-family: inherit !important;
+  text-decoration: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.count-btn:active {
+  transform: translateY(2rpx) scale(0.96);
+  box-shadow: 
+    0 3rpx 12rpx rgba(0, 0, 0, 0.2),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
+}
+
+.count-btn[disabled] {
+  opacity: 0.4;
+  transform: none !important;
+}
+
+.count-input {
+  width: 140rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border-radius: 20rpx;
+  text-align: center;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #667eea;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4rpx 16rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 骰子显示区域 */
+.dice-area {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20rpx);
+  border-radius: 24rpx;
+  padding: 40rpx 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 8rpx 32rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.1);
+  min-height: 280rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32rpx;
+  align-items: center;
+  width: 100%;
+}
+
+/* 3D骰子容器 */
 .dice-wrapper {
-  position: relative;
-  perspective: 1000rpx;
+  perspective: 800px;
+  margin: 8rpx;
 }
 
-/* 骰子样式 */
-.dice {
-  width: 200rpx;
-  height: 200rpx;
-  background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
-  border-radius: 30rpx;
-  box-shadow: 
-    0 20rpx 40rpx rgba(0, 0, 0, 0.3),
-    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.8),
-    inset 0 -2rpx 4rpx rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* 3D骰子立方体 */
+.dice-cube {
+  position: relative;
+  width: 120rpx;
+  height: 120rpx;
   transform-style: preserve-3d;
-  position: relative;
+  transition: transform 0.2s ease-out;
+  animation: dice-idle 4s ease-in-out infinite;
+  filter: drop-shadow(0 10rpx 20rpx rgba(0, 0, 0, 0.3));
 }
 
-.dice:hover {
-  transform: scale(1.05) rotateX(5deg) rotateY(5deg);
-  box-shadow: 
-    0 25rpx 50rpx rgba(0, 0, 0, 0.4),
-    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.9),
-    inset 0 -2rpx 4rpx rgba(0, 0, 0, 0.1);
+/* 骰子静态悬浮动画 */
+@keyframes dice-idle {
+  0%, 100% { 
+    transform: rotateX(0deg) rotateY(0deg) translateY(0rpx); 
+  }
+  50% { 
+    transform: rotateX(8deg) rotateY(8deg) translateY(-12rpx); 
+  }
 }
 
 /* 摇骰子动画 */
-.dice.rolling {
-  animation: rollDice 1s ease-in-out;
+.dice-cube.rolling {
+  animation: dice-roll 2s linear infinite;
+  filter: drop-shadow(0 15rpx 30rpx rgba(0, 0, 0, 0.4));
 }
 
-@keyframes rollDice {
-  0% {
-    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+@keyframes dice-roll {
+  0% { 
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(0rpx); 
   }
-  25% {
-    transform: rotateX(180deg) rotateY(90deg) rotateZ(45deg) scale(1.1);
+  25% { 
+    transform: rotateX(90deg) rotateY(90deg) rotateZ(45deg) translateY(-30rpx); 
   }
-  50% {
-    transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg) scale(1.2);
+  50% { 
+    transform: rotateX(180deg) rotateY(180deg) rotateZ(90deg) translateY(-40rpx); 
   }
-  75% {
-    transform: rotateX(540deg) rotateY(270deg) rotateZ(135deg) scale(1.1);
+  75% { 
+    transform: rotateX(270deg) rotateY(270deg) rotateZ(135deg) translateY(-30rpx); 
   }
-  100% {
-    transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg) scale(1);
+  100% { 
+    transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg) translateY(0rpx); 
   }
 }
 
+/* 骰子的六个面 */
 .dice-face {
+  position: absolute;
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+  border: 3rpx solid #dee2e6;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 2rpx 8rpx rgba(255, 255, 255, 0.9),
+    inset 0 -2rpx 4rpx rgba(0, 0, 0, 0.1),
+    0 0 0 1rpx rgba(255, 255, 255, 0.5);
+}
+
+/* 前面 */
+.dice-face.front {
+  transform: translateZ(60rpx);
+}
+
+/* 后面 */
+.dice-face.back {
+  transform: rotateY(180deg) translateZ(60rpx);
+}
+
+/* 右面 */
+.dice-face.right {
+  transform: rotateY(90deg) translateZ(60rpx);
+}
+
+/* 左面 */
+.dice-face.left {
+  transform: rotateY(-90deg) translateZ(60rpx);
+}
+
+/* 上面 */
+.dice-face.top {
+  transform: rotateX(90deg) translateZ(60rpx);
+}
+
+/* 下面 */
+.dice-face.bottom {
+  transform: rotateX(-90deg) translateZ(60rpx);
+}
+
+/* 骰子点数容器 */
+.dots {
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 30rpx;
-}
-
-/* 骰子点数样式 */
-.dots {
-  width: 140rpx;
-  height: 140rpx;
   display: grid;
-  padding: 20rpx;
-  position: relative;
+  padding: 16rpx;
+  box-sizing: border-box;
 }
 
-.dot {
-  width: 24rpx;
-  height: 24rpx;
-  background: #333;
-  border-radius: 50%;
-  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
-}
-
-/* 1点 */
+/* 不同点数的布局 */
 .dots-1 {
-  grid-template: 1fr / 1fr;
+  grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
   place-items: center;
 }
 
-/* 2点 */
 .dots-2 {
-  grid-template: 1fr 1fr / 1fr 1fr;
+  grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
 }
-.dots-2 .dot-1 { grid-area: 1 / 1; }
-.dots-2 .dot-2 { grid-area: 2 / 2; }
 
-/* 3点 */
 .dots-3 {
   grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
 }
-.dots-3 .dot-1 { grid-area: 1 / 1; }
-.dots-3 .dot-2 { grid-area: 2 / 2; }
-.dots-3 .dot-3 { grid-area: 3 / 3; }
 
-/* 4点 */
 .dots-4 {
   grid-template: 1fr 1fr / 1fr 1fr;
+  gap: 12rpx;
 }
-.dots-4 .dot-1 { grid-area: 1 / 1; }
-.dots-4 .dot-2 { grid-area: 1 / 2; }
-.dots-4 .dot-3 { grid-area: 2 / 1; }
-.dots-4 .dot-4 { grid-area: 2 / 2; }
 
-/* 5点 */
 .dots-5 {
   grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
 }
-.dots-5 .dot-1 { grid-area: 1 / 1; }
-.dots-5 .dot-2 { grid-area: 1 / 3; }
-.dots-5 .dot-3 { grid-area: 2 / 2; }
-.dots-5 .dot-4 { grid-area: 3 / 1; }
-.dots-5 .dot-5 { grid-area: 3 / 3; }
 
-/* 6点 */
 .dots-6 {
   grid-template: 1fr 1fr 1fr / 1fr 1fr;
+  gap: 6rpx;
 }
-.dots-6 .dot-1 { grid-area: 1 / 1; }
-.dots-6 .dot-2 { grid-area: 1 / 2; }
-.dots-6 .dot-3 { grid-area: 2 / 1; }
-.dots-6 .dot-4 { grid-area: 2 / 2; }
-.dots-6 .dot-5 { grid-area: 3 / 1; }
-.dots-6 .dot-6 { grid-area: 3 / 2; }
 
-/* 结果显示区域 */
+/* 骰子点 */
+.dot {
+  width: 18rpx;
+  height: 18rpx;
+  background: radial-gradient(circle, #343a40 0%, #495057 100%);
+  border-radius: 50%;
+  box-shadow: 
+    0 2rpx 4rpx rgba(0, 0, 0, 0.4),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 1点布局 */
+.dots-1 .dot-1 {
+  grid-area: 2 / 2;
+}
+
+/* 2点布局 */
+.dots-2 .dot-1 {
+  grid-area: 1 / 1;
+}
+.dots-2 .dot-2 {
+  grid-area: 3 / 3;
+}
+
+/* 3点布局 */
+.dots-3 .dot-1 {
+  grid-area: 1 / 1;
+}
+.dots-3 .dot-2 {
+  grid-area: 2 / 2;
+}
+.dots-3 .dot-3 {
+  grid-area: 3 / 3;
+}
+
+/* 4点布局 */
+.dots-4 .dot-1 {
+  grid-area: 1 / 1;
+}
+.dots-4 .dot-2 {
+  grid-area: 1 / 2;
+}
+.dots-4 .dot-3 {
+  grid-area: 2 / 1;
+}
+.dots-4 .dot-4 {
+  grid-area: 2 / 2;
+}
+
+/* 5点布局 */
+.dots-5 .dot-1 {
+  grid-area: 1 / 1;
+}
+.dots-5 .dot-2 {
+  grid-area: 1 / 3;
+}
+.dots-5 .dot-3 {
+  grid-area: 2 / 2;
+}
+.dots-5 .dot-4 {
+  grid-area: 3 / 1;
+}
+.dots-5 .dot-5 {
+  grid-area: 3 / 3;
+}
+
+/* 6点布局 */
+.dots-6 .dot-1 {
+  grid-area: 1 / 1;
+}
+.dots-6 .dot-2 {
+  grid-area: 1 / 2;
+}
+.dots-6 .dot-3 {
+  grid-area: 2 / 1;
+}
+.dots-6 .dot-4 {
+  grid-area: 2 / 2;
+}
+.dots-6 .dot-5 {
+  grid-area: 3 / 1;
+}
+.dots-6 .dot-6 {
+  grid-area: 3 / 2;
+}
+
+/* 摇骰子按钮区域 */
+.action-area {
+  display: flex;
+  justify-content: center;
+  padding: 0 20rpx;
+}
+
+.roll-btn {
+  width: 320rpx;
+  height: 108rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  border-radius: 54rpx;
+  border: none;
+  box-shadow: 
+    0 12rpx 40rpx rgba(102, 126, 234, 0.4),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1rpx rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+  overflow: hidden;
+}
+
+.roll-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.roll-btn:active::before {
+  left: 100%;
+}
+
+.roll-btn:active {
+  transform: translateY(6rpx) scale(0.98);
+  box-shadow: 
+    0 6rpx 20rpx rgba(102, 126, 234, 0.6),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.3),
+    0 0 0 1rpx rgba(255, 255, 255, 0.1);
+}
+
+.roll-btn.rolling {
+  animation: button-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes button-pulse {
+  0% { 
+    transform: scale(1);
+    box-shadow: 0 12rpx 40rpx rgba(102, 126, 234, 0.4);
+  }
+  100% { 
+    transform: scale(1.05);
+    box-shadow: 0 16rpx 50rpx rgba(102, 126, 234, 0.6);
+  }
+}
+
+.roll-btn[disabled] {
+  opacity: 0.6;
+  transform: none !important;
+  animation: none;
+}
+
+.roll-text {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  letter-spacing: 1rpx;
+}
+
+/* 结果显示区域 - 固定在底部 */
 .result-area {
-  text-align: center;
-  margin-bottom: 40rpx;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 50%, rgba(240, 147, 251, 0.95) 100%);
+  backdrop-filter: blur(20rpx);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+  padding: 30rpx;
+  z-index: 200;
+  box-shadow: 0 -8rpx 32rpx rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
 .result-display {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10rpx);
-  border-radius: 20rpx;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20rpx);
+  border-radius: 24rpx;
+  padding: 36rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  text-align: center;
+  box-shadow: 
+    0 8rpx 32rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
+}
+
+.total-points {
+  margin-bottom: 28rpx;
 }
 
 .result-number {
-  font-size: 72rpx;
-  font-weight: bold;
+  font-size: 88rpx;
+  font-weight: 800;
   color: #ffffff;
-  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
-  display: inline-block;
-  margin-right: 10rpx;
+  text-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.3);
+  display: block;
+  line-height: 1;
+  letter-spacing: -2rpx;
 }
 
 .result-text {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+  margin-top: 12rpx;
+  font-weight: 500;
+}
+
+.dice-values {
+  display: flex;
+  justify-content: center;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.dice-value {
+  width: 68rpx;
+  height: 68rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+  color: #667eea;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 36rpx;
-  color: rgba(255, 255, 255, 0.9);
-  display: inline-block;
+  font-weight: bold;
+  box-shadow: 
+    0 6rpx 16rpx rgba(0, 0, 0, 0.15),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.game-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20rpx);
+  border-radius: 20rpx;
+  padding: 24rpx 32rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 4rpx 16rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.1);
 }
 
 .roll-count {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 24rpx;
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
 }
 
-/* 操作提示 */
-.tips-area {
-  text-align: center;
-  margin-top: 40rpx;
-}
-
-.tips-text {
+.reset-btn {
+  padding: 16rpx 32rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.8);
-  padding: 20rpx 40rpx;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 40rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5rpx);
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4rpx 12rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
+}
+
+.reset-btn:active {
+  transform: scale(0.96);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
 }
 
 /* 响应式设计 */
-@media (max-width: 400px) {
-  .dice {
-    width: 160rpx;
-    height: 160rpx;
+@media screen and (max-width: 400px) {
+  .dice-cube {
+    width: 100rpx;
+    height: 100rpx;
   }
   
-  .dots {
-    width: 120rpx;
-    height: 120rpx;
+  .dice-face {
+    width: 100rpx;
+    height: 100rpx;
   }
   
-  .dot {
-    width: 20rpx;
-    height: 20rpx;
+  .dice-face.front,
+  .dice-face.back {
+    transform: translateZ(50rpx);
+  }
+  
+  .dice-face.right {
+    transform: rotateY(90deg) translateZ(50rpx);
+  }
+  
+  .dice-face.left {
+    transform: rotateY(-90deg) translateZ(50rpx);
+  }
+  
+  .dice-face.top {
+    transform: rotateX(90deg) translateZ(50rpx);
+  }
+  
+  .dice-face.bottom {
+    transform: rotateX(-90deg) translateZ(50rpx);
+  }
+  
+  .dice-grid {
+    gap: 24rpx;
   }
   
   .result-number {
-    font-size: 60rpx;
+    font-size: 72rpx;
+  }
+  
+  .roll-btn {
+    width: 280rpx;
+    height: 96rpx;
+  }
+  
+  .roll-text {
+    font-size: 32rpx;
+  }
+  
+  /* 小屏幕下调整主内容底部间距 */
+  .main-content {
+    padding-bottom: 340rpx;
   }
 } 
